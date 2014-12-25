@@ -41,6 +41,10 @@
  */
 package com.junichi11.netbeans.modules.github.issues.options;
 
+import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
+import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.Preferences;
 import org.openide.util.NbPreferences;
 
@@ -52,8 +56,6 @@ public final class GitHubIssuesOptions {
 
     public static final String SUB_PATH = "Team/GitHubIssues"; // NOI18N
     private static final String PREFERENCES_PATH = "github.issues"; // NOI18N
-    private static final String QUERY_ASSIGNED_TO_ME = "query.assigned.to.me"; // NOI18N
-    private static final String QUERY_CREATED_BY_ME = "query.created.by.me"; // NOI18N
     private static final String QUERY_OPEN = "query.open"; // NOI18N
     private static final GitHubIssuesOptions INSTANCE = new GitHubIssuesOptions();
 
@@ -73,19 +75,32 @@ public final class GitHubIssuesOptions {
     }
 
     public void setAssignedToMeQuery(boolean isEnabled) {
-        getPreferences().putBoolean(QUERY_ASSIGNED_TO_ME, isEnabled);
+        getPreferences().putBoolean(Type.ASSIGNED_TO_ME.getOptionKey(), isEnabled);
     }
 
     public boolean isAssignedToMeQuery() {
-        return getPreferences().getBoolean(QUERY_ASSIGNED_TO_ME, false);
+        return isDefaultQuery(Type.ASSIGNED_TO_ME);
     }
 
     public void setCreatedByMeQuery(boolean isEnabled) {
-        getPreferences().putBoolean(QUERY_CREATED_BY_ME, isEnabled);
+        getPreferences().putBoolean(Type.CREATED_BY_ME.getOptionKey(), isEnabled);
     }
 
     public boolean isCreatedByMeQuery() {
-        return getPreferences().getBoolean(QUERY_CREATED_BY_ME, false);
+        return isDefaultQuery(Type.CREATED_BY_ME);
+    }
+
+    private boolean isDefaultQuery(Type type) {
+        boolean defaultValue = false;
+        return getPreferences().getBoolean(type.getOptionKey(), defaultValue);
+    }
+
+    public Map<GitHubDefaultQueries.Type, Boolean> getDefaultQueryOptions() {
+        Map<GitHubDefaultQueries.Type, Boolean> map = new HashMap<>();
+        for (GitHubDefaultQueries.Type type : GitHubDefaultQueries.Type.values()) {
+            map.put(type, isDefaultQuery(type));
+        }
+        return map;
     }
 
     private Preferences getPreferences() {
