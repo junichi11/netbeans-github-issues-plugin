@@ -39,74 +39,36 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.github.issues.options;
+package com.junichi11.netbeans.modules.github.issues.query;
 
-import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
-import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries.Type;
-import java.util.HashMap;
+import com.junichi11.netbeans.modules.github.issues.issue.GetIssuesParams;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import java.util.Map;
-import java.util.prefs.Preferences;
-import org.openide.util.NbPreferences;
+import org.openide.util.NbBundle;
 
-/**
- *
- * @author junichi11
- */
-public final class GitHubIssuesOptions {
+public class GitHubOpenQuery extends GitHubDefaultQuery {
 
-    public static final String SUB_PATH = "Team/GitHubIssues"; // NOI18N
-    private static final String PREFERENCES_PATH = "github.issues"; // NOI18N
-    private static final GitHubIssuesOptions INSTANCE = new GitHubIssuesOptions();
-
-    private GitHubIssuesOptions() {
+    public GitHubOpenQuery(GitHubRepository repository) {
+        super(repository);
     }
 
-    public static GitHubIssuesOptions getInstance() {
-        return INSTANCE;
+    private GitHubOpenQuery(GitHubRepository repository, String name) {
+        super(repository, name);
     }
 
-    public void setOpenQuery(boolean isEnabled) {
-        getPreferences().putBoolean(Type.OPEN.getOptionKey(), isEnabled);
+    @Override
+    @NbBundle.Messages({
+        "GitHubOpenQuery.displayName=Open"
+    })
+    public String getDisplayName() {
+        return Bundle.GitHubOpenQuery_displayName();
     }
 
-    public boolean isOpenQuery() {
-        return isDefaultQuery(Type.OPEN);
-    }
-
-    public void setAssignedToMeQuery(boolean isEnabled) {
-        getPreferences().putBoolean(Type.ASSIGNED_TO_ME.getOptionKey(), isEnabled);
-    }
-
-    public boolean isAssignedToMeQuery() {
-        return isDefaultQuery(Type.ASSIGNED_TO_ME);
-    }
-
-    public void setCreatedByMeQuery(boolean isEnabled) {
-        getPreferences().putBoolean(Type.CREATED_BY_ME.getOptionKey(), isEnabled);
-    }
-
-    public boolean isCreatedByMeQuery() {
-        return isDefaultQuery(Type.CREATED_BY_ME);
-    }
-
-    private boolean isDefaultQuery(Type type) {
-        boolean defaultValue = false;
-        if (type == Type.OPEN) {
-            defaultValue = true;
-        }
-        return getPreferences().getBoolean(type.getOptionKey(), defaultValue);
-    }
-
-    public Map<GitHubDefaultQueries.Type, Boolean> getDefaultQueryOptions() {
-        Map<GitHubDefaultQueries.Type, Boolean> map = new HashMap<>();
-        for (GitHubDefaultQueries.Type type : GitHubDefaultQueries.Type.values()) {
-            map.put(type, isDefaultQuery(type));
-        }
-        return map;
-    }
-
-    private Preferences getPreferences() {
-        return NbPreferences.forModule(GitHubIssuesOptions.class).node(PREFERENCES_PATH);
+    @Override
+    protected Map<String, String> getFilter() {
+        GetIssuesParams issuesParams = new GetIssuesParams()
+                .state(GetIssuesParams.State.OPEN);
+        return issuesParams.toFilterMap();
     }
 
 }

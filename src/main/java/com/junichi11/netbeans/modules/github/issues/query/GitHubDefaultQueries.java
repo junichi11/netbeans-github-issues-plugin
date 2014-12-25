@@ -58,6 +58,7 @@ public final class GitHubDefaultQueries {
     public enum Type {
 
         // must not change option key name
+        OPEN("query.open"), // NOI18N
         ASSIGNED_TO_ME("query.assigned.to.me"), // NOI18N
         CREATED_BY_ME("query.created.by.me"); // NOI18N
         private final String optionKey;
@@ -110,6 +111,9 @@ public final class GitHubDefaultQueries {
         GitHubQuery query = defaultQueries.get(type);
         if (query == null) {
             switch (type) {
+                case OPEN:
+                    query = new GitHubOpenQuery(repository);
+                    break;
                 case ASSIGNED_TO_ME:
                     query = new GitHubAssignedToMeQuery(repository);
                     break;
