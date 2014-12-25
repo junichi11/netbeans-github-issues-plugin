@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.repository;
 
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
+import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
@@ -82,6 +83,7 @@ public class GitHubRepositoryProvider implements RepositoryProvider<GitHubReposi
     public void removed(GitHubRepository repository) {
         repository.removed();
         GitHubRepositoryManager.getInstance().remove(repository);
+        GitHubDefaultQueries.remove(repository);
     }
 
     @Override

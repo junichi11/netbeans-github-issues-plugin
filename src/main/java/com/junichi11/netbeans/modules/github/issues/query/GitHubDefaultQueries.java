@@ -42,9 +42,12 @@
 package com.junichi11.netbeans.modules.github.issues.query;
 
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NonNull;
 
 /**
  *
@@ -68,26 +71,63 @@ public final class GitHubDefaultQueries {
         }
 
     }
+
+    private static final Map<GitHubRepository, GitHubDefaultQueries> DEFAULT_QUERIES = Collections.synchronizedMap(new HashMap<GitHubRepository, GitHubDefaultQueries>());
     private static final Logger LOGGER = Logger.getLogger(GitHubDefaultQueries.class.getName());
+    private final Map<Type, GitHubQuery> defaultQueries = new HashMap<>();
 
     private GitHubDefaultQueries() {
     }
 
-    @CheckForNull
-    public static GitHubQuery create(GitHubRepository repository, Type type) {
-        switch (type) {
-            case ASSIGNED_TO_ME:
-                return new GitHubAssignedToMeQuery(repository);
-            case CREATED_BY_ME:
-                return new GitHubCreatedByMeQuery(repository);
-            default:
-                LOGGER.log(Level.WARNING, "The query type is not supported!"); // NOI18N
-                return new GitHubDefaultQuery(repository) {
-                };
+    private static GitHubDefaultQueries create(GitHubRepository repository) {
+        GitHubDefaultQueries gitHubDefaultQueries = DEFAULT_QUERIES.get(repository);
+        if (gitHubDefaultQueries == null) {
+            gitHubDefaultQueries = new GitHubDefaultQueries();
+            DEFAULT_QUERIES.put(repository, gitHubDefaultQueries);
         }
+        return gitHubDefaultQueries;
+    }
+
+    public static GitHubQuery create(GitHubRepository repository, Type type) {
+        GitHubDefaultQueries gitHubDefaultQueries = create(repository);
+        return gitHubDefaultQueries.getQuery(repository, type);
     }
 
     public static boolean isDefaultQuery(GitHubQuery query) {
         return query instanceof GitHubDefaultQuery;
     }
+
+    public static void remove(GitHubRepository repository) {
+        GitHubDefaultQueries gitHubDefaultQueries = create(repository);
+        if (gitHubDefaultQueries == null) {
+            return;
+        }
+        gitHubDefaultQueries.clear();
+        DEFAULT_QUERIES.remove(repository);
+    }
+
+    private GitHubQuery getQuery(@NonNull GitHubRepository repository, @NonNull Type type) {
+        GitHubQuery query = defaultQueries.get(type);
+        if (query == null) {
+            switch (type) {
+                case ASSIGNED_TO_ME:
+                    query = new GitHubAssignedToMeQuery(repository);
+                    break;
+                case CREATED_BY_ME:
+                    query = new GitHubCreatedByMeQuery(repository);
+                    break;
+                default:
+                    LOGGER.log(Level.WARNING, "The query type({0}) is not supported!", type.name()); // NOI18N
+                    return new GitHubDefaultQuery(repository) {
+                    };
+            }
+            defaultQueries.put(type, query);
+        }
+        return query;
+    }
+
+    private void clear() {
+        defaultQueries.clear();
+    }
+
 }
