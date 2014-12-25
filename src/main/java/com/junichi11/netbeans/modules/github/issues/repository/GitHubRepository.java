@@ -48,6 +48,7 @@ import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchService;
 import com.junichi11.netbeans.modules.github.issues.issue.CreateIssueParams;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries.Type;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
@@ -674,24 +675,31 @@ public class GitHubRepository {
         addQuery(query);
         fireQueryListChanged();
     }
-// TODO add options?
-//    public void optionsChanged() {
-//        GitHubOptions options = GitHubOptions.getInstance();
-//        setDefaultQuery(getAssignedToMeQuery(), options.isAssignedToMeQuery());
-//        setDefaultQuery(getCreatedByMeQuery(), options.isCreatedByMeQuery());
-//        fireQueryListChanged();
-//    }
-//    private void setDefaultQuery(GitHubQuery query, boolean isEnabled) {
-//        if (isEnabled) {
-//            if (!queries.contains(query)) {
-//                queries.add(query);
-//            }
-//        } else {
-//            if (queries.contains(query)) {
-//                queries.remove(query);
-//            }
-//        }
-//    }
+
+    // options
+    public void optionsChanged() {
+        GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
+        Map<Type, Boolean> defaultQueryOptions = options.getDefaultQueryOptions();
+        for (Map.Entry<Type, Boolean> entrySet : defaultQueryOptions.entrySet()) {
+            Type type = entrySet.getKey();
+            Boolean isEnabled = entrySet.getValue();
+            GitHubQuery query = GitHubDefaultQueries.create(this, type);
+            setDefaultQuery(query, isEnabled);
+        }
+        fireQueryListChanged();
+    }
+
+    private void setDefaultQuery(GitHubQuery query, boolean isEnabled) {
+        if (isEnabled) {
+            if (!queries.contains(query)) {
+                queries.add(query);
+            }
+        } else {
+            if (queries.contains(query)) {
+                queries.remove(query);
+            }
+        }
+    }
 
     void removed() {
         // remove all queries

@@ -81,6 +81,7 @@ public class GitHubRepositoryProvider implements RepositoryProvider<GitHubReposi
     @Override
     public void removed(GitHubRepository repository) {
         repository.removed();
+        GitHubRepositoryManager.getInstance().remove(repository);
     }
 
     @Override

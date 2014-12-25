@@ -41,6 +41,8 @@
  */
 package com.junichi11.netbeans.modules.github.issues.options;
 
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepositoryManager;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;
@@ -79,6 +81,10 @@ public final class GitHubIssuesOptionsPanelController extends OptionsPanelContro
             @Override
             public void run() {
                 getPanel().store();
+                GitHubRepositoryManager manager = GitHubRepositoryManager.getInstance();
+                for (GitHubRepository repository : manager.getRepositories()) {
+                    repository.optionsChanged();
+                }
                 changed = false;
             }
         });

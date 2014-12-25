@@ -39,59 +39,49 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.github.issues;
+package com.junichi11.netbeans.modules.github.issues.repository;
 
-import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
-import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
-import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
-import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepositoryManager;
-import org.netbeans.modules.bugtracking.api.Repository;
-import org.netbeans.modules.bugtracking.spi.BugtrackingConnector;
-import org.netbeans.modules.bugtracking.spi.BugtrackingSupport;
-import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
-import org.openide.util.NbBundle;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author junichi11
  */
-@BugtrackingConnector.Registration(
-        id = GitHubIssuesConnector.ID,
-        displayName = "#LBL_DisplayName",
-        tooltip = "#LBL_Tooltip",
-        iconPath = "com/junichi11/netbeans/modules/github/issues/resources/icon_16.png"
-)
-@NbBundle.Messages({
-    "LBL_DisplayName=GitHub Issues",
-    "LBL_Tooltip=GitHub Issues"
-})
-public class GitHubIssuesConnector implements BugtrackingConnector {
+public class GitHubRepositoryManager {
 
-    public static final String ID = "com.junichi11.netbeans.modules.github.issues"; // NOI18N
+    private static final GitHubRepositoryManager INSTANCE = new GitHubRepositoryManager();
+    private static final Map<String, GitHubRepository> REPOSITORIES = Collections.synchronizedMap(new HashMap<String, GitHubRepository>());
 
-    @Override
-    public Repository createRepository() {
-        GitHubRepository repository = new GitHubRepository();
-        return createRepository(repository);
+    private GitHubRepositoryManager() {
     }
 
-    @Override
-    public Repository createRepository(RepositoryInfo info) {
-        GitHubRepository repository = new GitHubRepository(info);
-        return createRepository(repository);
+    public static final GitHubRepositoryManager getInstance() {
+        return INSTANCE;
     }
 
-    private Repository createRepository(GitHubRepository repository) {
-        GitHubRepositoryManager.getInstance().add(repository);
-        GitHubIssues githubIssues = GitHubIssues.getInstance();
-        BugtrackingSupport<GitHubRepository, GitHubQuery, GitHubIssue> bugtrackingSupport = githubIssues.getBugtrackingSupport();
-        return bugtrackingSupport.createRepository(
-                repository,
-                githubIssues.getIssueStatusProvider(),
-                githubIssues.getIssueScheduleProvider(),
-                githubIssues.getIssuePriorityProvider(),
-                githubIssues.getIssueFinder()
-        );
+    public synchronized Collection<GitHubRepository> getRepositories() {
+        return REPOSITORIES.values();
+    }
+
+    public synchronized GitHubRepository getRepository(String repositoryId) {
+        return REPOSITORIES.get(repositoryId);
+    }
+
+    public synchronized void add(GitHubRepository repository) {
+        if (repository == null) {
+            return;
+        }
+        REPOSITORIES.put(repository.getID(), repository);
+    }
+
+    synchronized void remove(GitHubRepository repository) {
+        if (repository == null) {
+            return;
+        }
+        REPOSITORIES.remove(repository.getID());
     }
 
 }
