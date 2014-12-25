@@ -54,8 +54,19 @@ public final class GitHubDefaultQueries {
 
     public enum Type {
 
-        ASSIGNED_TO_ME,
-        CREATED_BY_ME,
+        // must not change option key name
+        ASSIGNED_TO_ME("query.assigned.to.me"), // NOI18N
+        CREATED_BY_ME("query.created.by.me"); // NOI18N
+        private final String optionKey;
+
+        private Type(String optionKey) {
+            this.optionKey = optionKey;
+        }
+
+        public String getOptionKey() {
+            return optionKey;
+        }
+
     }
     private static final Logger LOGGER = Logger.getLogger(GitHubDefaultQueries.class.getName());
 
