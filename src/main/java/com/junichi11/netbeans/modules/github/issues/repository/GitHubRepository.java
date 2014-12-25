@@ -614,10 +614,25 @@ public class GitHubRepository {
         if (queries == null) {
             queries = new HashSet<>();
             // add default queries
-            if (isCollaborator()) {
-                addQuery(GitHubDefaultQueries.create(this, Type.ASSIGNED_TO_ME));
+            GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
+            Map<Type, Boolean> defaultQueryOptions = options.getDefaultQueryOptions();
+            for (Map.Entry<Type, Boolean> entrySet : defaultQueryOptions.entrySet()) {
+                Type type = entrySet.getKey();
+                Boolean isEnabled = entrySet.getValue();
+                if (!isEnabled) {
+                    continue;
+                }
+                switch (type) {
+                    case ASSIGNED_TO_ME:
+                        if (!isCollaborator()) {
+                            continue;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                addQuery(GitHubDefaultQueries.create(this, type));
             }
-            addQuery(GitHubDefaultQueries.create(this, Type.CREATED_BY_ME));
 
             // add user queries
             String[] queryNames = GitHubIssuesConfig.getInstance().getQueryNames(this);
