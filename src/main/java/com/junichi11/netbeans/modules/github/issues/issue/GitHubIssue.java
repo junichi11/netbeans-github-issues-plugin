@@ -208,7 +208,7 @@ public final class GitHubIssue {
                     LOGGER.log(Level.INFO, "This issue({0} #{1}) state is already closed.", new Object[]{i.getTitle(), i.getNumber()}); // NOI18N
                     return;
                 }
-                GitHubIssueSupport.closeReopen(this);
+                GitHubIssueSupport.toggleState(this);
             }
         }
     }

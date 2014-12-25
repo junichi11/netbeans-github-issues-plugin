@@ -336,7 +336,7 @@ public class GitHubIssueController implements IssueController, ChangeListener {
         }
 
         private boolean closeReopen() {
-            return GitHubIssueSupport.closeReopen(getPanel().getIssue());
+            return GitHubIssueSupport.toggleState(getPanel().getIssue());
         }
 
     }
