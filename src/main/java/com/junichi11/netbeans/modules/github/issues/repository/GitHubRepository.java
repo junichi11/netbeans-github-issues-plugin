@@ -790,4 +790,15 @@ public class GitHubRepository {
     private void fireUnsubmittedIssueChanged() {
         propertyChangeSupport.firePropertyChange(RepositoryProvider.EVENT_UNSUBMITTED_ISSUES_CHANGED, null, null);
     }
+
+    public static List<Repository> getRepositories(String oauthToken) {
+        GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
+        RepositoryService repositoryService = new RepositoryService(client);
+        try {
+            return repositoryService.getRepositories();
+        } catch (IOException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+        return Collections.emptyList();
+    }
 }

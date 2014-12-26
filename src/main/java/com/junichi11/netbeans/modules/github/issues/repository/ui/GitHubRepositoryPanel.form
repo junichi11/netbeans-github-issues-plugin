@@ -19,38 +19,42 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="propertyFileCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="135" max="32767" attributes="0"/>
-                      <Component id="connectButton" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="oauthTokenLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Component id="oauthTokenTextField" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="addRepositoryButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="oauthTokenLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="userNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="displayNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="repositoryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="propertyFileCheckBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="112" max="32767" attributes="0"/>
+                              <Component id="connectButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="userNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="displayNameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="repositoryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="repositoryAuthorTextField" max="32767" attributes="0"/>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                                      <Component id="repositorySeparationLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                                      <Component id="repositoryNameTextField" max="32767" attributes="0"/>
+                                  </Group>
+                                  <Component id="displayNameTextField" max="32767" attributes="0"/>
+                                  <Component id="userNameTextField" max="32767" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="oauthTokenTextField" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="userNameTextField" max="32767" attributes="0"/>
-                                  <Component id="displayNameTextField" alignment="0" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="repositoryAuthorTextField" min="-2" pref="143" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="repositorySeparationLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Component id="repositoryNameTextField" max="32767" attributes="0"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
                   </Group>
               </Group>
           </Group>
@@ -61,6 +65,12 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="oauthTokenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="oauthTokenTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="addRepositoryButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="displayNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="displayNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -68,11 +78,6 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="userNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="userNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="oauthTokenLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="oauthTokenTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -181,6 +186,16 @@
           <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/repository/ui/Bundle.properties" key="GitHubRepositoryPanel.repositoryNameTextField.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="addRepositoryButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/repository/ui/Bundle.properties" key="GitHubRepositoryPanel.addRepositoryButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addRepositoryButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
