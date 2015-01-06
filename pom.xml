@@ -13,6 +13,7 @@
                 <version>3.13</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <codeNameBase>com.junichi11.netbeans.github.issues</codeNameBase>
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2</licenseName>
                     <licenseFile>license.txt</licenseFile>
