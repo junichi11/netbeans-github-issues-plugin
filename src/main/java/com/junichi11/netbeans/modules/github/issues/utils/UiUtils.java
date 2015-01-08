@@ -41,6 +41,8 @@
  */
 package com.junichi11.netbeans.modules.github.issues.utils;
 
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
+import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 
@@ -73,6 +75,10 @@ public final class UiUtils {
             descriptor = new NotifyDescriptor.Message(message, type);
         }
         return DialogDisplayer.getDefault().notify(descriptor);
+    }
+
+    public static void showOptions() {
+        OptionsDisplayer.getDefault().open(GitHubIssuesOptions.SUB_PATH);
     }
 
 }
