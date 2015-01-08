@@ -42,6 +42,8 @@
 package com.junichi11.netbeans.modules.github.issues.query;
 
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
+import javax.swing.SwingUtilities;
 
 abstract class GitHubDefaultQuery extends GitHubQuery {
 
@@ -70,6 +72,13 @@ abstract class GitHubDefaultQuery extends GitHubQuery {
 
     @Override
     public void remove() {
-        // noop
+        // XXX can remove a query even if canRemove is false
+        // open options panel as a workaround
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                UiUtils.showOptions();
+            }
+        });
     }
 }
