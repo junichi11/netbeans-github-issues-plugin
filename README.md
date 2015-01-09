@@ -20,6 +20,14 @@ This plugin provides support for GitHub Issue Tracker.
 5. Click Connect button (If you can't connect a repository, please try to check input values)
 6. Click OK button
 
+## Default queries
+
+1. Open
+2. Assigned to me
+3. Created by me
+
+If you want to disable these queries, Please uncheck them on the Options panel.(Tools > Options > Team > GitHub Issues)
+
 ## Resources
 
 - [egit-github](https://github.com/eclipse/egit-github)
