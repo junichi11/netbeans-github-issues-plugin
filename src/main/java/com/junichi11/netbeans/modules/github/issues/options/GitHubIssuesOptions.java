@@ -39,46 +39,74 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.github.issues.utils;
+package com.junichi11.netbeans.modules.github.issues.options;
 
-import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
-import org.netbeans.api.options.OptionsDisplayer;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
+import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
 
 /**
  *
  * @author junichi11
  */
-public final class UiUtils {
+public final class GitHubIssuesOptions {
 
-    private UiUtils() {
+    public static final String SUB_PATH = "Team/GitHubIssues"; // NOI18N
+    private static final String PREFERENCES_PATH = "github.issues"; // NOI18N
+    private static final GitHubIssuesOptions INSTANCE = new GitHubIssuesOptions();
+
+    private GitHubIssuesOptions() {
     }
 
-    public static void showErrorDialog(String message) {
-        showDialog(message, NotifyDescriptor.ERROR_MESSAGE);
+    public static GitHubIssuesOptions getInstance() {
+        return INSTANCE;
     }
 
-    public static void showPlainDialog(String message) {
-        showDialog(message, NotifyDescriptor.PLAIN_MESSAGE);
+    public void setOpenQuery(boolean isEnabled) {
+        getPreferences().putBoolean(Type.OPEN.getOptionKey(), isEnabled);
     }
 
-    public static boolean showQuestionDialog(String message) {
-        return showDialog(message, NotifyDescriptor.QUESTION_MESSAGE) == NotifyDescriptor.OK_OPTION;
+    public boolean isOpenQuery() {
+        return isDefaultQuery(Type.OPEN);
     }
 
-    private static Object showDialog(String message, int type) {
-        NotifyDescriptor descriptor;
-        if (type == NotifyDescriptor.QUESTION_MESSAGE) {
-            descriptor = new NotifyDescriptor.Confirmation(message, NotifyDescriptor.OK_CANCEL_OPTION, type);
-        } else {
-            descriptor = new NotifyDescriptor.Message(message, type);
+    public void setAssignedToMeQuery(boolean isEnabled) {
+        getPreferences().putBoolean(Type.ASSIGNED_TO_ME.getOptionKey(), isEnabled);
+    }
+
+    public boolean isAssignedToMeQuery() {
+        return isDefaultQuery(Type.ASSIGNED_TO_ME);
+    }
+
+    public void setCreatedByMeQuery(boolean isEnabled) {
+        getPreferences().putBoolean(Type.CREATED_BY_ME.getOptionKey(), isEnabled);
+    }
+
+    public boolean isCreatedByMeQuery() {
+        return isDefaultQuery(Type.CREATED_BY_ME);
+    }
+
+    private boolean isDefaultQuery(Type type) {
+        boolean defaultValue = false;
+        if (type == Type.OPEN) {
+            defaultValue = true;
         }
-        return DialogDisplayer.getDefault().notify(descriptor);
+        return getPreferences().getBoolean(type.getOptionKey(), defaultValue);
     }
 
-    public static void showOptions() {
-        OptionsDisplayer.getDefault().open(GitHubIssuesOptions.SUB_PATH);
+    public Map<GitHubDefaultQueries.Type, Boolean> getDefaultQueryOptions() {
+        Map<GitHubDefaultQueries.Type, Boolean> map = new HashMap<>();
+        for (GitHubDefaultQueries.Type type : GitHubDefaultQueries.Type.values()) {
+            map.put(type, isDefaultQuery(type));
+        }
+        return map;
+    }
+
+    private Preferences getPreferences() {
+        return NbPreferences.forModule(GitHubIssuesOptions.class).node(PREFERENCES_PATH);
     }
 
 }

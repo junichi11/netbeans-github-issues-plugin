@@ -41,44 +41,34 @@
  */
 package com.junichi11.netbeans.modules.github.issues.query;
 
+import com.junichi11.netbeans.modules.github.issues.issue.GetIssuesParams;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
-import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
-import javax.swing.SwingUtilities;
+import java.util.Map;
+import org.openide.util.NbBundle;
 
-abstract class GitHubDefaultQuery extends GitHubQuery {
+public class GitHubOpenQuery extends GitHubDefaultQuery {
 
-    public GitHubDefaultQuery(GitHubRepository repository) {
+    public GitHubOpenQuery(GitHubRepository repository) {
         super(repository);
     }
 
-    public GitHubDefaultQuery(GitHubRepository repository, String name) {
-        super(repository, name, null);
+    private GitHubOpenQuery(GitHubRepository repository, String name) {
+        super(repository, name);
     }
 
     @Override
-    public final boolean canRename() {
-        return false;
+    @NbBundle.Messages({
+        "GitHubOpenQuery.displayName=Open"
+    })
+    public String getDisplayName() {
+        return Bundle.GitHubOpenQuery_displayName();
     }
 
     @Override
-    public void rename(String string) {
-        // noop
+    protected Map<String, String> getFilter() {
+        GetIssuesParams issuesParams = new GetIssuesParams()
+                .state(GetIssuesParams.State.OPEN);
+        return issuesParams.toFilterMap();
     }
 
-    @Override
-    public final boolean canRemove() {
-        return false;
-    }
-
-    @Override
-    public void remove() {
-        // XXX can remove a query even if canRemove is false
-        // open options panel as a workaround
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UiUtils.showOptions();
-            }
-        });
-    }
 }

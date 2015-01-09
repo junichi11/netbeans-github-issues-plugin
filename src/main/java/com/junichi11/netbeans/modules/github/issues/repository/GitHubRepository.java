@@ -48,6 +48,7 @@ import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchService;
 import com.junichi11.netbeans.modules.github.issues.issue.CreateIssueParams;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubDefaultQueries.Type;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
@@ -613,10 +614,25 @@ public class GitHubRepository {
         if (queries == null) {
             queries = new HashSet<>();
             // add default queries
-            if (isCollaborator()) {
-                addQuery(GitHubDefaultQueries.create(this, Type.ASSIGNED_TO_ME));
+            GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
+            Map<Type, Boolean> defaultQueryOptions = options.getDefaultQueryOptions();
+            for (Map.Entry<Type, Boolean> entrySet : defaultQueryOptions.entrySet()) {
+                Type type = entrySet.getKey();
+                Boolean isEnabled = entrySet.getValue();
+                if (!isEnabled) {
+                    continue;
+                }
+                switch (type) {
+                    case ASSIGNED_TO_ME:
+                        if (!isCollaborator()) {
+                            continue;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                addQuery(GitHubDefaultQueries.create(this, type));
             }
-            addQuery(GitHubDefaultQueries.create(this, Type.CREATED_BY_ME));
 
             // add user queries
             String[] queryNames = GitHubIssuesConfig.getInstance().getQueryNames(this);
@@ -674,24 +690,31 @@ public class GitHubRepository {
         addQuery(query);
         fireQueryListChanged();
     }
-// TODO add options?
-//    public void optionsChanged() {
-//        GitHubOptions options = GitHubOptions.getInstance();
-//        setDefaultQuery(getAssignedToMeQuery(), options.isAssignedToMeQuery());
-//        setDefaultQuery(getCreatedByMeQuery(), options.isCreatedByMeQuery());
-//        fireQueryListChanged();
-//    }
-//    private void setDefaultQuery(GitHubQuery query, boolean isEnabled) {
-//        if (isEnabled) {
-//            if (!queries.contains(query)) {
-//                queries.add(query);
-//            }
-//        } else {
-//            if (queries.contains(query)) {
-//                queries.remove(query);
-//            }
-//        }
-//    }
+
+    // options
+    public void optionsChanged() {
+        GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
+        Map<Type, Boolean> defaultQueryOptions = options.getDefaultQueryOptions();
+        for (Map.Entry<Type, Boolean> entrySet : defaultQueryOptions.entrySet()) {
+            Type type = entrySet.getKey();
+            Boolean isEnabled = entrySet.getValue();
+            GitHubQuery query = GitHubDefaultQueries.create(this, type);
+            setDefaultQuery(query, isEnabled);
+        }
+        fireQueryListChanged();
+    }
+
+    private void setDefaultQuery(GitHubQuery query, boolean isEnabled) {
+        if (isEnabled) {
+            if (!queries.contains(query)) {
+                queries.add(query);
+            }
+        } else {
+            if (queries.contains(query)) {
+                queries.remove(query);
+            }
+        }
+    }
 
     void removed() {
         // remove all queries
@@ -766,5 +789,16 @@ public class GitHubRepository {
 
     private void fireUnsubmittedIssueChanged() {
         propertyChangeSupport.firePropertyChange(RepositoryProvider.EVENT_UNSUBMITTED_ISSUES_CHANGED, null, null);
+    }
+
+    public static List<Repository> getRepositories(String oauthToken) {
+        GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
+        RepositoryService repositoryService = new RepositoryService(client);
+        try {
+            return repositoryService.getRepositories();
+        } catch (IOException ex) {
+            LOGGER.log(Level.INFO, ex.getMessage());
+        }
+        return Collections.emptyList();
     }
 }

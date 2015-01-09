@@ -13,6 +13,7 @@
                 <version>3.13</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <codeNameBase>com.junichi11.netbeans.github.issues</codeNameBase>
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2</licenseName>
                     <licenseFile>license.txt</licenseFile>
@@ -109,6 +110,16 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-team-commons</artifactId>
+            <version>RELEASE80</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>RELEASE80</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-options-api</artifactId>
             <version>RELEASE80</version>
         </dependency>
     </dependencies>

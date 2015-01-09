@@ -44,6 +44,7 @@ package com.junichi11.netbeans.modules.github.issues;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepositoryManager;
 import org.netbeans.modules.bugtracking.api.Repository;
 import org.netbeans.modules.bugtracking.spi.BugtrackingConnector;
 import org.netbeans.modules.bugtracking.spi.BugtrackingSupport;
@@ -81,6 +82,7 @@ public class GitHubIssuesConnector implements BugtrackingConnector {
     }
 
     private Repository createRepository(GitHubRepository repository) {
+        GitHubRepositoryManager.getInstance().add(repository);
         GitHubIssues githubIssues = GitHubIssues.getInstance();
         BugtrackingSupport<GitHubRepository, GitHubQuery, GitHubIssue> bugtrackingSupport = githubIssues.getBugtrackingSupport();
         return bugtrackingSupport.createRepository(

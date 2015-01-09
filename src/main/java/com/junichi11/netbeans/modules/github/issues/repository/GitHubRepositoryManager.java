@@ -39,46 +39,49 @@
  *
  * Portions Copyrighted 2014 Sun Microsystems, Inc.
  */
-package com.junichi11.netbeans.modules.github.issues.query;
+package com.junichi11.netbeans.modules.github.issues.repository;
 
-import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
-import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
-import javax.swing.SwingUtilities;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-abstract class GitHubDefaultQuery extends GitHubQuery {
+/**
+ *
+ * @author junichi11
+ */
+public class GitHubRepositoryManager {
 
-    public GitHubDefaultQuery(GitHubRepository repository) {
-        super(repository);
+    private static final GitHubRepositoryManager INSTANCE = new GitHubRepositoryManager();
+    private static final Map<String, GitHubRepository> REPOSITORIES = Collections.synchronizedMap(new HashMap<String, GitHubRepository>());
+
+    private GitHubRepositoryManager() {
     }
 
-    public GitHubDefaultQuery(GitHubRepository repository, String name) {
-        super(repository, name, null);
+    public static final GitHubRepositoryManager getInstance() {
+        return INSTANCE;
     }
 
-    @Override
-    public final boolean canRename() {
-        return false;
+    public synchronized Collection<GitHubRepository> getRepositories() {
+        return REPOSITORIES.values();
     }
 
-    @Override
-    public void rename(String string) {
-        // noop
+    public synchronized GitHubRepository getRepository(String repositoryId) {
+        return REPOSITORIES.get(repositoryId);
     }
 
-    @Override
-    public final boolean canRemove() {
-        return false;
+    public synchronized void add(GitHubRepository repository) {
+        if (repository == null) {
+            return;
+        }
+        REPOSITORIES.put(repository.getID(), repository);
     }
 
-    @Override
-    public void remove() {
-        // XXX can remove a query even if canRemove is false
-        // open options panel as a workaround
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UiUtils.showOptions();
-            }
-        });
+    synchronized void remove(GitHubRepository repository) {
+        if (repository == null) {
+            return;
+        }
+        REPOSITORIES.remove(repository.getID());
     }
+
 }

@@ -75,7 +75,7 @@ public final class GitHubIssueSupport {
      * @param gitHubIssue
      * @return {@code true} if state was changed, otherwise {@code false}
      */
-    public static boolean closeReopen(GitHubIssue gitHubIssue) {
+    public static boolean toggleState(GitHubIssue gitHubIssue) {
         if (gitHubIssue == null) {
             return false;
         }

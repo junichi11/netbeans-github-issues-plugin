@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -50,6 +51,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
@@ -79,6 +82,7 @@ public final class GitHubIssue {
     public static final String LABEL_NAME_UPDATED = "github.issue.updated"; // NOI18N
     public static final String LABEL_NAME_CREATED_BY = "github.issue.created.by"; // NOI18N
     public static final String LABEL_NAME_ASSIGNEE = "github.issue.assignee"; // NOI18N
+    private static final Logger LOGGER = Logger.getLogger(GitHubIssue.class.getName());
 
     public GitHubIssue(GitHubRepository repository) {
         this(repository, null);
@@ -194,8 +198,19 @@ public final class GitHubIssue {
         getRepository().refresh(this);
     }
 
-    public void addComment(String comment, boolean reresolveAsFixed) {
-        // TODO addComment
+    public void addComment(String comment, boolean resolveAsFixed) {
+        if (resolveAsFixed) {
+            // close an issue
+            Issue i = getIssue();
+            if (i != null) {
+                GitHubIssueState state = GitHubIssueState.toEnum(i.getState());
+                if (state != GitHubIssueState.OPEN) {
+                    LOGGER.log(Level.INFO, "This issue({0} #{1}) state is already closed.", new Object[]{i.getTitle(), i.getNumber()}); // NOI18N
+                    return;
+                }
+                GitHubIssueSupport.toggleState(this);
+            }
+        }
     }
 
     public void attachFile(File file, String string, boolean bln) {
