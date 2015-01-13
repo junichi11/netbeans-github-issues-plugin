@@ -391,7 +391,7 @@ public class GitHubIssuePanel extends JPanel {
     }
 
     public void setNewComment(String comment) {
-        newCommentTabbedPanel.setText(""); // NOI18N
+        newCommentTabbedPanel.setText(comment);
     }
 
     public void setErrorMessage(String errorMessage) {
