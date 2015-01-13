@@ -79,6 +79,7 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -238,7 +239,7 @@ public class GitHubIssuePanel extends JPanel {
                 // add comments
                 commentsPanel.removeAllComments();
                 List<Comment> comments = gitHubIssue.getComments();
-                PegDownProcessor processor = new PegDownProcessor();
+                PegDownProcessor processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
                 for (Comment comment : comments) {
                     String body = comment.getBody();
                     String bodyHtml = processor.markdownToHtml(body);

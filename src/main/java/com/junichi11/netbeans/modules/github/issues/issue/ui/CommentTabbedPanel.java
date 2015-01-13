@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import java.awt.Component;
+import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -143,7 +144,7 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
     private void commentTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_commentTabbedPaneStateChanged
         Component selectedComponent = commentTabbedPane.getSelectedComponent();
         if (selectedComponent == commentPreviewPanel) {
-            String html = new PegDownProcessor().markdownToHtml(commentWriteTextArea.getText());
+            String html = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS).markdownToHtml(commentWriteTextArea.getText());
             commentPreviewEditorPane.setText(html);
         }
     }//GEN-LAST:event_commentTabbedPaneStateChanged
