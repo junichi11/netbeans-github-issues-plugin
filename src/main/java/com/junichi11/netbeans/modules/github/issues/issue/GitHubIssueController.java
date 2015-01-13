@@ -195,7 +195,7 @@ public class GitHubIssueController implements IssueController, ChangeListener {
                         @Override
                         public void run() {
                             GitHubIssue issue = p.getIssue();
-                            CreateIssueParams issueParams = getCreateIssueParams(p);
+                            CreateIssueParams issueParams = getCreateIssueParams(issue.isNew(), p);
                             if (issue.isNew()) {
                                 // add issue
                                 Issue newIssue = issue.submitNewIssue(issueParams);
@@ -223,9 +223,9 @@ public class GitHubIssueController implements IssueController, ChangeListener {
 
         }
 
-        private CreateIssueParams getCreateIssueParams(GitHubIssuePanel p) {
+        private CreateIssueParams getCreateIssueParams(boolean isNew, GitHubIssuePanel p) {
             User assignee = p.getAssignee();
-            if (assignee == null) {
+            if (!isNew && assignee == null) {
                 assignee = new User();
                 assignee.setLogin(""); // NOI18N
             }
@@ -236,8 +236,10 @@ public class GitHubIssueController implements IssueController, ChangeListener {
             CreateIssueParams createIssueParams = new CreateIssueParams(p.getTitle())
                     .body(p.getDescription())
                     .milestone(milestone)
-                    .labels(p.getLabels())
-                    .assignee(assignee);
+                    .labels(p.getLabels());
+            if (assignee != null) {
+                createIssueParams = createIssueParams.assignee(assignee);
+            }
             return createIssueParams;
         }
     }
