@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.utils;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -52,17 +53,55 @@ public final class StringUtils {
     private StringUtils() {
     }
 
+    /**
+     * Check whether specified string is {@code null} or empty.
+     *
+     * @param text text
+     * @return {@code true} text is {@code null} or empty, otherwise
+     * {@code false}
+     */
     public static boolean isEmpty(String text) {
         return text == null || text.isEmpty();
     }
 
+    /**
+     * Combine tokens with a specified separator.
+     *
+     * @param tokens tokens
+     * @param separator separator
+     * @return one combined string, empty string if token or separator are
+     * {@code null}
+     */
     public static String join(List<String> tokens, String separator) {
         StringBuilder sb = new StringBuilder();
-        for (String token : tokens) {
-            if (sb.length() > 0) {
-                sb.append(separator);
+        if (tokens != null && separator != null) {
+            for (String token : tokens) {
+                if (sb.length() > 0) {
+                    sb.append(separator);
+                }
+                sb.append(token);
             }
-            sb.append(token);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Convert to quote comment text. Add "> " to the top of each lines.Add line
+     * break(\n) the last position.
+     *
+     * @param comment
+     * @return quote comment if comment is not {@code null} and not empty,
+     * otherwise empty string
+     */
+    public static String toQuoteComment(String comment) {
+        if (isEmpty(comment)) {
+            return ""; // NOI18N
+        }
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer tokenizer = new StringTokenizer(comment, "\n"); // NOI18N
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            sb.append("> ").append(token).append("\n"); // NOI18N
         }
         return sb.toString();
     }
