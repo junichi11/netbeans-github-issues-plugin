@@ -68,6 +68,14 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
         commentWriteTextArea.setText(text);
     }
 
+    public void appendText(String text) {
+        StringBuilder sb = new StringBuilder();
+        String comment = commentWriteTextArea.getText();
+        sb.append(comment);
+        sb.append(text);
+        commentWriteTextArea.setText(sb.toString());
+    }
+
     public void setEditable(boolean isEditable) {
         commentWriteTextArea.setEditable(isEditable);
     }

@@ -121,7 +121,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
             }
             return selectedText;
         }
-        return null;
+        return ""; // NOI18N
     }
 
     public Comment getDeletedComment() {

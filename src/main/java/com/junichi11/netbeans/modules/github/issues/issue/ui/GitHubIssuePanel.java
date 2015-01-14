@@ -55,6 +55,7 @@ import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import java.awt.Color;
 import java.awt.Font;
+import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -393,6 +394,25 @@ public class GitHubIssuePanel extends JPanel {
 
     public void setNewComment(String comment) {
         newCommentTabbedPanel.setText(comment);
+    }
+
+    public void appendNewComment(String comment) {
+        if (comment == null) {
+            return;
+        }
+        newCommentTabbedPanel.appendText(comment);
+    }
+
+    public String getQuoteComment() {
+        return commentsPanel.getQuoteComment();
+    }
+
+    public void addCommentsChangeListener(PropertyChangeListener listener) {
+        commentsPanel.addPropertyChangeListener(listener);
+    }
+
+    public void removeCommentsChangeListener(PropertyChangeListener listener) {
+        commentsPanel.removePropertyChangeListener(listener);
     }
 
     public void setErrorMessage(String errorMessage) {

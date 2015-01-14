@@ -42,11 +42,13 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentsPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.GitHubIssuePanel;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -66,7 +68,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author junichi11
  */
-public class GitHubIssueController implements IssueController, ChangeListener {
+public class GitHubIssueController implements IssueController, ChangeListener, PropertyChangeListener {
 
     private GitHubIssuePanel panel;
     private String errorMessage;
@@ -126,6 +128,7 @@ public class GitHubIssueController implements IssueController, ChangeListener {
             panel.addAction(getSubmitIssueAction());
             panel.addAction(getCommentAction());
             panel.addAction(getCloseReopenAction());
+            panel.addCommentsChangeListener(this);
         }
         return panel;
     }
@@ -170,6 +173,19 @@ public class GitHubIssueController implements IssueController, ChangeListener {
 
     private CloseReopenAction getCloseReopenAction() {
         return new CloseReopenAction();
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        switch (evt.getPropertyName()) {
+            case CommentsPanel.PROP_COMMENT_QUOTE:
+                GitHubIssuePanel p = getPanel();
+                String quoteComment = StringUtils.toQuoteComment(p.getQuoteComment()) + "\n"; // NOI18N
+                p.appendNewComment(quoteComment);
+                break;
+            default:
+                break;
+        }
     }
 
     //~ inner classes

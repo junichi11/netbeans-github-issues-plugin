@@ -78,7 +78,6 @@ public class CommentPanel extends javax.swing.JPanel {
         // TODO
         deleteLinkButton.setEnabled(false);
         editLinkButton.setEnabled(false);
-        quoteLinkButton.setEnabled(false);
     }
 
     private void setUserName(String name) {
@@ -125,6 +124,18 @@ public class CommentPanel extends javax.swing.JPanel {
 
     public boolean isDeleted() {
         return isDeleted;
+    }
+
+    public void setQuoteEnabled(boolean isEnabled) {
+        quoteLinkButton.setEnabled(isEnabled);
+    }
+
+    public void setEditEnabled(boolean isEnabled) {
+        editLinkButton.setEnabled(isEnabled);
+    }
+
+    public void setDeleteEnabled(boolean isEnabled) {
+        deleteLinkButton.setEnabled(isEnabled);
     }
 
     void resetProperties() {
