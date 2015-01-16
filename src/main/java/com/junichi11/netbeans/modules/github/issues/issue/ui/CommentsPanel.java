@@ -92,18 +92,20 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
             return;
         }
         CommentPanel newPanel = new CommentPanel(comment);
-        User user = comment.getUser();
-        newPanel.setEditEnabled(isMyself(user, loginName));
+        User owner = comment.getUser();
+        boolean isMyself = isMyself(owner, loginName);
+        newPanel.setEditEnabled(isMyself);
+        newPanel.setDeleteEnabled(isMyself);
         newPanel.addPropertyChangeListener(this);
         commentPanels.add(newPanel);
         add(newPanel);
     }
 
-    private boolean isMyself(User user, String me) {
-        if (user == null || StringUtils.isEmpty(me)) {
+    private boolean isMyself(User owner, String me) {
+        if (owner == null || StringUtils.isEmpty(me)) {
             return false;
         }
-        return user.getLogin().equals(me);
+        return owner.getLogin().equals(me);
     }
 
     public void removeAllComments() {
@@ -153,6 +155,14 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
             for (CommentPanel commentPanel : commentPanels) {
                 commentPanel.load();
             }
+        }
+    }
+
+    public void removeDeletedCommlent() {
+        if (deletedCommentPanel != null) {
+            deletedCommentPanel.setVisible(false);
+            removeComment(deletedCommentPanel);
+            deletedCommentPanel = null;
         }
     }
 

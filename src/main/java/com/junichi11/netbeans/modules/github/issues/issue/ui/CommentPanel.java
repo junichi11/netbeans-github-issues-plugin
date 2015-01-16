@@ -71,9 +71,6 @@ public class CommentPanel extends javax.swing.JPanel {
         this.comment = comment;
         initComponents();
         load();
-
-        // TODO
-        deleteLinkButton.setEnabled(false);
     }
 
     final void load() {

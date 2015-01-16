@@ -45,6 +45,7 @@ import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentsPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.GitHubIssuePanel;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.event.ActionEvent;
@@ -189,6 +190,9 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
             case CommentsPanel.PROP_COMMENT_EDITED:
                 editComment();
                 break;
+            case CommentsPanel.PROP_COMMENT_DELETED:
+                deleteComment();
+                break;
             default:
                 break;
         }
@@ -230,6 +234,39 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                 });
             }
         }
+    }
+
+    @NbBundle.Messages({
+        "GitHubIssueController.delete.comment.fail=Can't delete this issue."
+    })
+    private void deleteComment() {
+        final Comment deletedComment = getPanel().getDeletedComment();
+        if (deletedComment == null) {
+            return;
+        }
+        RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+        rp.post(new Runnable() {
+
+            @Override
+            public void run() {
+                GitHubRepository repository = getPanel().getIssue().getRepository();
+                final boolean success = GitHubIssueSupport.deleteComment(repository, deletedComment);
+
+                SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (success) {
+                            // remove comment panel
+                            getPanel().removeDeletedComment();
+                        } else {
+                            // show error message
+                            UiUtils.showErrorDialog(Bundle.GitHubIssueController_delete_comment_fail());
+                        }
+                    }
+                });
+            }
+        });
     }
 
     //~ inner classes

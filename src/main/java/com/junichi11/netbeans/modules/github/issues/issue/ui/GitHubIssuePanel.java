@@ -415,6 +415,14 @@ public class GitHubIssuePanel extends JPanel {
         return commentsPanel.getEditedComment();
     }
 
+    public Comment getDeletedComment() {
+        return commentsPanel.getDeletedComment();
+    }
+
+    public void removeDeletedComment() {
+        commentsPanel.removeDeletedCommlent();
+    }
+
     public void addCommentsChangeListener(PropertyChangeListener listener) {
         commentsPanel.addPropertyChangeListener(listener);
     }
