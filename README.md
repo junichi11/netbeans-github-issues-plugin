@@ -26,7 +26,7 @@ This plugin provides support for GitHub Issue Tracker.
 2. Assigned to me
 3. Created by me
 
-If you want to enable/disable these queries, Please uncheck them on the Options panel.(Tools > Options > Team > GitHub Issues)
+If you want to enable/disable these queries, Please change them on the Options panel.(Tools > Options > Team > GitHub Issues)
 
 ## Resources
 
