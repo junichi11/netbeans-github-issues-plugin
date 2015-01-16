@@ -42,6 +42,9 @@
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import java.awt.Component;
+import java.awt.Dialog;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
@@ -78,6 +81,27 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
 
     public void setEditable(boolean isEditable) {
         commentWriteTextArea.setEditable(isEditable);
+    }
+
+    /**
+     * Show dialog.
+     *
+     * @param title title
+     * @param text comment
+     * @return String if OK Button is clicked, otherwise {@code null}
+     */
+    public static String showDialog(String title, String text) {
+        CommentTabbedPanel panel = new CommentTabbedPanel();
+        panel.setText(text);
+        DialogDescriptor descriptor = new DialogDescriptor(panel, title, true, DialogDescriptor.OK_CANCEL_OPTION, null, null);
+        Dialog dialog = DialogDisplayer.getDefault().createDialog(descriptor);
+        dialog.pack();
+        dialog.setVisible(true);
+        dialog.dispose();
+        if (descriptor.getValue() == DialogDescriptor.OK_OPTION) {
+            return panel.getText();
+        }
+        return null;
     }
 
     /**

@@ -150,6 +150,27 @@ public final class GitHubIssueSupport {
     }
 
     /**
+     * Edit comment.
+     *
+     * @param repository GitHubRepository
+     * @param comment Comment
+     * @return comment if editing successfully, otherwise {@code null}
+     */
+    @CheckForNull
+    public static Comment editComment(GitHubRepository repository, Comment comment) {
+        IssueService issueService = createIssueService(repository);
+        if (issueService == null) {
+            return null;
+        }
+        try {
+            return issueService.editComment(repository.getRepository(), comment);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
      * Show in browser.
      *
      * @param gitHubIssue GitHubIssue

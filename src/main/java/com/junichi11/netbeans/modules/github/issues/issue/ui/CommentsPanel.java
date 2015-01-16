@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.eclipse.egit.github.core.Comment;
+import org.eclipse.egit.github.core.User;
 
 /**
  *
@@ -80,20 +81,29 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         return comments;
     }
 
-    public void addComments(Collection<Comment> comments) {
+    public void addComments(Collection<Comment> comments, String loginName) {
         for (Comment comment : comments) {
-            addComment(comment);
+            addComment(comment, loginName);
         }
     }
 
-    public void addComment(Comment comment) {
+    public void addComment(Comment comment, String loginName) {
         if (comment == null) {
             return;
         }
         CommentPanel newPanel = new CommentPanel(comment);
+        User user = comment.getUser();
+        newPanel.setEditEnabled(isMyself(user, loginName));
         newPanel.addPropertyChangeListener(this);
         commentPanels.add(newPanel);
         add(newPanel);
+    }
+
+    private boolean isMyself(User user, String me) {
+        if (user == null || StringUtils.isEmpty(me)) {
+            return false;
+        }
+        return user.getLogin().equals(me);
     }
 
     public void removeAllComments() {
@@ -136,6 +146,14 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         quoteCommentPanel = null;
         deletedCommentPanel = null;
         editedCommentPanel = null;
+    }
+
+    public void loadComments() {
+        synchronized (commentPanels) {
+            for (CommentPanel commentPanel : commentPanels) {
+                commentPanel.load();
+            }
+        }
     }
 
     /**

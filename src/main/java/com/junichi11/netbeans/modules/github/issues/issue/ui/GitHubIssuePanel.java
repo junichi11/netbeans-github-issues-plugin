@@ -246,7 +246,7 @@ public class GitHubIssuePanel extends JPanel {
                     String bodyHtml = processor.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
-                commentsPanel.addComments(comments);
+                commentsPanel.addComments(comments, repository.getUserName());
             }
         }
 
@@ -256,6 +256,10 @@ public class GitHubIssuePanel extends JPanel {
         attributesViewPanel.setVisible(!gitHubIssue.isNew());
 
         fireChange();
+    }
+
+    public void loadComments() {
+        commentsPanel.loadComments();
     }
 
     private void setAssigneeSelected(User assignee) {
@@ -405,6 +409,10 @@ public class GitHubIssuePanel extends JPanel {
 
     public String getQuoteComment() {
         return commentsPanel.getQuoteComment();
+    }
+
+    public Comment getEditedComment() {
+        return commentsPanel.getEditedComment();
     }
 
     public void addCommentsChangeListener(PropertyChangeListener listener) {
