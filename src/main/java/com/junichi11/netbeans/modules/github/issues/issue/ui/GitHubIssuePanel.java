@@ -260,6 +260,7 @@ public class GitHubIssuePanel extends JPanel {
 
     public void loadComments() {
         commentsPanel.loadComments();
+        fireChange();
     }
 
     private void setAssigneeSelected(User assignee) {

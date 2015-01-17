@@ -65,8 +65,6 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
-import org.pegdown.Extensions;
-import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -199,11 +197,11 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     }
 
     @NbBundle.Messages({
-        "GitHubIssueController.edit.comment.title=Edit Comment"
+        "GitHubIssueController.edit.comment.title=Edit Comment",
+        "GitHubIssueController.edit.comment.fail=Can't edit this comment."
     })
     private void editComment() {
         final Comment comment = getPanel().getEditedComment();
-        final String originalBody = comment.getBody();
         final String editedBody = CommentTabbedPanel.showDialog(Bundle.GitHubIssueController_edit_comment_title(), comment.getBody());
         if (editedBody != null) {
             final GitHubIssue issue = getPanel().getIssue();
@@ -213,23 +211,18 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
 
                     @Override
                     public void run() {
-                        comment.setBody(editedBody);
-                        Comment editComment = GitHubIssueSupport.editComment(issue.getRepository(), comment);
-                        if (editComment != null) {
-                            PegDownProcessor processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
-                            String body = editComment.getBody();
-                            String bodyHtml = processor.markdownToHtml(body);
-                            comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
-                            SwingUtilities.invokeLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    getPanel().loadComments();
-                                }
-                            });
-                        } else {
-                            comment.setBody(originalBody);
+                        Comment editedComment = issue.editComment(comment, editedBody);
+                        if (editedComment == null) {
+                            UiUtils.showErrorDialog(Bundle.GitHubIssueController_edit_comment_fail());
+                            return;
                         }
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                getPanel().loadComments();
+                            }
+                        });
                     }
                 });
             }
