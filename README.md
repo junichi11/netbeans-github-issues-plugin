@@ -7,6 +7,8 @@ This plugin provides support for GitHub Issue Tracker.
 - Create a new issue
 - Edit an issue
 - Create queries
+- Edit an issue comment
+- Delete an issue comment
 - Search issues with issue number or keywords
 
 ## Usage
