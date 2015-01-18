@@ -42,11 +42,15 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel;
+import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentsPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.GitHubIssuePanel;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -66,7 +70,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author junichi11
  */
-public class GitHubIssueController implements IssueController, ChangeListener {
+public class GitHubIssueController implements IssueController, ChangeListener, PropertyChangeListener {
 
     private GitHubIssuePanel panel;
     private String errorMessage;
@@ -126,6 +130,7 @@ public class GitHubIssueController implements IssueController, ChangeListener {
             panel.addAction(getSubmitIssueAction());
             panel.addAction(getCommentAction());
             panel.addAction(getCloseReopenAction());
+            panel.addCommentsChangeListener(this);
         }
         return panel;
     }
@@ -172,6 +177,91 @@ public class GitHubIssueController implements IssueController, ChangeListener {
         return new CloseReopenAction();
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        switch (evt.getPropertyName()) {
+            case CommentsPanel.PROP_COMMENT_QUOTE:
+                GitHubIssuePanel p = getPanel();
+                String quoteComment = StringUtils.toQuoteComment(p.getQuoteComment()) + "\n"; // NOI18N
+                p.appendNewComment(quoteComment);
+                break;
+            case CommentsPanel.PROP_COMMENT_EDITED:
+                editComment();
+                break;
+            case CommentsPanel.PROP_COMMENT_DELETED:
+                deleteComment();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @NbBundle.Messages({
+        "GitHubIssueController.edit.comment.title=Edit Comment",
+        "GitHubIssueController.edit.comment.fail=Can't edit this comment."
+    })
+    private void editComment() {
+        final Comment comment = getPanel().getEditedComment();
+        final String editedBody = CommentTabbedPanel.showDialog(Bundle.GitHubIssueController_edit_comment_title(), comment.getBody());
+        if (editedBody != null) {
+            final GitHubIssue issue = getPanel().getIssue();
+            if (issue != null) {
+                RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+                rp.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Comment editedComment = issue.editComment(comment, editedBody);
+                        if (editedComment == null) {
+                            UiUtils.showErrorDialog(Bundle.GitHubIssueController_edit_comment_fail());
+                            return;
+                        }
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                getPanel().loadComments();
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    @NbBundle.Messages({
+        "GitHubIssueController.delete.comment.fail=Can't delete this issue."
+    })
+    private void deleteComment() {
+        final Comment deletedComment = getPanel().getDeletedComment();
+        if (deletedComment == null) {
+            return;
+        }
+        RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+        rp.post(new Runnable() {
+
+            @Override
+            public void run() {
+                GitHubRepository repository = getPanel().getIssue().getRepository();
+                final boolean success = GitHubIssueSupport.deleteComment(repository, deletedComment);
+
+                SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (success) {
+                            // remove comment panel
+                            getPanel().removeDeletedComment();
+                        } else {
+                            // show error message
+                            UiUtils.showErrorDialog(Bundle.GitHubIssueController_delete_comment_fail());
+                        }
+                    }
+                });
+            }
+        });
+    }
+
     //~ inner classes
     public class SubmitIssueAction implements ActionListener {
 
@@ -195,7 +285,7 @@ public class GitHubIssueController implements IssueController, ChangeListener {
                         @Override
                         public void run() {
                             GitHubIssue issue = p.getIssue();
-                            CreateIssueParams issueParams = getCreateIssueParams(p);
+                            CreateIssueParams issueParams = getCreateIssueParams(issue.isNew(), p);
                             if (issue.isNew()) {
                                 // add issue
                                 Issue newIssue = issue.submitNewIssue(issueParams);
@@ -223,9 +313,9 @@ public class GitHubIssueController implements IssueController, ChangeListener {
 
         }
 
-        private CreateIssueParams getCreateIssueParams(GitHubIssuePanel p) {
+        private CreateIssueParams getCreateIssueParams(boolean isNew, GitHubIssuePanel p) {
             User assignee = p.getAssignee();
-            if (assignee == null) {
+            if (!isNew && assignee == null) {
                 assignee = new User();
                 assignee.setLogin(""); // NOI18N
             }
@@ -236,8 +326,10 @@ public class GitHubIssueController implements IssueController, ChangeListener {
             CreateIssueParams createIssueParams = new CreateIssueParams(p.getTitle())
                     .body(p.getDescription())
                     .milestone(milestone)
-                    .labels(p.getLabels())
-                    .assignee(assignee);
+                    .labels(p.getLabels());
+            if (assignee != null) {
+                createIssueParams = createIssueParams.assignee(assignee);
+            }
             return createIssueParams;
         }
     }

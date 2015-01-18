@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue;
 
+import org.netbeans.modules.bugtracking.commons.SimpleIssueFinder;
 import org.netbeans.modules.bugtracking.spi.IssueFinder;
 
 /**
@@ -49,16 +50,14 @@ import org.netbeans.modules.bugtracking.spi.IssueFinder;
  */
 public class GitHubIssueFinder implements IssueFinder {
 
-    private static final int[] EMPTY_INT_ARRAY = new int[0];
-
     @Override
     public int[] getIssueSpans(CharSequence cs) {
-        return EMPTY_INT_ARRAY;
+        return SimpleIssueFinder.getInstance().getIssueSpans(cs);
     }
 
     @Override
     public String getIssueId(String string) {
-        return null;
+        return SimpleIssueFinder.getInstance().getIssueId(string);
     }
 
 }

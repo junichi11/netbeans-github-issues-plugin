@@ -55,6 +55,7 @@ import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import java.awt.Color;
 import java.awt.Font;
+import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ import org.openide.util.ChangeSupport;
 import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -238,13 +240,13 @@ public class GitHubIssuePanel extends JPanel {
                 // add comments
                 commentsPanel.removeAllComments();
                 List<Comment> comments = gitHubIssue.getComments();
-                PegDownProcessor processor = new PegDownProcessor();
+                PegDownProcessor processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
                 for (Comment comment : comments) {
                     String body = comment.getBody();
                     String bodyHtml = processor.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
-                commentsPanel.addComments(comments);
+                commentsPanel.addComments(comments, repository.getUserName());
             }
         }
 
@@ -253,6 +255,11 @@ public class GitHubIssuePanel extends JPanel {
         setCollaboratorsComponentsVisible(isCollaborator);
         attributesViewPanel.setVisible(!gitHubIssue.isNew());
 
+        fireChange();
+    }
+
+    public void loadComments() {
+        commentsPanel.loadComments();
         fireChange();
     }
 
@@ -391,7 +398,38 @@ public class GitHubIssuePanel extends JPanel {
     }
 
     public void setNewComment(String comment) {
-        newCommentTabbedPanel.setText(""); // NOI18N
+        newCommentTabbedPanel.setText(comment);
+    }
+
+    public void appendNewComment(String comment) {
+        if (comment == null) {
+            return;
+        }
+        newCommentTabbedPanel.appendText(comment);
+    }
+
+    public String getQuoteComment() {
+        return commentsPanel.getQuoteComment();
+    }
+
+    public Comment getEditedComment() {
+        return commentsPanel.getEditedComment();
+    }
+
+    public Comment getDeletedComment() {
+        return commentsPanel.getDeletedComment();
+    }
+
+    public void removeDeletedComment() {
+        commentsPanel.removeDeletedCommlent();
+    }
+
+    public void addCommentsChangeListener(PropertyChangeListener listener) {
+        commentsPanel.addPropertyChangeListener(listener);
+    }
+
+    public void removeCommentsChangeListener(PropertyChangeListener listener) {
+        commentsPanel.removePropertyChangeListener(listener);
     }
 
     public void setErrorMessage(String errorMessage) {

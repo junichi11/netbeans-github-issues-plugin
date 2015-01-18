@@ -70,15 +70,16 @@ public class CommentPanel extends javax.swing.JPanel {
     public CommentPanel(Comment comment) {
         this.comment = comment;
         initComponents();
-        setUserName(comment.getUser().getLogin());
-        setCreatedDate(comment.getCreatedAt());
-        setUpdatedDate(comment.getUpdatedAt());
-        setContent(comment.getBodyHtml());
+        load();
+    }
 
-        // TODO
-        deleteLinkButton.setEnabled(false);
-        editLinkButton.setEnabled(false);
-        quoteLinkButton.setEnabled(false);
+    final void load() {
+        if (comment != null) {
+            setUserName(comment.getUser().getLogin());
+            setCreatedDate(comment.getCreatedAt());
+            setUpdatedDate(comment.getUpdatedAt());
+            setContent(comment.getBodyHtml());
+        }
     }
 
     private void setUserName(String name) {
@@ -125,6 +126,18 @@ public class CommentPanel extends javax.swing.JPanel {
 
     public boolean isDeleted() {
         return isDeleted;
+    }
+
+    public void setQuoteEnabled(boolean isEnabled) {
+        quoteLinkButton.setEnabled(isEnabled);
+    }
+
+    public void setEditEnabled(boolean isEnabled) {
+        editLinkButton.setEnabled(isEnabled);
+    }
+
+    public void setDeleteEnabled(boolean isEnabled) {
+        deleteLinkButton.setEnabled(isEnabled);
     }
 
     void resetProperties() {

@@ -42,6 +42,10 @@
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import java.awt.Component;
+import java.awt.Dialog;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -67,8 +71,37 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
         commentWriteTextArea.setText(text);
     }
 
+    public void appendText(String text) {
+        StringBuilder sb = new StringBuilder();
+        String comment = commentWriteTextArea.getText();
+        sb.append(comment);
+        sb.append(text);
+        commentWriteTextArea.setText(sb.toString());
+    }
+
     public void setEditable(boolean isEditable) {
         commentWriteTextArea.setEditable(isEditable);
+    }
+
+    /**
+     * Show dialog.
+     *
+     * @param title title
+     * @param text comment
+     * @return String if OK Button is clicked, otherwise {@code null}
+     */
+    public static String showDialog(String title, String text) {
+        CommentTabbedPanel panel = new CommentTabbedPanel();
+        panel.setText(text);
+        DialogDescriptor descriptor = new DialogDescriptor(panel, title, true, DialogDescriptor.OK_CANCEL_OPTION, null, null);
+        Dialog dialog = DialogDisplayer.getDefault().createDialog(descriptor);
+        dialog.pack();
+        dialog.setVisible(true);
+        dialog.dispose();
+        if (descriptor.getValue() == DialogDescriptor.OK_OPTION) {
+            return panel.getText();
+        }
+        return null;
     }
 
     /**
@@ -143,7 +176,7 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
     private void commentTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_commentTabbedPaneStateChanged
         Component selectedComponent = commentTabbedPane.getSelectedComponent();
         if (selectedComponent == commentPreviewPanel) {
-            String html = new PegDownProcessor().markdownToHtml(commentWriteTextArea.getText());
+            String html = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS).markdownToHtml(commentWriteTextArea.getText());
             commentPreviewEditorPane.setText(html);
         }
     }//GEN-LAST:event_commentTabbedPaneStateChanged

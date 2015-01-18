@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.eclipse.egit.github.core.Comment;
+import org.eclipse.egit.github.core.User;
 
 /**
  *
@@ -80,20 +81,31 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         return comments;
     }
 
-    public void addComments(Collection<Comment> comments) {
+    public void addComments(Collection<Comment> comments, String loginName) {
         for (Comment comment : comments) {
-            addComment(comment);
+            addComment(comment, loginName);
         }
     }
 
-    public void addComment(Comment comment) {
+    public void addComment(Comment comment, String loginName) {
         if (comment == null) {
             return;
         }
         CommentPanel newPanel = new CommentPanel(comment);
+        User owner = comment.getUser();
+        boolean isMyself = isMyself(owner, loginName);
+        newPanel.setEditEnabled(isMyself);
+        newPanel.setDeleteEnabled(isMyself);
         newPanel.addPropertyChangeListener(this);
         commentPanels.add(newPanel);
         add(newPanel);
+    }
+
+    private boolean isMyself(User owner, String me) {
+        if (owner == null || StringUtils.isEmpty(me)) {
+            return false;
+        }
+        return owner.getLogin().equals(me);
     }
 
     public void removeAllComments() {
@@ -121,7 +133,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
             }
             return selectedText;
         }
-        return null;
+        return ""; // NOI18N
     }
 
     public Comment getDeletedComment() {
@@ -136,6 +148,22 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         quoteCommentPanel = null;
         deletedCommentPanel = null;
         editedCommentPanel = null;
+    }
+
+    public void loadComments() {
+        synchronized (commentPanels) {
+            for (CommentPanel commentPanel : commentPanels) {
+                commentPanel.load();
+            }
+        }
+    }
+
+    public void removeDeletedCommlent() {
+        if (deletedCommentPanel != null) {
+            deletedCommentPanel.setVisible(false);
+            removeComment(deletedCommentPanel);
+            deletedCommentPanel = null;
+        }
     }
 
     /**

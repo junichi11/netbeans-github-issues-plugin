@@ -64,6 +64,8 @@ import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.netbeans.modules.bugtracking.spi.IssueProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.openide.util.NbBundle;
+import org.pegdown.Extensions;
+import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -244,6 +246,28 @@ public final class GitHubIssue {
             repository.refresh(this);
         }
         return editIssue;
+    }
+
+    public Comment editComment(Comment comment, String editedBody) {
+        if (editedBody != null) {
+            String originalBody = comment.getBody();
+            if (issue != null) {
+                comment.setBody(editedBody);
+                Comment editComment = GitHubIssueSupport.editComment(getRepository(), comment);
+                if (editComment != null) {
+                    PegDownProcessor processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
+                    String body = editComment.getBody();
+                    String bodyHtml = processor.markdownToHtml(body);
+                    comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
+                    comment.setBody(body);
+                    comment.setUpdatedAt(editComment.getUpdatedAt());
+                } else {
+                    comment.setBody(originalBody);
+                }
+                return editComment;
+            }
+        }
+        return null;
     }
 
     public boolean isCreatedUser() {

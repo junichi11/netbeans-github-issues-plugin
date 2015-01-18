@@ -150,6 +150,49 @@ public final class GitHubIssueSupport {
     }
 
     /**
+     * Edit comment.
+     *
+     * @param repository GitHubRepository
+     * @param comment Comment
+     * @return comment if editing successfully, otherwise {@code null}
+     */
+    @CheckForNull
+    public static Comment editComment(GitHubRepository repository, Comment comment) {
+        IssueService issueService = createIssueService(repository);
+        if (issueService == null) {
+            return null;
+        }
+        try {
+            return issueService.editComment(repository.getRepository(), comment);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Delete comment.
+     *
+     * @param repository
+     * @param comment
+     * @return {@code true} if comment is deleted, otherwise {@code false}
+     */
+    public static boolean deleteComment(GitHubRepository repository, Comment comment) {
+        IssueService issueService = createIssueService(repository);
+        if (issueService == null) {
+            return false;
+        }
+        boolean success = true;
+        try {
+            issueService.deleteComment(repository.getRepository(), comment.getId());
+        } catch (IOException ex) {
+            success = false;
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return success;
+    }
+
+    /**
      * Show in browser.
      *
      * @param gitHubIssue GitHubIssue
