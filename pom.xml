@@ -17,6 +17,8 @@
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2</licenseName>
                     <licenseFile>license.txt</licenseFile>
+                    <author>junichi11(Junichi Yamamoto)</author>
+                    <homePageUrl>https://github.com/junichi11/netbeans-github-issues-plugin</homePageUrl>
                 </configuration>
             </plugin>
             <plugin>
