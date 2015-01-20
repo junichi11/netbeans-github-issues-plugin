@@ -457,6 +457,18 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                 }
                 setAddRepositoryButtonEnabled(false);
                 List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken);
+                if (repositories.isEmpty()) {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            UiUtils.showErrorDialog("There is no repository or your OAuth token is wrong.");
+                            setAddRepositoryButtonEnabled(true);
+                        }
+                    });
+                    return;
+                }
+
                 final Repository repository = GitHubRepositoryListPanel.showDialog(repositories);
 
                 SwingUtilities.invokeLater(new Runnable() {
