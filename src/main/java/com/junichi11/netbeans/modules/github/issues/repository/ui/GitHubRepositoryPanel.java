@@ -444,6 +444,9 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
         fireChange();
     }//GEN-LAST:event_propertyFileCheckBoxActionPerformed
 
+    @NbBundle.Messages({
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.empty.token=Please set OAuth token.",
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",})
     private void addRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRepositoryButtonActionPerformed
         RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
         rp.post(new Runnable() {
@@ -452,7 +455,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
             public void run() {
                 String oAuthToken = getOAuthToken();
                 if (StringUtils.isEmpty(oAuthToken)) {
-                    UiUtils.showErrorDialog("Please set OAuth token");
+                    UiUtils.showErrorDialog(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_error_empty_token());
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
@@ -462,7 +465,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
 
                         @Override
                         public void run() {
-                            UiUtils.showErrorDialog("There is no repository or your OAuth token is wrong.");
+                            UiUtils.showErrorDialog(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_error_wrong_token());
                             setAddRepositoryButtonEnabled(true);
                         }
                     });
