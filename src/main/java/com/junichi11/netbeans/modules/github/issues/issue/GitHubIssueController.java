@@ -181,9 +181,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     public void propertyChange(PropertyChangeEvent evt) {
         switch (evt.getPropertyName()) {
             case CommentsPanel.PROP_COMMENT_QUOTE:
-                GitHubIssuePanel p = getPanel();
-                String quoteComment = StringUtils.toQuoteComment(p.getQuoteComment()) + "\n"; // NOI18N
-                p.appendNewComment(quoteComment);
+                quoteComment();
                 break;
             case CommentsPanel.PROP_COMMENT_EDITED:
                 editComment();
@@ -194,6 +192,18 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
             default:
                 break;
         }
+    }
+
+    private void quoteComment() {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                GitHubIssuePanel p = getPanel();
+                String quoteComment = StringUtils.toQuoteComment(p.getQuoteComment()) + "\n"; // NOI18N
+                p.appendNewComment(quoteComment);
+            }
+        });
     }
 
     @NbBundle.Messages({

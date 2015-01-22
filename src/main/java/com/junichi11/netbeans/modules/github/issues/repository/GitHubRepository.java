@@ -655,7 +655,7 @@ public class GitHubRepository {
      * @param query a query
      */
     public void addQuery(GitHubQuery query) {
-        queries.add(query);
+        getQueries().add(query);
     }
 
     /**
@@ -668,7 +668,7 @@ public class GitHubRepository {
         if (!GitHubDefaultQueries.isDefaultQuery(query)) {
             removeQueryConfig(query);
         }
-        queries.remove(query);
+        getQueries().remove(query);
         fireQueryListChanged();
     }
 
@@ -706,12 +706,12 @@ public class GitHubRepository {
 
     private void setDefaultQuery(GitHubQuery query, boolean isEnabled) {
         if (isEnabled) {
-            if (!queries.contains(query)) {
-                queries.add(query);
+            if (!getQueries().contains(query)) {
+                getQueries().add(query);
             }
         } else {
-            if (queries.contains(query)) {
-                queries.remove(query);
+            if (getQueries().contains(query)) {
+                getQueries().remove(query);
             }
         }
     }

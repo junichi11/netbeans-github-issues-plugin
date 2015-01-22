@@ -104,6 +104,7 @@ public class GitHubRepositoryController implements RepositoryController {
                 .setRepositoryAuthor(p.getRepositoryAuthor())
                 .setRepositoryName(p.getRepositoryName());
         repository.setRepositoryInfo(gitHubRepositoryInfo);
+        GitHubRepositoryManager.getInstance().add(repository);
     }
 
     @Override
@@ -148,6 +149,20 @@ public class GitHubRepositoryController implements RepositoryController {
         "GithubRepositoryController.label.repositoryName=Repository Name",})
     private void validate() {
         GitHubRepositoryPanel repositoryPanel = getPanel();
+        if (!repositoryPanel.isPropertyFile()) {
+            // oauth token
+            if (StringUtils.isEmpty(repositoryPanel.getOAuthToken())) {
+                errorMessage = Bundle.GithubRepositoryController_message_empty_error(Bundle.GithubRepositoryController_label_oauthToken());
+                return;
+            }
+
+            // user name
+            if (StringUtils.isEmpty(repositoryPanel.getUserName())) {
+                errorMessage = Bundle.GithubRepositoryController_message_empty_error(Bundle.GithubRepositoryController_label_userName());
+                return;
+            }
+        }
+
         // display name
         String displayName = repositoryPanel.getDisplayName();
         if (StringUtils.isEmpty(displayName)) {
@@ -165,20 +180,6 @@ public class GitHubRepositoryController implements RepositoryController {
             String repositoryName = r.getDisplayName();
             if (repositoryName.equals(displayName)) {
                 errorMessage = Bundle.GithubRepositoryController_message_displayName_alredy_exists_error();
-                return;
-            }
-        }
-
-        if (!repositoryPanel.isPropertyFile()) {
-            // user name
-            if (StringUtils.isEmpty(repositoryPanel.getUserName())) {
-                errorMessage = Bundle.GithubRepositoryController_message_empty_error(Bundle.GithubRepositoryController_label_userName());
-                return;
-            }
-
-            // oauth token
-            if (StringUtils.isEmpty(repositoryPanel.getOAuthToken())) {
-                errorMessage = Bundle.GithubRepositoryController_message_empty_error(Bundle.GithubRepositoryController_label_oauthToken());
                 return;
             }
         }

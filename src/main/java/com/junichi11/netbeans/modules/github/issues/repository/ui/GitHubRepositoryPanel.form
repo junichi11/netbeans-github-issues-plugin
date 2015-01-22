@@ -69,17 +69,17 @@
                   <Component id="oauthTokenTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="addRepositoryButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="displayNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="displayNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="userNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="userNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="displayNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="displayNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="repositoryAuthorTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="repositoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>

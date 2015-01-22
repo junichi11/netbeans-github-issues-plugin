@@ -405,12 +405,12 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     .addComponent(addRepositoryButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(displayNameLabel)
-                    .addComponent(displayNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(userNameLabel)
                     .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(displayNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(displayNameLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(repositoryAuthorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -444,6 +444,9 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
         fireChange();
     }//GEN-LAST:event_propertyFileCheckBoxActionPerformed
 
+    @NbBundle.Messages({
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.empty.token=Please set OAuth token.",
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",})
     private void addRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRepositoryButtonActionPerformed
         RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
         rp.post(new Runnable() {
@@ -452,11 +455,23 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
             public void run() {
                 String oAuthToken = getOAuthToken();
                 if (StringUtils.isEmpty(oAuthToken)) {
-                    UiUtils.showErrorDialog("Please set OAuth token");
+                    UiUtils.showErrorDialog(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_error_empty_token());
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
                 List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken);
+                if (repositories.isEmpty()) {
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            UiUtils.showErrorDialog(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_error_wrong_token());
+                            setAddRepositoryButtonEnabled(true);
+                        }
+                    });
+                    return;
+                }
+
                 final Repository repository = GitHubRepositoryListPanel.showDialog(repositories);
 
                 SwingUtilities.invokeLater(new Runnable() {

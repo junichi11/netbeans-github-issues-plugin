@@ -78,11 +78,11 @@ public class GitHubIssuesConnector implements BugtrackingConnector {
     @Override
     public Repository createRepository(RepositoryInfo info) {
         GitHubRepository repository = new GitHubRepository(info);
+        GitHubRepositoryManager.getInstance().add(repository);
         return createRepository(repository);
     }
 
     private Repository createRepository(GitHubRepository repository) {
-        GitHubRepositoryManager.getInstance().add(repository);
         GitHubIssues githubIssues = GitHubIssues.getInstance();
         BugtrackingSupport<GitHubRepository, GitHubQuery, GitHubIssue> bugtrackingSupport = githubIssues.getBugtrackingSupport();
         return bugtrackingSupport.createRepository(
