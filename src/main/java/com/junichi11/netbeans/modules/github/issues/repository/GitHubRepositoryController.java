@@ -104,6 +104,7 @@ public class GitHubRepositoryController implements RepositoryController {
                 .setRepositoryAuthor(p.getRepositoryAuthor())
                 .setRepositoryName(p.getRepositoryName());
         repository.setRepositoryInfo(gitHubRepositoryInfo);
+        GitHubRepositoryManager.getInstance().add(repository);
     }
 
     @Override
