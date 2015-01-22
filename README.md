@@ -30,6 +30,14 @@ This plugin provides support for GitHub Issue Tracker.
 
 If you want to enable/disable these queries, Please change them on the Options panel.(Tools > Options > Team > GitHub Issues)
 
+## GitHub OAuth Token
+
+You can get a your OAuth token from the following: Settings > Applications > Personal access tokens > Generate new token
+
+- Check `repo`
+- Input token description
+- Click generate token
+
 ## Resources
 
 - [egit-github](https://github.com/eclipse/egit-github)
