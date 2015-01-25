@@ -67,7 +67,7 @@ public final class GitHubIssuesConfig {
     }
 
     /**
-     * Reteurn saved query names.
+     * Return saved query names.
      *
      * @param repository repository
      * @return saved query names
