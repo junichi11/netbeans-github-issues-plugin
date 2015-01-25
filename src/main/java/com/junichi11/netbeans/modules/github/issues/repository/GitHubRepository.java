@@ -79,6 +79,7 @@ import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.IssueService;
+import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
@@ -724,6 +725,27 @@ public class GitHubRepository {
         if (queries != null) {
             queries.clear();
         }
+    }
+
+    /**
+     * Add label.
+     *
+     * @param label Label
+     * @return Label if label was added, otherwise {@code null}
+     */
+    @CheckForNull
+    public Label addLabel(Label label) {
+        GitHubClient client = createGitHubClient();
+        if (client == null || ghRepository == null) {
+            return null;
+        }
+        LabelService service = new LabelService(client);
+        try {
+            return service.createLabel(ghRepository, label);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return null;
     }
 
     // Repository

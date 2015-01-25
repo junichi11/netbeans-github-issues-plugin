@@ -154,7 +154,20 @@ public final class GitHubCache {
      * @return labels
      */
     public List<Label> getLabels() {
-        if (labels == null) {
+        return getLabels(false);
+    }
+
+    /**
+     * Get labels.
+     *
+     * @param force {@code true} if reload labels, otherwise {@code false}
+     * @return labels
+     */
+    public List<Label> getLabels(boolean force) {
+        if (labels == null || force) {
+            if (labels != null) {
+                labels.clear();
+            }
             GitHubClient client = repository.createGitHubClient();
             if (client == null) {
                 return Collections.emptyList();

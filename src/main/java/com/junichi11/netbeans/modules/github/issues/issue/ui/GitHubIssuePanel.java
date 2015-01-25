@@ -53,12 +53,15 @@ import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueSupport;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
+import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Color;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
@@ -150,6 +153,13 @@ public class GitHubIssuePanel extends JPanel {
         return gitHubIssue;
     }
 
+    private GitHubRepository getRepository() {
+        if (gitHubIssue == null) {
+            return null;
+        }
+        return gitHubIssue.getRepository();
+    }
+
     public void update() {
         // header
         setHeader();
@@ -182,13 +192,7 @@ public class GitHubIssuePanel extends JPanel {
                 assigneeComboBoxModel.addElement(collaborator);
             }
 
-            // label
-            List<Label> labels = cache.getLabels();
-            labelsListModel.removeAllElements();
-            labelsListModel.addElement(null);
-            for (Label label : labels) {
-                labelsListModel.addElement(label);
-            }
+            updateLables(cache, false);
         }
 
         // existing issue
@@ -258,6 +262,15 @@ public class GitHubIssuePanel extends JPanel {
         fireChange();
     }
 
+    private void updateLables(GitHubCache cache, boolean force) {
+        List<Label> labels = cache.getLabels(force);
+        labelsListModel.removeAllElements();
+        labelsListModel.addElement(null);
+        for (Label label : labels) {
+            labelsListModel.addElement(label);
+        }
+    }
+
     public void loadComments() {
         commentsPanel.loadComments();
         fireChange();
@@ -318,6 +331,7 @@ public class GitHubIssuePanel extends JPanel {
         milestoneComboBox.setVisible(isVisible);
         assigneeLabel.setVisible(isVisible);
         assigneeComboBox.setVisible(isVisible);
+        addLabelButton.setVisible(isVisible);
     }
 
     @NbBundle.Messages({
@@ -528,6 +542,7 @@ public class GitHubIssuePanel extends JPanel {
         headerShowInBrowserLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         jSeparator1 = new javax.swing.JSeparator();
         refreshLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
+        addLabelButton = new javax.swing.JButton();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
         assigneeLabel = new javax.swing.JLabel();
@@ -584,6 +599,13 @@ public class GitHubIssuePanel extends JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(addLabelButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.addLabelButton.text")); // NOI18N
+        addLabelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addLabelButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
         headerPanel.setLayout(headerPanelLayout);
         headerPanelLayout.setHorizontalGroup(
@@ -594,6 +616,8 @@ public class GitHubIssuePanel extends JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanelLayout.createSequentialGroup()
                         .addComponent(headerErrorLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(addLabelButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headerSubmitButton))
                     .addGroup(headerPanelLayout.createSequentialGroup()
                         .addComponent(headerStatusLabel)
@@ -642,7 +666,8 @@ public class GitHubIssuePanel extends JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerSubmitButton)
-                    .addComponent(headerErrorLabel)))
+                    .addComponent(headerErrorLabel)
+                    .addComponent(addLabelButton)))
         );
 
         mainPanel.setAutoscrolls(true);
@@ -797,7 +822,30 @@ public class GitHubIssuePanel extends JPanel {
 
     }//GEN-LAST:event_refreshLinkButtonActionPerformed
 
+    @NbBundle.Messages({
+        "GitHubIssuePanel.message.addLabel.error=Can't add a label."
+    })
+    private void addLabelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLabelButtonActionPerformed
+        Enumeration<Label> elements = labelsListModel.elements();
+        Label label = LabelPanel.showDialog(Collections.list(elements));
+        if (label != null) {
+            GitHubRepository repository = getRepository();
+            if (repository == null) {
+                return;
+            }
+            Label newLable = repository.addLabel(label);
+            if (newLable == null) {
+                // show dialog
+                UiUtils.showErrorDialog(Bundle.GitHubIssuePanel_message_addLabel_error());
+                return;
+            }
+            GitHubCache cache = GitHubCache.create(repository);
+            updateLables(cache, true);
+        }
+    }//GEN-LAST:event_addLabelButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addLabelButton;
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
