@@ -339,7 +339,7 @@ public class GitHubIssuePanel extends JPanel {
         milestoneComboBox.setVisible(isVisible);
         assigneeLabel.setVisible(isVisible);
         assigneeComboBox.setVisible(isVisible);
-        addLabelButton.setVisible(isVisible);
+        newLabelButton.setVisible(isVisible);
         newMilestoneButton.setVisible(isVisible);
     }
 
@@ -551,7 +551,7 @@ public class GitHubIssuePanel extends JPanel {
         headerShowInBrowserLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         jSeparator1 = new javax.swing.JSeparator();
         refreshLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
-        addLabelButton = new javax.swing.JButton();
+        newLabelButton = new javax.swing.JButton();
         newMilestoneButton = new javax.swing.JButton();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
@@ -609,10 +609,10 @@ public class GitHubIssuePanel extends JPanel {
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(addLabelButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.addLabelButton.text")); // NOI18N
-        addLabelButton.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(newLabelButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.newLabelButton.text")); // NOI18N
+        newLabelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addLabelButtonActionPerformed(evt);
+                newLabelButtonActionPerformed(evt);
             }
         });
 
@@ -635,7 +635,7 @@ public class GitHubIssuePanel extends JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(newMilestoneButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addLabelButton)
+                        .addComponent(newLabelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headerSubmitButton))
                     .addGroup(headerPanelLayout.createSequentialGroup()
@@ -686,7 +686,7 @@ public class GitHubIssuePanel extends JPanel {
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerSubmitButton)
                     .addComponent(headerErrorLabel)
-                    .addComponent(addLabelButton)
+                    .addComponent(newLabelButton)
                     .addComponent(newMilestoneButton)))
         );
 
@@ -845,7 +845,7 @@ public class GitHubIssuePanel extends JPanel {
     @NbBundle.Messages({
         "GitHubIssuePanel.message.addLabel.error=Can't add a label."
     })
-    private void addLabelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLabelButtonActionPerformed
+    private void newLabelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newLabelButtonActionPerformed
         assert gitHubIssue != null;
         Enumeration<Label> elements = labelsListModel.elements();
         Label label = LabelPanel.showDialog(Collections.list(elements));
@@ -867,7 +867,7 @@ public class GitHubIssuePanel extends JPanel {
                 setLabelsSelected(issue.getLabels());
             }
         }
-    }//GEN-LAST:event_addLabelButtonActionPerformed
+    }//GEN-LAST:event_newLabelButtonActionPerformed
 
     @NbBundle.Messages({
         "GitHubIssuePanel.message.addMilestone.error=Can't add a milestone"
@@ -896,7 +896,6 @@ public class GitHubIssuePanel extends JPanel {
     }//GEN-LAST:event_newMilestoneButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addLabelButton;
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
@@ -927,6 +926,7 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JButton newCommentCloseReopenIssueButton;
     private javax.swing.JLabel newCommentLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel newCommentTabbedPanel;
+    private javax.swing.JButton newLabelButton;
     private javax.swing.JButton newMilestoneButton;
     private org.netbeans.modules.bugtracking.commons.LinkButton refreshLinkButton;
     private javax.swing.JLabel titleLabel;

@@ -96,7 +96,7 @@ public class LabelPanel extends javax.swing.JPanel {
      * @return Label if name and color are input, otherwise {@code null}
      */
     @NbBundle.Messages({
-        "LabelPanel.title=Add label"
+        "LabelPanel.title=New label"
     })
     @CheckForNull
     public static Label showDialog(List<Label> filter) {
