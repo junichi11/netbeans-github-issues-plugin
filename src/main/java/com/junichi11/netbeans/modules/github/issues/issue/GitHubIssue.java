@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -62,6 +63,7 @@ import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
 import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.netbeans.modules.bugtracking.spi.IssueProvider;
+import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.openide.util.NbBundle;
 import org.pegdown.Extensions;
@@ -77,6 +79,7 @@ public final class GitHubIssue {
     private Issue issue;
     private IssueNode node;
     private GitHubIssueController controller;
+    private IssueScheduleInfo scheduleInfo;
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     public static final String LABEL_NAME_ID = "github.issue.id"; // NOI18N
     public static final String LABEL_NAME_STATUS = "github.issue.status"; // NOI18N
@@ -283,6 +286,39 @@ public final class GitHubIssue {
             return Collections.emptyList();
         }
         return repository.getComments(issue.getNumber());
+    }
+
+    // schedule
+    public void setSchedule(IssueScheduleInfo scheduleInfo) {
+        this.scheduleInfo = scheduleInfo;
+        if (scheduleInfo == null) {
+            // remove schedule
+            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
+            return;
+        }
+        GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
+        GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
+    }
+
+    public Date getDueDate() {
+        IssueScheduleInfo info = getSchedule();
+        return info != null ? info.getDate() : null;
+    }
+
+    public IssueScheduleInfo getSchedule() {
+        if (scheduleInfo == null) {
+            GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
+            Date dueDate = config.getScheduleDueDate(repository, this);
+            int interval = config.getScheduleInterval(repository, this);
+            if (dueDate != null) {
+                if (interval > 0) {
+                    scheduleInfo = new IssueScheduleInfo(dueDate, interval);
+                } else {
+                    scheduleInfo = new IssueScheduleInfo(dueDate);
+                }
+            }
+        }
+        return scheduleInfo;
     }
 
     @NbBundle.Messages({
