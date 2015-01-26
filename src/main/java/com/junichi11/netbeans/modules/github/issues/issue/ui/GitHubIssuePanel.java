@@ -846,6 +846,7 @@ public class GitHubIssuePanel extends JPanel {
         "GitHubIssuePanel.message.addLabel.error=Can't add a label."
     })
     private void addLabelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLabelButtonActionPerformed
+        assert gitHubIssue != null;
         Enumeration<Label> elements = labelsListModel.elements();
         Label label = LabelPanel.showDialog(Collections.list(elements));
         if (label != null) {
@@ -861,6 +862,10 @@ public class GitHubIssuePanel extends JPanel {
             }
             GitHubCache cache = GitHubCache.create(repository);
             updateLables(cache, true);
+            Issue issue = getIssue().getIssue();
+            if (issue != null) {
+                setLabelsSelected(issue.getLabels());
+            }
         }
     }//GEN-LAST:event_addLabelButtonActionPerformed
 
