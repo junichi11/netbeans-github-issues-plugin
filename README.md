@@ -12,6 +12,7 @@ This plugin provides support for GitHub Issue Tracker.
 - Search issues with issue number or keywords
 - Create a new label
 - Create a new milestone
+- Set a schedule for an issue
 
 ## Usage
 
