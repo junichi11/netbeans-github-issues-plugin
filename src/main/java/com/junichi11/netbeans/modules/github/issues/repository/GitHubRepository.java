@@ -80,6 +80,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.LabelService;
+import org.eclipse.egit.github.core.service.MilestoneService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
@@ -742,6 +743,27 @@ public class GitHubRepository {
         LabelService service = new LabelService(client);
         try {
             return service.createLabel(ghRepository, label);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Add a milestone.
+     *
+     * @param milestone milestone
+     * @return Milestone if a milestone was added, otherwise {@code null}
+     */
+    @CheckForNull
+    public Milestone addMilestone(Milestone milestone) {
+        GitHubClient client = createGitHubClient();
+        if (client == null || ghRepository == null) {
+            return null;
+        }
+        MilestoneService service = new MilestoneService(client);
+        try {
+            return service.createMilestone(ghRepository, milestone);
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }

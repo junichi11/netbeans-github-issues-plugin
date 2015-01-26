@@ -132,7 +132,21 @@ public final class GitHubCache {
      * @return milestones
      */
     public List<Milestone> getMilestones() {
-        if (milestones == null) {
+        return getMilestones(false);
+    }
+
+    /**
+     * Get milestones.
+     *
+     * @param force {@code true} if don't use cache data, otherwise
+     * {@code false}
+     * @return milestones
+     */
+    public List<Milestone> getMilestones(boolean force) {
+        if (milestones == null || force) {
+            if (milestones != null) {
+                milestones.clear();
+            }
             Repository gHRepository = repository.getRepository();
             GitHubClient client = repository.createGitHubClient();
             if (client == null) {

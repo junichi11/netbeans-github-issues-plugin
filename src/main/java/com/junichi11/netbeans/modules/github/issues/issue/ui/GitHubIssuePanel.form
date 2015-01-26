@@ -42,6 +42,8 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="headerErrorLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="newMilestoneButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="addLabelButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="headerSubmitButton" min="-2" max="-2" attributes="0"/>
@@ -103,6 +105,7 @@
                       <Component id="headerSubmitButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="headerErrorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="addLabelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="newMilestoneButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -212,6 +215,16 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addLabelButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="newMilestoneButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.newMilestoneButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newMilestoneButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
