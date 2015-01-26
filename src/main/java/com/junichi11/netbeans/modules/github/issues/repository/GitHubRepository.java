@@ -719,10 +719,7 @@ public class GitHubRepository {
     }
 
     void removed() {
-        // remove all queries
-        for (GitHubQuery query : getQueries()) {
-            removeQueryConfig(query);
-        }
+        GitHubIssuesConfig.getInstance().removeRepository(this);
         if (queries != null) {
             queries.clear();
         }
