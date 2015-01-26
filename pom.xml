@@ -146,6 +146,10 @@
 &lt;li&gt;Create a new issue&lt;/li&gt;
 &lt;li&gt;Edit an issue&lt;/li&gt;
 &lt;li&gt;Create queries&lt;/li&gt;
+&lt;li&gt;Edit an issue comment&lt;/li&gt;
+&lt;li&gt;Delete an issue comment&lt;/li&gt;
 &lt;li&gt;Search issues with issue number or keywords&lt;/li&gt;
+&lt;li&gt;Create a new label&lt;/li&gt;
+&lt;li&gt;Create a new milestone&lt;/li&gt;
 &lt;/ul&gt;</description>
 </project>
