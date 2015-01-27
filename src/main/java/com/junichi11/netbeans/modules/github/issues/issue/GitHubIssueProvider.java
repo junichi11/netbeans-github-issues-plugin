@@ -109,12 +109,12 @@ public class GitHubIssueProvider implements IssueProvider<GitHubIssue> {
     }
 
     @Override
-    public void removePropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+    public void addPropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
         issue.addPropertyChangeListener(listener);
     }
 
     @Override
-    public void addPropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+    public void removePropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
         issue.removePropertyChangeListener(listener);
     }
 

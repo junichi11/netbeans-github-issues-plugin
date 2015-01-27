@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -48,6 +48,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>unknown-jars-temp-repo</id>
+            <name>A temporary repository created by NetBeans for libraries and jars it could not identify. Please replace the dependencies in this repository with correct ones and delete this repository.</name>
+            <url>file:${project.basedir}/lib</url>
         </repository>
     </repositories>
     <dependencies>
@@ -124,6 +129,11 @@
             <artifactId>org-netbeans-modules-options-api</artifactId>
             <version>RELEASE80</version>
         </dependency>
+        <dependency>
+            <groupId>unknown.binary</groupId>
+            <artifactId>swingx-all-1.6.4</artifactId>
+            <version>SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,6 +146,11 @@
 &lt;li&gt;Create a new issue&lt;/li&gt;
 &lt;li&gt;Edit an issue&lt;/li&gt;
 &lt;li&gt;Create queries&lt;/li&gt;
+&lt;li&gt;Edit an issue comment&lt;/li&gt;
+&lt;li&gt;Delete an issue comment&lt;/li&gt;
 &lt;li&gt;Search issues with issue number or keywords&lt;/li&gt;
+&lt;li&gt;Create a new label&lt;/li&gt;
+&lt;li&gt;Create a new milestone&lt;/li&gt;
+&lt;li&gt;Set a schedule for an issue&lt;/li&gt;
 &lt;/ul&gt;</description>
 </project>

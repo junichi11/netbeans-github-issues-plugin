@@ -10,6 +10,9 @@ This plugin provides support for GitHub Issue Tracker.
 - Edit an issue comment
 - Delete an issue comment
 - Search issues with issue number or keywords
+- Create a new label
+- Create a new milestone
+- Set a schedule for an issue
 
 ## Usage
 

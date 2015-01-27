@@ -53,16 +53,17 @@ public class GitHubIssueScheduleProvider implements IssueScheduleProvider<GitHub
 
     @Override
     public void setSchedule(GitHubIssue issue, IssueScheduleInfo info) {
+        issue.setSchedule(info);
     }
 
     @Override
     public Date getDueDate(GitHubIssue issue) {
-        return null;
+        return issue.getDueDate();
     }
 
     @Override
     public IssueScheduleInfo getSchedule(GitHubIssue issue) {
-        return null;
+        return issue.getSchedule();
     }
 
 }

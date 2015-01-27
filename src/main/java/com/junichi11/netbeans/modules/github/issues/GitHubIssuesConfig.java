@@ -41,9 +41,14 @@
  */
 package com.junichi11.netbeans.modules.github.issues;
 
+import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.openide.util.Exceptions;
@@ -56,8 +61,12 @@ import org.openide.util.NbPreferences;
 public final class GitHubIssuesConfig {
 
     private static final GitHubIssuesConfig INSTANCE = new GitHubIssuesConfig();
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd"); // NOI18N
     private static final String QUERY = "query"; // NOI18N
     private static final String QUERY_PARAMS = "query.params"; // NOI18N
+    private static final String SCHEDULE = "schedule"; // NOI18N
+    private static final String SCHEDULE_DUE_DATE = "schedule.due"; // NOI18N
+    private static final String SCHEDULE_INTERVAL = "schedule.interval"; // NOI18N
 
     private GitHubIssuesConfig() {
     }
@@ -67,7 +76,7 @@ public final class GitHubIssuesConfig {
     }
 
     /**
-     * Reteurn saved query names.
+     * Return saved query names.
      *
      * @param repository repository
      * @return saved query names
@@ -125,7 +134,80 @@ public final class GitHubIssuesConfig {
         }
     }
 
+    public void setScheduleDueDate(GitHubRepository repository, GitHubIssue issue, Date dueDate) {
+        Preferences preferences = getPreferences(repository);
+        String id = issue.getID();
+        if (StringUtils.isEmpty(id)) {
+            return;
+        }
+        preferences.node(SCHEDULE).node(id).put(SCHEDULE_DUE_DATE, DATE_FORMAT.format(dueDate));
+    }
+
+    public Date getScheduleDueDate(GitHubRepository repository, GitHubIssue issue) {
+        Preferences preferences = getPreferences(repository);
+        String id = issue.getID();
+        if (StringUtils.isEmpty(id)) {
+            return null;
+        }
+        String dateString = preferences.node(SCHEDULE).node(id).get(SCHEDULE_DUE_DATE, null);
+        if (StringUtils.isEmpty(dateString)) {
+            return null;
+        }
+        try {
+            return DateFormat.getDateInstance().parse(dateString);
+        } catch (ParseException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return null;
+    }
+
+    public void setScheduleInterval(GitHubRepository repository, GitHubIssue issue, int interval) {
+        Preferences preferences = getPreferences(repository);
+        String id = issue.getID();
+        if (StringUtils.isEmpty(id)) {
+            return;
+        }
+        preferences.node(SCHEDULE).node(id).putInt(SCHEDULE_INTERVAL, interval);
+    }
+
+    public int getScheduleInterval(GitHubRepository repository, GitHubIssue issue) {
+        Preferences preferences = getPreferences(repository);
+        String id = issue.getID();
+        if (StringUtils.isEmpty(id)) {
+            return -1;
+        }
+        return preferences.node(SCHEDULE).node(id).getInt(SCHEDULE_INTERVAL, -1);
+    }
+
+    public void removeSchedule(GitHubRepository repository, GitHubIssue issue) {
+        Preferences preferences = getPreferences(repository);
+        String id = issue.getID();
+        if (StringUtils.isEmpty(id)) {
+            return;
+        }
+        preferences = preferences.node(SCHEDULE).node(id);
+        try {
+            preferences.removeNode();
+        } catch (BackingStoreException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public void removeRepository(GitHubRepository repository) {
+        Preferences preferences = getPreferences(repository);
+        try {
+            preferences.removeNode();
+        } catch (BackingStoreException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
     private Preferences getPreferences() {
         return NbPreferences.forModule(GitHubIssuesConfig.class);
+    }
+
+    private Preferences getPreferences(GitHubRepository repository) {
+        String id = repository.getID();
+        return getPreferences().node(id);
     }
 }
