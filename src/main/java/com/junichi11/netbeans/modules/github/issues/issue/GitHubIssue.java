@@ -316,7 +316,7 @@ public final class GitHubIssue {
             return null;
         }
         calendar.setTime(date);
-        calendar.add(Calendar.DATE, interval - 1);
+        calendar.add(Calendar.DATE, interval);
         return calendar.getTime();
     }
 
