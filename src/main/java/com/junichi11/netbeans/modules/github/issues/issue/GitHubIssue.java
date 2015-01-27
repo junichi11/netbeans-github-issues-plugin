@@ -47,6 +47,7 @@ import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -64,6 +65,7 @@ import org.netbeans.modules.bugtracking.issuetable.IssueNode;
 import org.netbeans.modules.bugtracking.spi.IssueController;
 import org.netbeans.modules.bugtracking.spi.IssueProvider;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
+import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.openide.util.NbBundle;
 import org.pegdown.Extensions;
@@ -294,15 +296,28 @@ public final class GitHubIssue {
         if (scheduleInfo == null) {
             // remove schedule
             GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
-            return;
+        } else {
+            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
+            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
         }
-        GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
-        GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
+        fireDataChange();
+        fireScheduleChange();
     }
 
     public Date getDueDate() {
         IssueScheduleInfo info = getSchedule();
-        return info != null ? info.getDate() : null;
+        if (info == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        Date date = info.getDate();
+        int interval = info.getInterval();
+        if (interval < 1) {
+            return null;
+        }
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, interval - 1);
+        return calendar.getTime();
     }
 
     public IssueScheduleInfo getSchedule() {
@@ -394,6 +409,10 @@ public final class GitHubIssue {
 
     void fireStatusChange() {
         propertyChangeSupport.firePropertyChange(IssueStatusProvider.EVENT_STATUS_CHANGED, null, null);
+    }
+
+    void fireScheduleChange() {
+        propertyChangeSupport.firePropertyChange(IssueScheduleProvider.EVENT_ISSUE_SCHEDULE_CHANGED, null, null);
     }
 
 }
