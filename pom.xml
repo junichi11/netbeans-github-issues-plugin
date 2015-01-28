@@ -130,9 +130,9 @@
             <version>RELEASE80</version>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-libs-swingx</artifactId>
-            <version>RELEASE80</version>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>swingx-0.9.5</artifactId>
+            <version>RELEASE72</version>
         </dependency>
     </dependencies>
     <properties>
