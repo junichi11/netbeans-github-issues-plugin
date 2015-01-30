@@ -43,6 +43,7 @@ package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -119,11 +120,50 @@ public final class GitHubIssue {
         if (isNew()) {
             return Bundle.GitHubIssue_new_issue_displayName();
         }
-        return String.format("%s - %s", issue.getNumber(), issue.getTitle());
+        return String.format("%s - %s", issue.getNumber(), issue.getTitle()); // NOI18N
     }
 
+    @NbBundle.Messages({
+        "GitHubIssue.LBL.assignee=Assignee",
+        "GitHubIssue.LBL.created=Created",
+        "GitHubIssue.LBL.createdBy=Created by",
+        "GitHubIssue.LBL.dueDate=Due date",
+        "GitHubIssue.LBL.milestone=Milestone"
+    })
     public String getTooltip() {
-        return String.format("%s [%s/%s]", getDisplayName(), repository.getRepositoryAuthor(), repository.getRepositoryName()); // NOI18N
+        // XXX improve
+        StringBuilder sb = new StringBuilder();
+        String title = String.format("%s [%s]", getDisplayName(), repository.getFullName()); // NOI18N
+        sb.append("<html>"); // NOI18N
+        sb.append("<b>").append(title).append("</b>"); // NOI18N
+        sb.append("<hr>"); // NOI18N
+        Date created = getCreated();
+        Date dueDate = getDueDate();
+        User assignee = getAssignee();
+        User createdUser = getCreatedUser();
+        Milestone milestone = getMilestone();
+        if (created != null) {
+            sb.append(Bundle.GitHubIssue_LBL_created()).append(" : ") // NOI18N
+                    .append(DateUtils.DEFAULT_DATE_FORMAT.format(created)).append("<br>"); // NOI18N
+        }
+        if (dueDate != null) {
+            sb.append(Bundle.GitHubIssue_LBL_dueDate()).append(" : ") // NOI18N
+                    .append(DateUtils.DEFAULT_DATE_FORMAT.format(dueDate)).append("<br>"); // NOI18N
+        }
+        if (createdUser != null) {
+            sb.append(Bundle.GitHubIssue_LBL_createdBy()).append(" : ") // NOI18N
+                    .append(createdUser.getLogin()).append("<br>"); // NOI18N
+        }
+        if (assignee != null) {
+            sb.append(Bundle.GitHubIssue_LBL_assignee()).append(" : ") // NOI18N
+                    .append(assignee.getLogin()).append("<br>"); // NOI18N
+        }
+        if (milestone != null) {
+            sb.append(Bundle.GitHubIssue_LBL_milestone()).append(" : ") // NOI18N
+                    .append(milestone.getTitle()).append("<br>"); // NOI18N
+        }
+        sb.append("</html>"); // NOI18N
+        return sb.toString();
     }
 
     public boolean isNew() {
