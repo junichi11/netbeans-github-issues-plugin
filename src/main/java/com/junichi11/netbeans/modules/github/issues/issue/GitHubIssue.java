@@ -42,12 +42,11 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
-import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -58,6 +57,7 @@ import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
+import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.User;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
@@ -190,6 +190,13 @@ public final class GitHubIssue {
         return null;
     }
 
+    public Milestone getMilestone() {
+        if (issue != null) {
+            return issue.getMilestone();
+        }
+        return null;
+    }
+
     public boolean isFinished() {
         if (issue == null) {
             return false;
@@ -237,8 +244,10 @@ public final class GitHubIssue {
             setIssue(newIssue);
             // add to cache
             repository.addIssue(this);
+            scheduleInfo = createScheduleInfo();
             fireChange();
             fireDataChange();
+            fireScheduleChange();
         }
         return newIssue;
     }
@@ -247,6 +256,10 @@ public final class GitHubIssue {
         Issue editIssue = repository.editIssue(this, params);
         if (editIssue != null) {
             setIssue(editIssue);
+            scheduleInfo = createScheduleInfo();
+            fireChange();
+            fireDataChange();
+            fireScheduleChange();
         } else {
             repository.refresh(this);
         }
@@ -291,49 +304,82 @@ public final class GitHubIssue {
     }
 
     // schedule
+    @NbBundle.Messages({
+        "GitHubIssue.MSG.setSchedule=Set a due date to your milestone"
+    })
     public void setSchedule(IssueScheduleInfo scheduleInfo) {
-        this.scheduleInfo = scheduleInfo;
-        if (scheduleInfo == null) {
-            // remove schedule
-            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
-        } else {
-            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
-            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
-        }
-        fireDataChange();
-        fireScheduleChange();
+        UiUtils.showPlainDialog(Bundle.GitHubIssue_MSG_setSchedule());
+        // remove ?
+//        this.scheduleInfo = scheduleInfo;
+//        if (scheduleInfo == null) {
+//            // remove schedule
+//            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
+//        } else {
+//            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
+//            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
+//        }
+//        fireDataChange();
+//        fireScheduleChange();
     }
 
     public Date getDueDate() {
-        IssueScheduleInfo info = getSchedule();
-        if (info == null) {
+        String status = getStatus();
+        if (status == null || GitHubIssueState.toEnum(status) == GitHubIssueState.CLOSED) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        Date date = info.getDate();
-        int interval = info.getInterval();
-        if (interval < 1) {
-            return null;
+        Milestone milestone = getMilestone();
+        if (milestone != null) {
+            return milestone.getDueOn();
         }
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE, interval);
-        return calendar.getTime();
+        return null;
+
+        // remove?
+//        IssueScheduleInfo info = getSchedule();
+//        if (info == null) {
+//            return null;
+//        }
+//        Calendar calendar = Calendar.getInstance();
+//        Date date = info.getDate();
+//        int interval = info.getInterval();
+//        if (interval < 1) {
+//            return null;
+//        }
+//        calendar.setTime(date);
+//        calendar.add(Calendar.DATE, interval);
+//        return calendar.getTime();
     }
 
     public IssueScheduleInfo getSchedule() {
+        String status = getStatus();
+        if (status == null || GitHubIssueState.toEnum(status) == GitHubIssueState.CLOSED) {
+            return null;
+        }
         if (scheduleInfo == null) {
-            GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
-            Date dueDate = config.getScheduleDueDate(repository, this);
-            int interval = config.getScheduleInterval(repository, this);
-            if (dueDate != null) {
-                if (interval > 0) {
-                    scheduleInfo = new IssueScheduleInfo(dueDate, interval);
-                } else {
-                    scheduleInfo = new IssueScheduleInfo(dueDate);
-                }
-            }
+            scheduleInfo = createScheduleInfo();
         }
         return scheduleInfo;
+    }
+
+    private IssueScheduleInfo createScheduleInfo() {
+        Milestone milestone = getMilestone();
+        if (milestone != null) {
+            Date dueDate = milestone.getDueOn();
+            if (dueDate != null) {
+                return new IssueScheduleInfo(dueDate, 1);
+            }
+        }
+        // XXX remove ?
+//        GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
+//        Date dueDate = config.getScheduleDueDate(repository, this);
+//        int interval = config.getScheduleInterval(repository, this);
+//        if (dueDate != null) {
+//            if (interval > 0) {
+//                return new IssueScheduleInfo(dueDate, interval);
+//            } else {
+//                return new IssueScheduleInfo(dueDate);
+//            }
+//        }
+        return null;
     }
 
     @NbBundle.Messages({
