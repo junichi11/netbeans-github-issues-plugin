@@ -55,6 +55,7 @@ import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
@@ -202,6 +203,9 @@ public class GitHubIssuePanel extends JPanel {
 
                 // title
                 titleTextField.setText(issue.getTitle());
+                Dimension dim = titleTextField.getPreferredSize();
+                titleTextField.setMinimumSize(new Dimension(0, dim.height));
+                titleTextField.setPreferredSize(new Dimension(0, dim.height));
 
                 // description
                 descriptionTabbedPanel.setText(issue.getBody());
@@ -360,7 +364,12 @@ public class GitHubIssuePanel extends JPanel {
             headerStatusLabel.setText("");
 
         } else {
-            headerNameLabel.setText(String.format("%s #%s", gitHubIssue.getSummary(), gitHubIssue.getID())); // NOI18N
+            String summary = gitHubIssue.getSummary();
+            headerNameLabel.setText(String.format("%s #%s", summary, gitHubIssue.getID())); // NOI18N
+            Dimension dim = headerNameLabel.getPreferredSize();
+            headerNameLabel.setMinimumSize(new Dimension(0, dim.height));
+            headerNameLabel.setPreferredSize(new Dimension(0, dim.height));
+
             headerSubmitButton.setText(Bundle.GitHubIssuePanel_label_header_submit_button());
             headerSubmitButton.setVisible(gitHubIssue.isEditableUser());
             Issue issue = gitHubIssue.getIssue();
@@ -653,8 +662,8 @@ public class GitHubIssuePanel extends JPanel {
                         .addComponent(headerCreatedByUserLabel)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(headerPanelLayout.createSequentialGroup()
-                        .addComponent(headerNameLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(headerNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
