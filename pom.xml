@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -130,9 +130,9 @@
             <version>RELEASE80</version>
         </dependency>
         <dependency>
-            <groupId>unknown.binary</groupId>
-            <artifactId>swingx-all-1.6.4</artifactId>
-            <version>SNAPSHOT</version>
+            <groupId>org.netbeans.external</groupId>
+            <artifactId>swingx-0.9.5</artifactId>
+            <version>RELEASE72</version>
         </dependency>
     </dependencies>
     <properties>

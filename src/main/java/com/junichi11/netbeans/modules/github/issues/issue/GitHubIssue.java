@@ -42,12 +42,13 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
-import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
+import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -58,6 +59,7 @@ import java.util.logging.Logger;
 import javax.swing.JTable;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
+import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.User;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
@@ -68,7 +70,6 @@ import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.openide.util.NbBundle;
-import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -119,11 +120,50 @@ public final class GitHubIssue {
         if (isNew()) {
             return Bundle.GitHubIssue_new_issue_displayName();
         }
-        return String.format("%s - %s", issue.getNumber(), issue.getTitle());
+        return String.format("%s - %s", issue.getNumber(), issue.getTitle()); // NOI18N
     }
 
+    @NbBundle.Messages({
+        "GitHubIssue.LBL.assignee=Assignee",
+        "GitHubIssue.LBL.created=Created",
+        "GitHubIssue.LBL.createdBy=Created by",
+        "GitHubIssue.LBL.dueDate=Due date",
+        "GitHubIssue.LBL.milestone=Milestone"
+    })
     public String getTooltip() {
-        return String.format("%s [%s/%s]", getDisplayName(), repository.getRepositoryAuthor(), repository.getRepositoryName()); // NOI18N
+        // XXX improve
+        StringBuilder sb = new StringBuilder();
+        String title = String.format("%s [%s]", getDisplayName(), repository.getFullName()); // NOI18N
+        sb.append("<html>"); // NOI18N
+        sb.append("<b>").append(title).append("</b>"); // NOI18N
+        sb.append("<hr>"); // NOI18N
+        Date created = getCreated();
+        Date dueDate = getDueDate();
+        User assignee = getAssignee();
+        User createdUser = getCreatedUser();
+        Milestone milestone = getMilestone();
+        if (created != null) {
+            sb.append(Bundle.GitHubIssue_LBL_created()).append(" : ") // NOI18N
+                    .append(DateUtils.DEFAULT_DATE_FORMAT.format(created)).append("<br>"); // NOI18N
+        }
+        if (dueDate != null) {
+            sb.append(Bundle.GitHubIssue_LBL_dueDate()).append(" : ") // NOI18N
+                    .append(DateUtils.DEFAULT_DATE_FORMAT.format(dueDate)).append("<br>"); // NOI18N
+        }
+        if (createdUser != null) {
+            sb.append(Bundle.GitHubIssue_LBL_createdBy()).append(" : ") // NOI18N
+                    .append(createdUser.getLogin()).append("<br>"); // NOI18N
+        }
+        if (assignee != null) {
+            sb.append(Bundle.GitHubIssue_LBL_assignee()).append(" : ") // NOI18N
+                    .append(assignee.getLogin()).append("<br>"); // NOI18N
+        }
+        if (milestone != null) {
+            sb.append(Bundle.GitHubIssue_LBL_milestone()).append(" : ") // NOI18N
+                    .append(milestone.getTitle()).append("<br>"); // NOI18N
+        }
+        sb.append("</html>"); // NOI18N
+        return sb.toString();
     }
 
     public boolean isNew() {
@@ -190,6 +230,13 @@ public final class GitHubIssue {
         return null;
     }
 
+    public Milestone getMilestone() {
+        if (issue != null) {
+            return issue.getMilestone();
+        }
+        return null;
+    }
+
     public boolean isFinished() {
         if (issue == null) {
             return false;
@@ -237,8 +284,10 @@ public final class GitHubIssue {
             setIssue(newIssue);
             // add to cache
             repository.addIssue(this);
+            scheduleInfo = createScheduleInfo();
             fireChange();
             fireDataChange();
+            fireScheduleChange();
         }
         return newIssue;
     }
@@ -247,6 +296,10 @@ public final class GitHubIssue {
         Issue editIssue = repository.editIssue(this, params);
         if (editIssue != null) {
             setIssue(editIssue);
+            scheduleInfo = createScheduleInfo();
+            fireChange();
+            fireDataChange();
+            fireScheduleChange();
         } else {
             repository.refresh(this);
         }
@@ -260,7 +313,7 @@ public final class GitHubIssue {
                 comment.setBody(editedBody);
                 Comment editComment = GitHubIssueSupport.editComment(getRepository(), comment);
                 if (editComment != null) {
-                    PegDownProcessor processor = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS);
+                    PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
                     String body = editComment.getBody();
                     String bodyHtml = processor.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
@@ -291,49 +344,82 @@ public final class GitHubIssue {
     }
 
     // schedule
+    @NbBundle.Messages({
+        "GitHubIssue.MSG.setSchedule=Set a due date to your milestone"
+    })
     public void setSchedule(IssueScheduleInfo scheduleInfo) {
-        this.scheduleInfo = scheduleInfo;
-        if (scheduleInfo == null) {
-            // remove schedule
-            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
-        } else {
-            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
-            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
-        }
-        fireDataChange();
-        fireScheduleChange();
+        UiUtils.showPlainDialog(Bundle.GitHubIssue_MSG_setSchedule());
+        // remove ?
+//        this.scheduleInfo = scheduleInfo;
+//        if (scheduleInfo == null) {
+//            // remove schedule
+//            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
+//        } else {
+//            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
+//            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
+//        }
+//        fireDataChange();
+//        fireScheduleChange();
     }
 
     public Date getDueDate() {
-        IssueScheduleInfo info = getSchedule();
-        if (info == null) {
+        String status = getStatus();
+        if (status == null || GitHubIssueState.toEnum(status) == GitHubIssueState.CLOSED) {
             return null;
         }
-        Calendar calendar = Calendar.getInstance();
-        Date date = info.getDate();
-        int interval = info.getInterval();
-        if (interval < 1) {
-            return null;
+        Milestone milestone = getMilestone();
+        if (milestone != null) {
+            return milestone.getDueOn();
         }
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE, interval);
-        return calendar.getTime();
+        return null;
+
+        // remove?
+//        IssueScheduleInfo info = getSchedule();
+//        if (info == null) {
+//            return null;
+//        }
+//        Calendar calendar = Calendar.getInstance();
+//        Date date = info.getDate();
+//        int interval = info.getInterval();
+//        if (interval < 1) {
+//            return null;
+//        }
+//        calendar.setTime(date);
+//        calendar.add(Calendar.DATE, interval);
+//        return calendar.getTime();
     }
 
     public IssueScheduleInfo getSchedule() {
+        String status = getStatus();
+        if (status == null || GitHubIssueState.toEnum(status) == GitHubIssueState.CLOSED) {
+            return null;
+        }
         if (scheduleInfo == null) {
-            GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
-            Date dueDate = config.getScheduleDueDate(repository, this);
-            int interval = config.getScheduleInterval(repository, this);
-            if (dueDate != null) {
-                if (interval > 0) {
-                    scheduleInfo = new IssueScheduleInfo(dueDate, interval);
-                } else {
-                    scheduleInfo = new IssueScheduleInfo(dueDate);
-                }
-            }
+            scheduleInfo = createScheduleInfo();
         }
         return scheduleInfo;
+    }
+
+    private IssueScheduleInfo createScheduleInfo() {
+        Milestone milestone = getMilestone();
+        if (milestone != null) {
+            Date dueDate = milestone.getDueOn();
+            if (dueDate != null) {
+                return new IssueScheduleInfo(dueDate, 1);
+            }
+        }
+        // XXX remove ?
+//        GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
+//        Date dueDate = config.getScheduleDueDate(repository, this);
+//        int interval = config.getScheduleInterval(repository, this);
+//        if (dueDate != null) {
+//            if (interval > 0) {
+//                return new IssueScheduleInfo(dueDate, interval);
+//            } else {
+//                return new IssueScheduleInfo(dueDate);
+//            }
+//        }
+        return null;
     }
 
     @NbBundle.Messages({

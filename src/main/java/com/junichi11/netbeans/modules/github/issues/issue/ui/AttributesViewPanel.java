@@ -41,8 +41,10 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
@@ -50,6 +52,7 @@ import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.User;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -70,6 +73,9 @@ public class AttributesViewPanel extends javax.swing.JPanel {
         milestoneNameLabel.setFont(bold);
     }
 
+    @NbBundle.Messages({
+        "AttributesViewPanel.LBL.dueDate=Due date"
+    })
     public void setAttributes(Issue issue) {
         initAttributes();
         if (issue == null) {
@@ -88,7 +94,23 @@ public class AttributesViewPanel extends javax.swing.JPanel {
         Milestone milestone = issue.getMilestone();
         if (milestone != null) {
             milestoneNameLabel.setText(milestone.getTitle());
-            milestoneNameLabel.setToolTipText(milestone.getDescription());
+
+            // tooptip
+            Date dueDate = milestone.getDueOn();
+            String description = milestone.getDescription();
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>"); // NOI18N
+            if (description == null) {
+                description = ""; // NOI18N
+            }
+            description = description.replaceAll("\n", "<br>"); // NOI18N
+            if (dueDate != null) {
+                sb.append(Bundle.AttributesViewPanel_LBL_dueDate()).append(" : ").append(DateUtils.DEFAULT_DATE_FORMAT.format(dueDate)).append("<br>"); // NOI18N
+                sb.append("<hr>"); // NOI18N
+            }
+            sb.append(description);
+            sb.append("</html>"); // NOI18N
+            milestoneNameLabel.setToolTipText(sb.toString());
         }
 
         List<Label> labels = issue.getLabels();

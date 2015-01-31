@@ -98,7 +98,7 @@ public class GitHubRepository {
     private RepositoryInfo repositoryInfo;
     private GitHubRepositoryController controller;
     private Repository ghRepository;
-    private final Map<String, GitHubIssue> issueCache = new HashMap<>();
+    private final Map<String, GitHubIssue> issueCache = Collections.synchronizedMap(new HashMap<String, GitHubIssue>());
     private Boolean isCollaborator = null;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -393,7 +393,7 @@ public class GitHubRepository {
      * @param issue Issue
      * @return GitHubIssue
      */
-    public GitHubIssue createIssue(Issue issue) {
+    public synchronized GitHubIssue createIssue(Issue issue) {
         String id = String.valueOf(issue.getNumber());
         GitHubIssue gitHubIssue = issueCache.get(id);
         if (gitHubIssue != null) {
@@ -409,7 +409,7 @@ public class GitHubRepository {
      *
      * @param issue GitHubIssue
      */
-    public void addIssue(GitHubIssue issue) {
+    public synchronized void addIssue(GitHubIssue issue) {
         if (issue == null) {
             return;
         }
@@ -498,7 +498,10 @@ public class GitHubRepository {
      */
     @CheckForNull
     private GitHubIssue getIssue(String id) {
-        GitHubIssue issue = issueCache.get(id);
+        GitHubIssue issue;
+        synchronized (this) {
+            issue = issueCache.get(id);
+        }
         if (issue != null) {
             return issue;
         }

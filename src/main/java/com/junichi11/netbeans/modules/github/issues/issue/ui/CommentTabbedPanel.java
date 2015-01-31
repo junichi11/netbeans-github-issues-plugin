@@ -41,11 +41,11 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import java.awt.Component;
 import java.awt.Dialog;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -176,7 +176,8 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
     private void commentTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_commentTabbedPaneStateChanged
         Component selectedComponent = commentTabbedPane.getSelectedComponent();
         if (selectedComponent == commentPreviewPanel) {
-            String html = new PegDownProcessor(Extensions.FENCED_CODE_BLOCKS).markdownToHtml(commentWriteTextArea.getText());
+            PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
+            String html = processor.markdownToHtml(commentWriteTextArea.getText());
             commentPreviewEditorPane.setText(html);
         }
     }//GEN-LAST:event_commentTabbedPaneStateChanged
