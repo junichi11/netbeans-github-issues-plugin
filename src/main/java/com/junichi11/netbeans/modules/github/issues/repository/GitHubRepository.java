@@ -789,7 +789,8 @@ public class GitHubRepository {
     }
 
     public void setRepositoryInfo(GitHubRepositoryInfo githubRepositoryInfo) {
-        repositoryInfo = createRepositoryInfo(githubRepositoryInfo, null, githubRepositoryInfo.getUserName(), null, null, null);
+        String url = String.format("https://github.com/%s/%s/issues/", githubRepositoryInfo.getRepositoryAuthor(), githubRepositoryInfo.getRepositoryName()); // NOI18N
+        repositoryInfo = createRepositoryInfo(githubRepositoryInfo, url, githubRepositoryInfo.getUserName(), null, null, null);
         setProperties(githubRepositoryInfo);
     }
 
