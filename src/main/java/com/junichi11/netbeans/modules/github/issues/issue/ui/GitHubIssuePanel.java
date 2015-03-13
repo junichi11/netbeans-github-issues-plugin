@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -580,6 +581,7 @@ public class GitHubIssuePanel extends JPanel {
         newCommentCloseReopenIssueButton = new javax.swing.JButton();
         attributesViewPanel = new com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel();
         mainCommetnsPanel = new javax.swing.JPanel();
+        assignYourselfLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(headerSubmitButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerSubmitButton.text")); // NOI18N
 
@@ -722,6 +724,13 @@ public class GitHubIssuePanel extends JPanel {
 
         mainCommetnsPanel.setLayout(new java.awt.BorderLayout());
 
+        org.openide.awt.Mnemonics.setLocalizedText(assignYourselfLinkButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.assignYourselfLinkButton.text")); // NOI18N
+        assignYourselfLinkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                assignYourselfLinkButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -740,15 +749,17 @@ public class GitHubIssuePanel extends JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(labelsLabel)
+                            .addComponent(labelsScrollPane)
                             .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addComponent(assigneeLabel)
+                                .addGap(19, 19, 19)
                                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(milestoneLabel)
-                                    .addComponent(assigneeLabel))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(milestoneComboBox, 0, 173, Short.MAX_VALUE)
-                                    .addComponent(assigneeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addComponent(labelsScrollPane)))
+                                    .addComponent(assignYourselfLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(assigneeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(mainPanelLayout.createSequentialGroup()
+                                .addComponent(milestoneLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(milestoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(newCommentLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -772,15 +783,17 @@ public class GitHubIssuePanel extends JPanel {
                     .addComponent(assigneeLabel)
                     .addComponent(titleLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
+                        .addComponent(assignYourselfLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(milestoneLabel)
                             .addComponent(milestoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(labelsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labelsScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(labelsScrollPane))
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(descriptionLabel)
                         .addGap(271, 271, 271))
@@ -903,7 +916,22 @@ public class GitHubIssuePanel extends JPanel {
         }
     }//GEN-LAST:event_newMilestoneButtonActionPerformed
 
+    private void assignYourselfLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_assignYourselfLinkButtonActionPerformed
+        GitHubRepository repository = getRepository();
+        if (repository == null) {
+            return;
+        }
+        GitHubCache cache = GitHubCache.create(repository);
+        User myself = cache.getMySelf();
+        if (myself == null) {
+            LOGGER.log(Level.WARNING, "{0} : Can't get myself.", repository.getFullName()); // NOI18N
+            return;
+        }
+        setAssigneeSelected(myself);
+    }//GEN-LAST:event_assignYourselfLinkButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private org.netbeans.modules.bugtracking.commons.LinkButton assignYourselfLinkButton;
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
