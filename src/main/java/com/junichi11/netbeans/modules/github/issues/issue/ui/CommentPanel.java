@@ -54,6 +54,8 @@ import org.openide.util.NbBundle;
 public class CommentPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = -1191208334240462498L;
+    private static final String HTML_MIME_TYPE = "text/html"; // NOI18N
+    private static final String PLAIN_MIME_TYPE = "text/plain"; // NOI18N
 
     private Comment comment;
     private boolean isQuote;
@@ -70,7 +72,12 @@ public class CommentPanel extends javax.swing.JPanel {
     public CommentPanel(Comment comment) {
         this.comment = comment;
         initComponents();
+        init();
         load();
+    }
+
+    private void init() {
+        previewLinkButton.setText(Bundle.CommentPanel_previewLinkButton_title_html());
     }
 
     final void load() {
@@ -78,7 +85,7 @@ public class CommentPanel extends javax.swing.JPanel {
             setUserName(comment.getUser().getLogin());
             setCreatedDate(comment.getCreatedAt());
             setUpdatedDate(comment.getUpdatedAt());
-            setContent(comment.getBodyHtml());
+            setContent(comment.getBody());
         }
     }
 
@@ -165,6 +172,7 @@ public class CommentPanel extends javax.swing.JPanel {
         contentTextPane = new javax.swing.JTextPane();
         quoteLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         deleteLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
+        previewLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(createdLabel, org.openide.util.NbBundle.getMessage(CommentPanel.class, "CommentPanel.createdLabel.text")); // NOI18N
 
@@ -185,7 +193,6 @@ public class CommentPanel extends javax.swing.JPanel {
 
         contentTextPane.setEditable(false);
         contentTextPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 5, 3, 5));
-        contentTextPane.setContentType("text/html"); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(quoteLinkButton, org.openide.util.NbBundle.getMessage(CommentPanel.class, "CommentPanel.quoteLinkButton.text")); // NOI18N
         quoteLinkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -201,6 +208,13 @@ public class CommentPanel extends javax.swing.JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(previewLinkButton, org.openide.util.NbBundle.getMessage(CommentPanel.class, "CommentPanel.previewLinkButton.text")); // NOI18N
+        previewLinkButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                previewLinkButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -211,7 +225,7 @@ public class CommentPanel extends javax.swing.JPanel {
                     .addComponent(contentTextPane)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(userLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
                         .addComponent(createdLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(createdDateLabel)
@@ -219,6 +233,8 @@ public class CommentPanel extends javax.swing.JPanel {
                         .addComponent(updatedLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updatedDateLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(previewLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(quoteLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -240,7 +256,8 @@ public class CommentPanel extends javax.swing.JPanel {
                     .addComponent(userLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(editLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(quoteLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(deleteLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(deleteLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(previewLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -270,6 +287,28 @@ public class CommentPanel extends javax.swing.JPanel {
         firePropertyChange(CommentsPanel.PROP_COMMENT_EDITED, null, null);
     }//GEN-LAST:event_editLinkButtonActionPerformed
 
+    @NbBundle.Messages({
+        "CommentPanel.previewLinkButton.title.html=HTML",
+        "CommentPanel.previewLinkButton.title.plain=Plain"
+    })
+    private void previewLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previewLinkButtonActionPerformed
+        String text = previewLinkButton.getText();
+        if (text.equals(Bundle.CommentPanel_previewLinkButton_title_html())) {
+            previewLinkButton.setText(Bundle.CommentPanel_previewLinkButton_title_plain());
+        } else {
+            previewLinkButton.setText(Bundle.CommentPanel_previewLinkButton_title_html());
+        }
+
+        String contentType = contentTextPane.getContentType();
+        if (contentType.equals(HTML_MIME_TYPE)) {
+            contentTextPane.setContentType(PLAIN_MIME_TYPE);
+            contentTextPane.setText(comment.getBody());
+            return;
+        }
+        contentTextPane.setContentType(HTML_MIME_TYPE);
+        contentTextPane.setText(comment.getBodyHtml());
+    }//GEN-LAST:event_previewLinkButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextPane contentTextPane;
     private javax.swing.JLabel createdDateLabel;
@@ -277,6 +316,7 @@ public class CommentPanel extends javax.swing.JPanel {
     private org.netbeans.modules.bugtracking.commons.LinkButton deleteLinkButton;
     private org.netbeans.modules.bugtracking.commons.LinkButton editLinkButton;
     private javax.swing.JSeparator jSeparator1;
+    private org.netbeans.modules.bugtracking.commons.LinkButton previewLinkButton;
     private org.netbeans.modules.bugtracking.commons.LinkButton quoteLinkButton;
     private javax.swing.JLabel updatedDateLabel;
     private javax.swing.JLabel updatedLabel;

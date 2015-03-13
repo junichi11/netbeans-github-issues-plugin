@@ -22,7 +22,7 @@
                   <Component id="contentTextPane" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="userLinkButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="56" max="32767" attributes="0"/>
+                      <EmptySpace pref="66" max="32767" attributes="0"/>
                       <Component id="createdLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="createdDateLabel" min="-2" max="-2" attributes="0"/>
@@ -30,6 +30,8 @@
                       <Component id="updatedLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="updatedDateLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="previewLinkButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="quoteLinkButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -56,6 +58,7 @@
                   <Component id="editLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="quoteLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="deleteLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="previewLinkButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="jSeparator1" min="-2" max="-2" attributes="0"/>
@@ -122,7 +125,6 @@
             <EmptyBorder bottom="3" left="5" right="5" top="3"/>
           </Border>
         </Property>
-        <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
       </Properties>
     </Component>
     <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="quoteLinkButton">
@@ -143,6 +145,16 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteLinkButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="previewLinkButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="CommentPanel.previewLinkButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="previewLinkButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>
