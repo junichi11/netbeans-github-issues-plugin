@@ -43,6 +43,7 @@ package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
+import java.awt.Font;
 import java.util.Date;
 import org.eclipse.egit.github.core.Comment;
 import org.openide.util.NbBundle;
@@ -77,6 +78,10 @@ public class CommentPanel extends javax.swing.JPanel {
     }
 
     private void init() {
+        // set monospaced font
+        Font contentFont = contentTextPane.getFont();
+        contentTextPane.setFont(new Font(Font.MONOSPACED, contentFont.getStyle(), contentFont.getSize()));
+
         previewLinkButton.setText(Bundle.CommentPanel_previewLinkButton_title_html());
     }
 
