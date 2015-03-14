@@ -18,123 +18,103 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Component id="headerPanel" alignment="0" max="32767" attributes="0"/>
           <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="mainIssueTablePanel" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="keywordLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="mentionsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="assigneeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="authorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="involvesLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="languageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="keywordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="authorTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="mentionsTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="assigneeTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="involvesTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="labelsTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="languageTextField" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="createdLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="updatedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="mergedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="closedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="inLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="commentsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="createdTextField" max="32767" attributes="0"/>
+                          <Component id="updatedTextField" max="32767" attributes="0"/>
+                          <Component id="mergedTextField" max="32767" attributes="0"/>
+                          <Component id="closedTextField" max="32767" attributes="0"/>
+                          <Component id="inTextField" max="32767" attributes="0"/>
+                          <Component id="commentsTextField" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" attributes="0">
                       <Component id="keywordTextField" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="stateLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="stateComboBox" min="-2" max="-2" attributes="0"/>
                   </Group>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+              <Component id="mainIssueTablePanel" max="32767" attributes="0"/>
+              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="authorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="mentionsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="assigneeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="assigneeTextField" max="32767" attributes="0"/>
-                                  <Component id="mentionsTextField" max="32767" attributes="0"/>
-                                  <Component id="authorTextField" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="languageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="labelsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="involvesLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="involvesTextField" max="32767" attributes="0"/>
-                                  <Component id="labelsTextField" max="32767" attributes="0"/>
-                                  <Component id="languageTextField" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                      </Group>
-                      <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="updatedLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="createdLabel" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="updatedTextField" max="32767" attributes="0"/>
-                                  <Component id="createdTextField" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="mergedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="closedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="inLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="inTextField" max="32767" attributes="0"/>
-                                  <Component id="closedTextField" max="32767" attributes="0"/>
-                                  <Component id="mergedTextField" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="commentsLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="commentsTextField" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                      <Component id="isLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="isOpenComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="isMergedComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="isIssueComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="noLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="noComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="typeLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="typeComboBox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                      <Component id="searchButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="saveButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="resetButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="resultsLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="sortLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="sortComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="orderLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="orderComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="searchButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="saveButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="resetButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="resultsLabel" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="isLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="isOpenComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="isMergedComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="isIssueComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="noLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="noComboBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="typeLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="typeComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace min="0" pref="25" max="32767" attributes="0"/>
+                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                      <Component id="sortLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sortComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="orderLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="orderComboBox" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -149,59 +129,66 @@
                   <Component id="stateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="stateComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="authorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authorTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="createdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="createdTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                      <Component id="createdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="createdTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="mainIssueTablePanel" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="mentionsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="mentionsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="updatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="updatedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="mergedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="mergedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="assigneeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="assigneeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="mergedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="mergedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="involvesTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="involvesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="closedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="closedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="closedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="involvesTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="involvesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="labelsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="inLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="labelsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="authorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="authorTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                      <Component id="closedTextField" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="mentionsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="mentionsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="inTextField" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="inLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="inTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="languageTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="languageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="commentsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="commentsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="languageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="languageTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="commentsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="commentsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="isLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="isOpenComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -212,7 +199,7 @@
                   <Component id="typeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="typeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="sortLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="sortComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -226,8 +213,6 @@
                   <Component id="resetButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="resultsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="mainIssueTablePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
