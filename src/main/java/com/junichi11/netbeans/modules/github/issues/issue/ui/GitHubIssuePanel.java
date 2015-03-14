@@ -105,11 +105,13 @@ public class GitHubIssuePanel extends JPanel {
     private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
     private static final Logger LOGGER = Logger.getLogger(GitHubIssuePanel.class.getName());
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // NOI18N
+    private final String repositoryId;
 
     /**
      * Creates new form GitHubIssuePanel
      */
-    public GitHubIssuePanel() {
+    public GitHubIssuePanel(String repositoryId) {
+        this.repositoryId = repositoryId;
         initComponents();
         init();
     }
@@ -117,7 +119,7 @@ public class GitHubIssuePanel extends JPanel {
     private void init() {
         // set cell renderer
         milestoneComboBox.setRenderer(new AttributesListCellRenderer(milestoneComboBox.getRenderer()));
-        assigneeComboBox.setRenderer(new AttributesListCellRenderer(assigneeComboBox.getRenderer()));
+        assigneeComboBox.setRenderer(new AttributesListCellRenderer(assigneeComboBox.getRenderer(), repositoryId));
         labelsList.setCellRenderer(new AttributesListCellRenderer(labelsList.getCellRenderer()));
         milestoneComboBox.setModel(milestoneComboBoxModel);
         assigneeComboBox.setModel(assigneeComboBoxModel);
@@ -197,10 +199,16 @@ public class GitHubIssuePanel extends JPanel {
             Issue issue = gitHubIssue.getIssue();
             if (issue != null) {
                 // set existing info
+                // user infomation
+                User user = issue.getUser();
+                GitHubCache cache = GitHubCache.create(repository);
+                Icon userIcon = cache.getUserIcon(user);
+
                 // header
                 headerCreatedDateLabel.setText(DATE_FORMAT.format(issue.getCreatedAt()));
                 headerUpdatedDateLabel.setText(DATE_FORMAT.format(issue.getUpdatedAt()));
-                headerCreatedByUserLabel.setText(issue.getUser().getLogin());
+                headerCreatedByUserLabel.setText(user.getLogin());
+                headerCreatedByUserLabel.setIcon(userIcon);
 
                 // title
                 titleTextField.setText(issue.getTitle());
@@ -230,7 +238,7 @@ public class GitHubIssuePanel extends JPanel {
                 }
 
                 // set attributes
-                attributesViewPanel.setAttributes(issue);
+                attributesViewPanel.setAttributes(issue, repository);
 
                 // new comment
                 GitHubIssueState state = GitHubIssueState.toEnum(issue.getState());
@@ -250,7 +258,7 @@ public class GitHubIssuePanel extends JPanel {
                     String bodyHtml = processor.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
-                commentsPanel.addComments(comments, repository.getUserName());
+                commentsPanel.addComments(comments, repository);
             }
         }
 
@@ -281,7 +289,7 @@ public class GitHubIssuePanel extends JPanel {
     }
 
     public void loadComments() {
-        commentsPanel.loadComments();
+        commentsPanel.loadComments(getRepository());
         fireChange();
     }
 

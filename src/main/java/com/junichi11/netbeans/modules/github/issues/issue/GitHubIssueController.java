@@ -74,8 +74,10 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
 
     private GitHubIssuePanel panel;
     private String errorMessage;
+    private final String repositoryId;
 
     public GitHubIssueController(GitHubIssue gitHubIssue) {
+        repositoryId = gitHubIssue.getRepository().getID();
         getPanel().setIssue(gitHubIssue);
         getPanel().update();
     }
@@ -125,7 +127,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
 
     private GitHubIssuePanel getPanel() {
         if (panel == null) {
-            panel = new GitHubIssuePanel();
+            panel = new GitHubIssuePanel(repositoryId);
             panel.addChangeListener(this);
             panel.addAction(getSubmitIssueAction());
             panel.addAction(getCommentAction());

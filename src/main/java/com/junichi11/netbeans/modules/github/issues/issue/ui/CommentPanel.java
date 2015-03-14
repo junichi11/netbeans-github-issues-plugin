@@ -45,6 +45,7 @@ import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Font;
 import java.util.Date;
+import javax.swing.Icon;
 import org.eclipse.egit.github.core.Comment;
 import org.openide.util.NbBundle;
 
@@ -70,11 +71,11 @@ public class CommentPanel extends javax.swing.JPanel {
         initComponents();
     }
 
-    public CommentPanel(Comment comment) {
+    public CommentPanel(Comment comment, Icon icon) {
         this.comment = comment;
         initComponents();
         init();
-        load();
+        load(icon);
     }
 
     private void init() {
@@ -85,9 +86,10 @@ public class CommentPanel extends javax.swing.JPanel {
         previewLinkButton.setText(Bundle.CommentPanel_previewLinkButton_title_html());
     }
 
-    final void load() {
+    final void load(Icon icon) {
         if (comment != null) {
             setUserName(comment.getUser().getLogin());
+            setUserIcon(icon);
             setCreatedDate(comment.getCreatedAt());
             setUpdatedDate(comment.getUpdatedAt());
             setContent(comment.getBody());
@@ -96,6 +98,10 @@ public class CommentPanel extends javax.swing.JPanel {
 
     private void setUserName(String name) {
         userLinkButton.setText(name);
+    }
+
+    private void setUserIcon(Icon icon) {
+        userLinkButton.setIcon(icon);
     }
 
     private void setCreatedDate(Date date) {

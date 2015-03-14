@@ -41,8 +41,13 @@
  */
 package com.junichi11.netbeans.modules.github.issues.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepositoryManager;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import org.eclipse.egit.github.core.Label;
@@ -58,20 +63,34 @@ public class AttributesListCellRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = -7361150610203379058L;
 
     private final ListCellRenderer renderer;
+    private final String repositoryId;
 
     public AttributesListCellRenderer(ListCellRenderer renderer) {
+        this(renderer, null);
+    }
+
+    public AttributesListCellRenderer(ListCellRenderer renderer, String repositoryId) {
         this.renderer = renderer;
+        this.repositoryId = repositoryId;
     }
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         String text = null;
+        Icon icon = null;
         if (value instanceof Milestone) {
             Milestone milestone = (Milestone) value;
             text = milestone.getTitle();
         } else if (value instanceof User) {
             User user = (User) value;
             text = user.getLogin();
+            if (text != null && repositoryId != null && !repositoryId.isEmpty()) {
+                GitHubRepository repository = GitHubRepositoryManager.getInstance().getRepository(repositoryId);
+                if (repository != null) {
+                    GitHubCache cache = GitHubCache.create(repository);
+                    icon = cache.getUserIcon(user);
+                }
+            }
         } else if (value instanceof Label) {
             Label label = (Label) value;
             text = label.getName();
@@ -79,7 +98,9 @@ public class AttributesListCellRenderer extends DefaultListCellRenderer {
         if (text == null) {
             text = " "; // NOI18N
         }
-        return renderer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+        JLabel label = (JLabel) renderer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
+        label.setIcon(icon);
+        return label;
     }
 
 }
