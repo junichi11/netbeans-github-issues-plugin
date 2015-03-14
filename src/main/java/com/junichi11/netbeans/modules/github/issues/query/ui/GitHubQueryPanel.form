@@ -74,9 +74,9 @@
               <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
           </Group>
           <Group type="102" attributes="0">
+              <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
                       <Component id="isLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="isOpenComboBox" min="-2" max="-2" attributes="0"/>
@@ -94,7 +94,6 @@
                       <Component id="typeComboBox" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
                       <Component id="searchButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="saveButton" min="-2" max="-2" attributes="0"/>
@@ -104,7 +103,6 @@
                       <Component id="resultsLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
                       <Component id="sortLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="sortComboBox" min="-2" max="-2" attributes="0"/>
@@ -137,23 +135,18 @@
                   <Component id="createdTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="mainIssueTablePanel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="mentionsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="mentionsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="updatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="updatedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="assigneeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="assigneeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="mergedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="mergedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="mentionsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="mentionsTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="updatedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="updatedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="assigneeTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="assigneeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="mergedLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="mergedTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
@@ -213,6 +206,8 @@
                   <Component id="resetButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="resultsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="mainIssueTablePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -226,13 +221,6 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="keywordLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/query/ui/Bundle.properties" key="GitHubQueryPanel.keywordLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JComboBox" name="stateComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
@@ -242,6 +230,13 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;State&gt;"/>
       </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="keywordLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/query/ui/Bundle.properties" key="GitHubQueryPanel.keywordLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="keywordTextField">
       <Properties>
