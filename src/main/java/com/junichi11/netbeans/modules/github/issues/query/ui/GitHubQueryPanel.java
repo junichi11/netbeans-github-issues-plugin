@@ -304,7 +304,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
     }
 
     public Type getType() {
-        return (Type) noComboBox.getSelectedItem();
+        return (Type) typeComboBox.getSelectedItem();
     }
 
     public No getNo() {
