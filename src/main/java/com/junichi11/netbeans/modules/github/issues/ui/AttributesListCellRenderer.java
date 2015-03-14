@@ -94,6 +94,7 @@ public class AttributesListCellRenderer extends DefaultListCellRenderer {
         } else if (value instanceof Label) {
             Label label = (Label) value;
             text = label.getName();
+            icon = new ColorIcon(String.format("#%s", label.getColor())); // NOI18N
         }
         if (text == null) {
             text = " "; // NOI18N
