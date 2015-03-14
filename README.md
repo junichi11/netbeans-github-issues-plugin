@@ -12,7 +12,7 @@ This plugin provides support for GitHub Issue Tracker.
 - Search issues with issue number or keywords
 - Create a new label
 - Create a new milestone
-- Set a schedule for an issue
+- Add issues to schedule categories
 
 ## Usage
 
@@ -24,6 +24,10 @@ This plugin provides support for GitHub Issue Tracker.
 4. Input display name, your user name, OAuth token and repository information
 5. Click Connect button (If you can't connect a repository, please try to check input values)
 6. Click OK button
+
+### Schedules
+
+If an issue has a milestone and it has a due date, the issue is added to schedule category.
 
 ## Default queries
 

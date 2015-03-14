@@ -254,21 +254,23 @@
                                   <Component id="descriptionTabbedPanel" pref="512" max="32767" attributes="0"/>
                                   <Component id="titleTextField" max="32767" attributes="0"/>
                               </Group>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="labelsLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="labelsScrollPane" alignment="0" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
+                                      <Component id="assigneeLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="milestoneLabel" min="-2" max="-2" attributes="0"/>
-                                          <Component id="assigneeLabel" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="milestoneComboBox" pref="173" max="32767" attributes="0"/>
-                                          <Component id="assigneeComboBox" max="32767" attributes="0"/>
+                                          <Component id="assignYourselfLinkButton" min="-2" max="-2" attributes="0"/>
+                                          <Component id="assigneeComboBox" min="-2" pref="173" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <Component id="labelsScrollPane" alignment="0" max="32767" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="milestoneLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="32767" attributes="0"/>
+                                      <Component id="milestoneComboBox" min="-2" pref="173" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -300,8 +302,10 @@
                           <Component id="titleLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="assignYourselfLinkButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="milestoneLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="milestoneComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -309,7 +313,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="labelsLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="labelsScrollPane" min="-2" pref="244" max="-2" attributes="0"/>
+                              <Component id="labelsScrollPane" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="descriptionLabel" min="-2" max="-2" attributes="0"/>
@@ -449,6 +453,16 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
             </Container>
+            <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="assignYourselfLinkButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.assignYourselfLinkButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="assignYourselfLinkButtonActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>

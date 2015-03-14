@@ -41,6 +41,8 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -81,18 +83,20 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         return comments;
     }
 
-    public void addComments(Collection<Comment> comments, String loginName) {
+    public void addComments(Collection<Comment> comments, GitHubRepository repository) {
         for (Comment comment : comments) {
-            addComment(comment, loginName);
+            addComment(comment, repository);
         }
     }
 
-    public void addComment(Comment comment, String loginName) {
-        if (comment == null) {
+    public void addComment(Comment comment, GitHubRepository repository) {
+        if (comment == null || repository == null) {
             return;
         }
-        CommentPanel newPanel = new CommentPanel(comment);
+        GitHubCache cache = GitHubCache.create(repository);
         User owner = comment.getUser();
+        String loginName = repository.getUserName();
+        CommentPanel newPanel = new CommentPanel(comment, cache.getUserIcon(owner));
         boolean isMyself = isMyself(owner, loginName);
         newPanel.setEditEnabled(isMyself);
         newPanel.setDeleteEnabled(isMyself);
@@ -150,10 +154,14 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
         editedCommentPanel = null;
     }
 
-    public void loadComments() {
+    public void loadComments(GitHubRepository repository) {
+        assert repository != null;
+        GitHubCache cache = GitHubCache.create(repository);
         synchronized (commentPanels) {
             for (CommentPanel commentPanel : commentPanels) {
-                commentPanel.load();
+                Comment comment = commentPanel.getComment();
+                User user = comment.getUser();
+                commentPanel.load(cache.getUserIcon(user));
             }
         }
     }

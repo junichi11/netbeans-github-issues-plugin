@@ -44,6 +44,7 @@ package com.junichi11.netbeans.modules.github.issues.issue.ui;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Font;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.pegdown.PegDownProcessor;
@@ -61,6 +62,13 @@ public class CommentTabbedPanel extends javax.swing.JPanel {
      */
     public CommentTabbedPanel() {
         initComponents();
+        init();
+    }
+
+    private void init() {
+        // set monospaced font
+        Font commentFont = commentWriteTextArea.getFont();
+        commentWriteTextArea.setFont(new Font(Font.MONOSPACED, commentFont.getStyle(), commentFont.getSize()));
     }
 
     public String getText() {

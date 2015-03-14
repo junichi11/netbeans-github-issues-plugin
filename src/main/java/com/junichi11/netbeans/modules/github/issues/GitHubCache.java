@@ -42,13 +42,19 @@
 package com.junichi11.netbeans.modules.github.issues;
 
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.Repository;
@@ -58,6 +64,7 @@ import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
 import org.eclipse.egit.github.core.service.UserService;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 
 /**
@@ -71,6 +78,7 @@ public final class GitHubCache {
     private List<Milestone> milestones;
     private List<Label> labels;
     private User myself;
+    private final Map<String, Icon> userIcons = new HashMap<>();
     private final GitHubRepository repository;
     private static final Logger LOGGER = Logger.getLogger(GitHubCache.class.getName());
 
@@ -216,6 +224,45 @@ public final class GitHubCache {
             }
         }
         return myself;
+    }
+
+    /**
+     * Get user icon. Icon size is 16x16.
+     *
+     * @param user User
+     * @return user icon if it was got, otherwise {@code null}
+     */
+    @CheckForNull
+    public Icon getUserIcon(User user) {
+        if (user == null) {
+            return null;
+        }
+        String login = user.getLogin();
+        Icon icon = userIcons.get(login);
+        if (icon != null) {
+            return icon;
+        }
+        GitHubClient client = repository.createGitHubClient();
+        if (client == null) {
+            return null;
+        }
+        UserService userService = new UserService(client);
+        try {
+            user = userService.getUser(login);
+            String avatarUrl = user.getAvatarUrl();
+            if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                URL url = new URL(avatarUrl);
+                // resize to 16x16
+                BufferedImage image = ImageIO.read(url);
+                Image resizedImage = image.getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(resizedImage);
+                userIcons.put(login, icon);
+                return icon;
+            }
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage());
+        }
+        return null;
     }
 
 }

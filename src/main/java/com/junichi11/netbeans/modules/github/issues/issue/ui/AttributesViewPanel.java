@@ -41,6 +41,8 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import java.awt.Color;
 import java.awt.Font;
@@ -76,7 +78,7 @@ public class AttributesViewPanel extends javax.swing.JPanel {
     @NbBundle.Messages({
         "AttributesViewPanel.LBL.dueDate=Due date"
     })
-    public void setAttributes(Issue issue) {
+    public void setAttributes(Issue issue, GitHubRepository repository) {
         initAttributes();
         if (issue == null) {
             return;
@@ -88,6 +90,10 @@ public class AttributesViewPanel extends javax.swing.JPanel {
             String login = assignee.getLogin();
             assigneeNameLabel.setText(login);
             assigneeNameLabel.setToolTipText(login);
+            if (repository != null) {
+                GitHubCache cache = GitHubCache.create(repository);
+                assigneeNameLabel.setIcon(cache.getUserIcon(assignee));
+            }
         }
 
         // milestone
