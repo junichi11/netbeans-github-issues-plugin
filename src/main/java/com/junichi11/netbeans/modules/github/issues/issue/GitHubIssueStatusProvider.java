@@ -55,11 +55,19 @@ public class GitHubIssueStatusProvider implements IssueStatusProvider<GitHubRepo
 
     @Override
     public Status getStatus(GitHubIssue issue) {
-        return Status.SEEN;
+        return issue.getIssueStatus();
     }
 
     @Override
-    public void setSeenIncoming(GitHubIssue issue, boolean bln) {
+    public void setSeenIncoming(GitHubIssue issue, boolean seen) {
+        Status status = getStatus(issue);
+        if (!seen) {
+            issue.setIssueStatus(Status.INCOMING_NEW);
+            return;
+        }
+        if (status != Status.SEEN && seen) {
+            issue.setIssueStatus(Status.SEEN);
+        }
     }
 
     @Override
@@ -78,11 +86,13 @@ public class GitHubIssueStatusProvider implements IssueStatusProvider<GitHubRepo
     }
 
     @Override
-    public void removePropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+    public void addPropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+        issue.addPropertyChangeListener(listener);
     }
 
     @Override
-    public void addPropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+    public void removePropertyChangeListener(GitHubIssue issue, PropertyChangeListener listener) {
+        issue.removePropertyChangeListener(listener);
     }
 
 }

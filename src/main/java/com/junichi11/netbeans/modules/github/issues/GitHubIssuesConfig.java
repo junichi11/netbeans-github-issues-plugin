@@ -51,6 +51,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 
@@ -62,11 +64,20 @@ public final class GitHubIssuesConfig {
 
     private static final GitHubIssuesConfig INSTANCE = new GitHubIssuesConfig();
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd"); // NOI18N
+
+    // query
     private static final String QUERY = "query"; // NOI18N
     private static final String QUERY_PARAMS = "query.params"; // NOI18N
+
+    // schedule
     private static final String SCHEDULE = "schedule"; // NOI18N
     private static final String SCHEDULE_DUE_DATE = "schedule.due"; // NOI18N
     private static final String SCHEDULE_INTERVAL = "schedule.interval"; // NOI18N
+
+    // status
+    private static final String STATUS = "status"; // NOI18N
+    private static final String STATUS_FORMAT = "%s::%s"; // NOI18N
+    private static final String STATUS_DELIMITER = "::"; // NOI18N
 
     private GitHubIssuesConfig() {
     }
@@ -190,6 +201,43 @@ public final class GitHubIssuesConfig {
             preferences.removeNode();
         } catch (BackingStoreException ex) {
             Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public Status getStatus(GitHubIssue issue) {
+        GitHubRepository repository = issue.getRepository();
+        Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+        String statusTime = preferences.get(issue.getID(), null);
+        if (statusTime == null) {
+            return IssueStatusProvider.Status.INCOMING_NEW;
+        }
+
+        String[] split = statusTime.split(STATUS_DELIMITER);
+        if (split.length != 2) {
+            return IssueStatusProvider.Status.INCOMING_NEW;
+        }
+
+        // TODO CONFLICT, OUTGOING_NEW, OUTGOING_MODIFIED
+        IssueStatusProvider.Status status = IssueStatusProvider.Status.valueOf(split[0]);
+        long lastUpdated = Long.parseLong(split[1]);
+        if (status == IssueStatusProvider.Status.SEEN) {
+            long lastUpdatedTime = issue.getLastUpdatedTime();
+            if (lastUpdatedTime != -1L) {
+                if (lastUpdated < lastUpdatedTime) {
+                    setStatus(issue, IssueStatusProvider.Status.INCOMING_MODIFIED);
+                    return IssueStatusProvider.Status.INCOMING_MODIFIED;
+                }
+            }
+        }
+        return status;
+    }
+
+    public void setStatus(GitHubIssue issue, IssueStatusProvider.Status status) {
+        long lastUpdatedTime = issue.getLastUpdatedTime();
+        if (lastUpdatedTime != -1L) {
+            GitHubRepository repository = issue.getRepository();
+            Preferences preferences = getPreferences().node(repository.getID()).node(STATUS);
+            preferences.put(issue.getID(), String.format(STATUS_FORMAT, status.name(), lastUpdatedTime));
         }
     }
 

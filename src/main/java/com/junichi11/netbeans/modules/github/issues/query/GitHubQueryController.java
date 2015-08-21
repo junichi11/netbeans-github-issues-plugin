@@ -234,7 +234,7 @@ public class GitHubQueryController implements QueryController, ActionListener, C
     private void search() {
         issueTable.started();
         SearchIssuesParams params = createSearchIssuesParams();
-        List<GitHubIssue> searchIssues = query.searchIssues(params);
+        List<GitHubIssue> searchIssues = query.searchIssues(params, false);
         getPanel().setResultCounts(searchIssues.size());
         for (GitHubIssue searchIssue : searchIssues) {
             IssueNode issueNode = searchIssue.getIssueNode();
