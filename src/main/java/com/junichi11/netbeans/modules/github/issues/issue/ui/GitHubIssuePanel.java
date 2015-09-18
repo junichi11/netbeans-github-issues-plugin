@@ -102,6 +102,8 @@ public class GitHubIssuePanel extends JPanel {
     private final DefaultComboBoxModel<Milestone> milestoneComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<User> assigneeComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultListModel<Label> labelsListModel = new DefaultListModel<>();
+    private static final Icon ISSUE_OPENED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_opened_16.png", true); // NOI18N
+    private static final Icon ISSUE_CLOSED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_closed_16.png", true); // NOI18N
     private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
     private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
     private static final Logger LOGGER = Logger.getLogger(GitHubIssuePanel.class.getName());
@@ -374,11 +376,10 @@ public class GitHubIssuePanel extends JPanel {
             return;
         }
         boolean isNew = gitHubIssue.isNew();
+        GitHubIssueState state = GitHubIssueState.NEW;
         if (isNew) {
             headerNameLabel.setText(Bundle.GitHubIssuePanel_label_header_name_new());
             headerSubmitButton.setText(Bundle.GitHubIssuePanel_label_header_submit_button_new());
-            headerStatusLabel.setText("");
-
         } else {
             String summary = gitHubIssue.getSummary();
             headerNameLabel.setText(String.format("%s #%s", summary, gitHubIssue.getID())); // NOI18N
@@ -390,15 +391,33 @@ public class GitHubIssuePanel extends JPanel {
             headerSubmitButton.setVisible(gitHubIssue.isEditableUser());
             Issue issue = gitHubIssue.getIssue();
             if (issue != null) {
-                GitHubIssueState state = GitHubIssueState.toEnum(issue.getState());
-                boolean isClosed = state == GitHubIssueState.CLOSED;
-                headerStatusLabel.setText(isClosed ? "Closed" : "Open");
-                headerStatusLabel.setBackground(isClosed ? CLOSED_STATE_COLOR : OPEN_STATE_COLOR);
-                headerStatusLabel.setForeground(Color.WHITE);
+                state = GitHubIssueState.toEnum(issue.getState());
             }
         }
-        headerStatusLabel.setOpaque(!isNew);
-        headerStatusLabel.setVisible(!isNew);
+        setHeaderStatus(state);
+    }
+
+    private void setHeaderStatus(GitHubIssueState status) {
+        boolean isClosed = status == GitHubIssueState.CLOSED;
+        switch (status) {
+            case NEW:
+                headerStatusLabel.setText(""); // NOI18N
+                headerStatusLabel.setIcon(null);
+                headerStatusLabel.setOpaque(false);
+                headerStatusLabel.setVisible(false);
+                break;
+            case OPEN: // no break
+            case CLOSED:
+                headerStatusLabel.setText(isClosed ? "Closed" : "Open");
+                headerStatusLabel.setIcon(isClosed ? ISSUE_CLOSED_ICON : ISSUE_OPENED_ICON);
+                headerStatusLabel.setBackground(isClosed ? CLOSED_STATE_COLOR : OPEN_STATE_COLOR);
+                headerStatusLabel.setForeground(Color.WHITE);
+                headerStatusLabel.setOpaque(true);
+                headerStatusLabel.setVisible(true);
+                break;
+            default:
+                throw new AssertionError();
+        }
     }
 
     @NbBundle.Messages({
