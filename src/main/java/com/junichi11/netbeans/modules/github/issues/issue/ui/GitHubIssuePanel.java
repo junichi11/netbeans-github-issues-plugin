@@ -68,6 +68,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -145,7 +146,7 @@ public class GitHubIssuePanel extends JPanel {
         headerCreatedByUserLabel.setFont(bold);
         headerStatusLabel.setFont(bold);
         commentsPanel = new CommentsPanel();
-        mainCommetnsPanel.add(commentsPanel);
+        ((GroupLayout) mainCommentsPanel.getLayout()).replace(dummyCommentsPanel, commentsPanel);
     }
 
     public void setIssue(GitHubIssue gitHubIssue) {
@@ -163,6 +164,10 @@ public class GitHubIssuePanel extends JPanel {
         return gitHubIssue.getRepository();
     }
 
+    @NbBundle.Messages({
+        "# {0} - count",
+        "GitHubIssuePanel.comment.count=Comment({0})"
+    })
     public void update() {
         // header
         setHeader();
@@ -252,6 +257,8 @@ public class GitHubIssuePanel extends JPanel {
                 // add comments
                 commentsPanel.removeAllComments();
                 List<Comment> comments = gitHubIssue.getComments();
+                // set count
+                commentsCollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_comment_count(comments.size()));
                 PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
                 for (Comment comment : comments) {
                     String body = comment.getBody();
@@ -554,6 +561,8 @@ public class GitHubIssuePanel extends JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        mainCommentsPanel = new javax.swing.JPanel();
+        dummyCommentsPanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
         headerSubmitButton = new javax.swing.JButton();
         headerNameLabel = new javax.swing.JLabel();
@@ -588,8 +597,21 @@ public class GitHubIssuePanel extends JPanel {
         newCommentButton = new javax.swing.JButton();
         newCommentCloseReopenIssueButton = new javax.swing.JButton();
         attributesViewPanel = new com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel();
-        mainCommetnsPanel = new javax.swing.JPanel();
         assignYourselfLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
+        commentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
+
+        dummyCommentsPanel.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout mainCommentsPanelLayout = new javax.swing.GroupLayout(mainCommentsPanel);
+        mainCommentsPanel.setLayout(mainCommentsPanelLayout);
+        mainCommentsPanelLayout.setHorizontalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE)
+        );
+        mainCommentsPanelLayout.setVerticalGroup(
+            mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 13, Short.MAX_VALUE)
+        );
 
         org.openide.awt.Mnemonics.setLocalizedText(headerSubmitButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerSubmitButton.text")); // NOI18N
 
@@ -730,8 +752,6 @@ public class GitHubIssuePanel extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(newCommentCloseReopenIssueButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.newCommentCloseReopenIssueButton.text")); // NOI18N
 
-        mainCommetnsPanel.setLayout(new java.awt.BorderLayout());
-
         org.openide.awt.Mnemonics.setLocalizedText(assignYourselfLinkButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.assignYourselfLinkButton.text")); // NOI18N
         assignYourselfLinkButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -739,10 +759,14 @@ public class GitHubIssuePanel extends JPanel {
             }
         });
 
+        commentsCollapsibleSectionPanel.setContent(mainCommentsPanel);
+        commentsCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.commentsCollapsibleSectionPanel.label")); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(attributesViewPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -752,7 +776,7 @@ public class GitHubIssuePanel extends JPanel {
                             .addComponent(titleLabel))
                         .addGap(37, 37, 37)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(descriptionTabbedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)
+                            .addComponent(descriptionTabbedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
                             .addComponent(titleTextField))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -776,10 +800,9 @@ public class GitHubIssuePanel extends JPanel {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(newCommentCloseReopenIssueButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(newCommentButton)))
+                        .addComponent(newCommentButton))
+                    .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addComponent(attributesViewPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(mainCommetnsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -808,8 +831,8 @@ public class GitHubIssuePanel extends JPanel {
                     .addComponent(descriptionTabbedPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(attributesViewPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mainCommetnsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(newCommentLabel)
@@ -818,7 +841,7 @@ public class GitHubIssuePanel extends JPanel {
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newCommentButton)
                     .addComponent(newCommentCloseReopenIssueButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(69, Short.MAX_VALUE))
         );
 
         mainScrollPane.setViewportView(mainPanel);
@@ -943,8 +966,10 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
+    private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commentsCollapsibleSectionPanel;
     private javax.swing.JLabel descriptionLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel descriptionTabbedPanel;
+    private javax.swing.JPanel dummyCommentsPanel;
     private javax.swing.JLabel headerCreatedByLabel;
     private javax.swing.JLabel headerCreatedByUserLabel;
     private javax.swing.JLabel headerCreatedDateLabel;
@@ -961,7 +986,7 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JLabel labelsLabel;
     private javax.swing.JList<Label> labelsList;
     private javax.swing.JScrollPane labelsScrollPane;
-    private javax.swing.JPanel mainCommetnsPanel;
+    private javax.swing.JPanel mainCommentsPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JComboBox<Milestone> milestoneComboBox;

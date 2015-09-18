@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.4" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Container class="javax.swing.JPanel" name="mainCommentsPanel">
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="dummyCommentsPanel" alignment="0" pref="791" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="dummyCommentsPanel" alignment="0" pref="13" max="32767" attributes="0"/>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="dummyCommentsPanel">
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+        </Container>
+      </SubComponents>
+    </Container>
+  </NonVisualComponents>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -241,6 +264,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="attributesViewPanel" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -251,7 +275,7 @@
                               </Group>
                               <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="descriptionTabbedPanel" pref="512" max="32767" attributes="0"/>
+                                  <Component id="descriptionTabbedPanel" pref="412" max="32767" attributes="0"/>
                                   <Component id="titleTextField" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -284,11 +308,10 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="newCommentButton" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="commentsCollapsibleSectionPanel" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
-                  <Component id="attributesViewPanel" alignment="0" max="32767" attributes="0"/>
-                  <Component id="mainCommetnsPanel" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -323,8 +346,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="attributesViewPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="mainCommetnsPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="commentsCollapsibleSectionPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="newCommentLabel" min="-2" max="-2" attributes="0"/>
@@ -335,7 +358,7 @@
                           <Component id="newCommentButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="newCommentCloseReopenIssueButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace pref="69" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -449,10 +472,6 @@
             </Component>
             <Component class="com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel" name="attributesViewPanel">
             </Component>
-            <Container class="javax.swing.JPanel" name="mainCommetnsPanel">
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
-            </Container>
             <Component class="org.netbeans.modules.bugtracking.commons.LinkButton" name="assignYourselfLinkButton">
               <Properties>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
@@ -462,6 +481,16 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="assignYourselfLinkButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel" name="commentsCollapsibleSectionPanel">
+              <Properties>
+                <Property name="content" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                  <ComponentRef name="mainCommentsPanel"/>
+                </Property>
+                <Property name="label" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.commentsCollapsibleSectionPanel.label" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
