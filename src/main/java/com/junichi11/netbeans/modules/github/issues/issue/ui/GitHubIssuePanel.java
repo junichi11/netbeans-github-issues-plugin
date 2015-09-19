@@ -360,6 +360,7 @@ public class GitHubIssuePanel extends JPanel {
         milestoneComboBox.setVisible(isVisible);
         assigneeLabel.setVisible(isVisible);
         assigneeComboBox.setVisible(isVisible);
+        assignYourselfLinkButton.setVisible(isVisible);
         newLabelButton.setVisible(isVisible);
         newMilestoneButton.setVisible(isVisible);
     }
