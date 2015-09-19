@@ -202,7 +202,8 @@ public class GitHubIssuePanel extends JPanel {
         }
 
         // existing issue
-        if (!gitHubIssue.isNew()) {
+        boolean isExistingIssue = !gitHubIssue.isNew();
+        if (isExistingIssue) {
             Issue issue = gitHubIssue.getIssue();
             if (issue != null) {
                 // set existing info
@@ -272,9 +273,10 @@ public class GitHubIssuePanel extends JPanel {
         }
 
         // visibility
-        setNewCommentVisible();
+        setCommentsSectionVisible(isExistingIssue);
+        setNewCommentVisible(isExistingIssue);
         setCollaboratorsComponentsVisible(isCollaborator);
-        attributesViewPanel.setVisible(!gitHubIssue.isNew());
+        attributesViewPanel.setVisible(isExistingIssue);
 
         fireChange();
     }
@@ -511,11 +513,7 @@ public class GitHubIssuePanel extends JPanel {
         headerErrorLabel.setText(errorMessage);
     }
 
-    private void setNewCommentVisible() {
-        if (gitHubIssue == null) {
-            return;
-        }
-        boolean isVisible = !gitHubIssue.isNew(); // existing issue
+    private void setNewCommentVisible(boolean isVisible) {
         newCommentLabel.setVisible(isVisible);
         newCommentTabbedPanel.setVisible(isVisible);
         newCommentButton.setVisible(isVisible);
@@ -524,6 +522,10 @@ public class GitHubIssuePanel extends JPanel {
         } else {
             newCommentCloseReopenIssueButton.setVisible(false);
         }
+    }
+
+    private void setCommentsSectionVisible(boolean isVisible) {
+        commentsCollapsibleSectionPanel.setVisible(isVisible);
     }
 
     public void setNewCommentEnabled(boolean isEnabled) {
