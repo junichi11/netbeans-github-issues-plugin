@@ -82,7 +82,7 @@ public final class GitHubIssuesConfig {
      * @return saved query names
      */
     public String[] getQueryNames(GitHubRepository repository) {
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY);
+        Preferences preferences = getPreferences(repository).node(QUERY);
         try {
             return preferences.childrenNames();
         } catch (BackingStoreException ex) {
@@ -99,7 +99,7 @@ public final class GitHubIssuesConfig {
      * @return query parameters if name exists, otherwise {@code null}
      */
     public String getQueryParams(GitHubRepository repository, String queryName) {
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY).node(queryName);
+        Preferences preferences = getPreferences(repository).node(QUERY).node(queryName);
         return preferences.get(QUERY_PARAMS, null);
     }
 
@@ -110,8 +110,7 @@ public final class GitHubIssuesConfig {
      * @param query query
      */
     public void setQueryParams(GitHubRepository repository, GitHubQuery query) {
-        String id = repository.getID();
-        Preferences preferences = getPreferences().node(id).node(QUERY).node(query.getDisplayName());
+        Preferences preferences = getPreferences(repository).node(QUERY).node(query.getDisplayName());
         preferences.put(QUERY_PARAMS, query.getQueryParam());
     }
 
@@ -126,7 +125,7 @@ public final class GitHubIssuesConfig {
         if (StringUtils.isEmpty(displayName)) {
             return;
         }
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY).node(displayName);
+        Preferences preferences = getPreferences(repository).node(QUERY).node(displayName);
         try {
             preferences.removeNode();
         } catch (BackingStoreException ex) {
