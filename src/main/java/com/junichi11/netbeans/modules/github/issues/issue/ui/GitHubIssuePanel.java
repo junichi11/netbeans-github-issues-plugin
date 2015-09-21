@@ -1240,7 +1240,7 @@ public class GitHubIssuePanel extends JPanel {
 
         @NbBundle.Messages({
             "# {0} - name",
-            "ManageTemplateButtonListener.remove.message=Did you realy want to remove {0}?"
+            "ManageTemplateButtonListener.remove.message=Did you really want to remove {0}?"
         })
         private void remove() {
             String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
