@@ -13,6 +13,7 @@ This plugin provides support for GitHub Issue Tracker.
 - Create a new label
 - Create a new milestone
 - Add issues to schedule categories
+- Insert and manage templates
 
 ## Usage
 
@@ -28,6 +29,14 @@ This plugin provides support for GitHub Issue Tracker.
 ### Schedules
 
 If an issue has a milestone and it has a due date, the issue is added to schedule category.
+
+### Insert and manage templates
+
+You can insert a template and manage templates using buttons below the description.
+All templates are used globally. (i.e. It isn't templates per repository.)
+
+**NOTE:**You cannot remove the default template. If you remove it, it will be initilized.
+You cannot edit a template name. So, if you want to change it, just remove it, then add a new template.
 
 ## Default queries
 
