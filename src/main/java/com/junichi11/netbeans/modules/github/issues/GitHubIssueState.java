@@ -50,6 +50,7 @@ import java.util.Map;
  */
 public enum GitHubIssueState {
 
+    NEW("new"), // NOI18N
     OPEN("open"), // NOI18N
     CLOSED("closed"); // NOI18N
 
@@ -67,6 +68,9 @@ public enum GitHubIssueState {
     }
 
     public static GitHubIssueState toEnum(String name) {
+        if (name == null || name.isEmpty()) {
+            return NEW;
+        }
         return states.get(name);
     }
 

@@ -101,7 +101,7 @@ public class AttributesViewPanel extends javax.swing.JPanel {
         if (milestone != null) {
             milestoneNameLabel.setText(milestone.getTitle());
 
-            // tooptip
+            // tooltip
             Date dueDate = milestone.getDueOn();
             String description = milestone.getDescription();
             StringBuilder sb = new StringBuilder();
