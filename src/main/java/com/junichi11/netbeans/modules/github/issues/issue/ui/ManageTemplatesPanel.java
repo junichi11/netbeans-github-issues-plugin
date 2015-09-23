@@ -115,34 +115,40 @@ public class ManageTemplatesPanel extends JPanel {
 
         templateScrollPane = new javax.swing.JScrollPane();
         templateEditorPane = new javax.swing.JEditorPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        templateNameScrollPane = new javax.swing.JScrollPane();
         templateNameList = new javax.swing.JList<String>();
 
         templateEditorPane.setEditable(false);
         templateScrollPane.setViewportView(templateEditorPane);
 
-        jScrollPane1.setViewportView(templateNameList);
+        templateNameScrollPane.setViewportView(templateNameList);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(templateScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(templateNameScrollPane)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(templateScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
-            .addComponent(templateScrollPane)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(templateScrollPane)
+                    .addComponent(templateNameScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JEditorPane templateEditorPane;
     private javax.swing.JList<String> templateNameList;
+    private javax.swing.JScrollPane templateNameScrollPane;
     private javax.swing.JScrollPane templateScrollPane;
     // End of variables declaration//GEN-END:variables
 }

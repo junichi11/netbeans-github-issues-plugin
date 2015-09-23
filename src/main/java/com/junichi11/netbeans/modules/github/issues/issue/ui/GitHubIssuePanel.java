@@ -122,6 +122,7 @@ public class GitHubIssuePanel extends JPanel {
     // manage templates options
     private static final String TEMPLATES_ADD_OPTION = Bundle.GitHubIssuePanel_manage_templates_add_option();
     private static final String TEMPLATES_EDIT_OPTION = Bundle.GitHubIssuePanel_manage_templates_edit_option();
+    private static final String TEMPLATES_DUPLICATE_OPTION = Bundle.GitHubIssuePanel_manage_templates_duplicate_option();
     private static final String TEMPLATES_REMOVE_OPTION = Bundle.GitHubIssuePanel_manage_templates_remove_option();
     private static final String TEMPLATES_CLOSE_OPTION = Bundle.GitHubIssuePanel_manage_templates_close_option();
 
@@ -1053,6 +1054,7 @@ public class GitHubIssuePanel extends JPanel {
         "GitHubIssuePanel.manage.templates.add.option=Add",
         "GitHubIssuePanel.manage.templates.remove.option=Remove",
         "GitHubIssuePanel.manage.templates.edit.option=Edit",
+        "GitHubIssuePanel.manage.templates.duplicate.option=Duplicate",
         "GitHubIssuePanel.manage.templates.close.option=Close"
     })
     private void manageTemplatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageTemplatesButtonActionPerformed
@@ -1071,6 +1073,7 @@ public class GitHubIssuePanel extends JPanel {
         descriptor.setOptions(new String[]{
             TEMPLATES_ADD_OPTION,
             TEMPLATES_EDIT_OPTION,
+            TEMPLATES_DUPLICATE_OPTION,
             TEMPLATES_REMOVE_OPTION,
             TEMPLATES_CLOSE_OPTION
         });
@@ -1162,80 +1165,26 @@ public class GitHubIssuePanel extends JPanel {
                 add();
             } else if (value == TEMPLATES_EDIT_OPTION) {
                 edit();
+            } else if (value == TEMPLATES_DUPLICATE_OPTION) {
+                duplicate();
             } else if (value == TEMPLATES_REMOVE_OPTION) {
                 remove();
             }
         }
 
-        @NbBundle.Messages({
-            "ManageTemplateButtonListener.add.title=Add Template",
-            "ManageTemplateButtonListener.add.invalid.empty=Name must be set.",
-            "ManageTemplateButtonListener.add.invalid.existing=It already exisits."
-        })
+        @NbBundle.Messages("ManageTemplateButtonListener.add.title=Add Template")
         private void add() {
-            // show dialog
-            final TemplatePanel templatePanel = new TemplatePanel();
-            final NotifyDescriptor.Confirmation notify = new NotifyDescriptor.Confirmation(
-                    templatePanel,
-                    Bundle.ManageTemplateButtonListener_add_title(),
-                    NotifyDescriptor.OK_CANCEL_OPTION,
-                    NotifyDescriptor.PLAIN_MESSAGE);
-            final List<String> existingNames = new ArrayList<>(Arrays.asList(GitHubIssuesConfig.getInstance().getTemplateNames()));
-            ChangeListener listener = new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    String templateName = templatePanel.getTemplateName();
-                    if ((templateName == null || templateName.isEmpty())) {
-                        notify.setValid(false);
-                        templatePanel.setErrorMessage(Bundle.ManageTemplateButtonListener_add_invalid_empty());
-                        return;
-                    }
-                    if (existingNames.contains(templateName)) {
-                        notify.setValid(false);
-                        templatePanel.setErrorMessage(Bundle.ManageTemplateButtonListener_add_invalid_existing());
-                        return;
-                    }
-
-                    // everything ok
-                    notify.setValid(true);
-                    templatePanel.setErrorMessage(" "); // NOI18N
-                }
-            };
-            templatePanel.addChangeListener(listener);
-            templatePanel.fireChange();
-            if (DialogDisplayer.getDefault().notify(notify) == NotifyDescriptor.OK_OPTION) {
-                String name = templatePanel.getTemplateName();
-                if (name != null && !name.isEmpty()) {
-                    String template = templatePanel.getTemplate();
-                    GitHubIssuesConfig.getInstance().setTemplate(name, template);
-                    manageTemplatesPanel.resetTemplateNameList();
-                }
-            }
-            templatePanel.removeChangeListener(listener);
+            showDialog(TEMPLATES_ADD_OPTION, Bundle.ManageTemplateButtonListener_add_title());
         }
 
         @NbBundle.Messages("ManageTemplateButtonListener.edit.title=Edit Template")
         private void edit() {
-            String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
-            if (selectedTemplateName == null || selectedTemplateName.isEmpty()) {
-                return;
-            }
+            showDialog(TEMPLATES_EDIT_OPTION, Bundle.ManageTemplateButtonListener_edit_title());
+        }
 
-            // show dialog
-            final TemplatePanel templatePanel = new TemplatePanel();
-            templatePanel.setTemplateNameEditable(false);
-            templatePanel.setTemplateName(selectedTemplateName);
-            templatePanel.setTemplate(GitHubIssuesConfig.getInstance().getTemplate(selectedTemplateName));
-            final NotifyDescriptor.Confirmation notify = new NotifyDescriptor.Confirmation(
-                    templatePanel,
-                    Bundle.ManageTemplateButtonListener_edit_title(),
-                    NotifyDescriptor.OK_CANCEL_OPTION,
-                    NotifyDescriptor.PLAIN_MESSAGE);
-            if (DialogDisplayer.getDefault().notify(notify) == NotifyDescriptor.OK_OPTION) {
-                String template = templatePanel.getTemplate();
-                GitHubIssuesConfig.getInstance().setTemplate(selectedTemplateName, template);
-                manageTemplatesPanel.setSelectedTemplateName(selectedTemplateName);
-            }
+        @NbBundle.Messages("ManageTemplateButtonListener.duplicate.title=Duplicate Template")
+        private void duplicate() {
+            showDialog(TEMPLATES_DUPLICATE_OPTION, Bundle.ManageTemplateButtonListener_duplicate_title());
         }
 
         @NbBundle.Messages({
@@ -1251,6 +1200,95 @@ public class GitHubIssuePanel extends JPanel {
                 GitHubIssuesConfig.getInstance().removeTemplate(selectedTemplateName);
                 manageTemplatesPanel.resetTemplateNameList();
             }
+        }
+
+        private void showDialog(String option, String title) {
+            if (!option.equals(TEMPLATES_ADD_OPTION)
+                    && !option.equals(TEMPLATES_EDIT_OPTION)
+                    && !option.equals(TEMPLATES_DUPLICATE_OPTION)) {
+                return;
+            }
+
+            // create panel
+            final TemplatePanel templatePanel = new TemplatePanel();
+            String selectedTemplateName = manageTemplatesPanel.getSelectedTemplateName();
+            if (!option.equals(TEMPLATES_ADD_OPTION)) {
+                if (selectedTemplateName == null || selectedTemplateName.isEmpty()) {
+                    return;
+                }
+                templatePanel.setTemplateNameEditable(!option.equals(TEMPLATES_EDIT_OPTION));
+                templatePanel.setTemplateName(selectedTemplateName);
+                templatePanel.setTemplate(GitHubIssuesConfig.getInstance().getTemplate(selectedTemplateName));
+            }
+            final NotifyDescriptor.Confirmation notify = new NotifyDescriptor.Confirmation(
+                    templatePanel,
+                    title,
+                    NotifyDescriptor.OK_CANCEL_OPTION,
+                    NotifyDescriptor.PLAIN_MESSAGE);
+
+            // add listener
+            ChangeListener listener = null;
+            if (option.equals(TEMPLATES_ADD_OPTION) || option.equals(TEMPLATES_DUPLICATE_OPTION)) {
+                final List<String> existingNames = new ArrayList<>(Arrays.asList(GitHubIssuesConfig.getInstance().getTemplateNames()));
+                listener = new TemplatePanelChangeListener(templatePanel, notify, existingNames);
+                templatePanel.addChangeListener(listener);
+                templatePanel.fireChange();
+            }
+
+            // show dialog
+            if (DialogDisplayer.getDefault().notify(notify) == NotifyDescriptor.OK_OPTION) {
+                String templateName = templatePanel.getTemplateName();
+                if (templateName != null && !templateName.isEmpty()) {
+                    String template = templatePanel.getTemplate();
+                    GitHubIssuesConfig.getInstance().setTemplate(templateName, template);
+                    if (option.equals(TEMPLATES_EDIT_OPTION)) {
+                        manageTemplatesPanel.setSelectedTemplateName(selectedTemplateName);
+                    } else {
+                        manageTemplatesPanel.resetTemplateNameList();
+                    }
+                }
+            }
+
+            if (listener != null) {
+                templatePanel.removeChangeListener(listener);
+            }
+        }
+    }
+
+    private static class TemplatePanelChangeListener implements ChangeListener {
+
+        private final TemplatePanel templatePanel;
+        private final NotifyDescriptor.Confirmation notify;
+        private final List<String> existingNames;
+
+        public TemplatePanelChangeListener(TemplatePanel templatePanel, NotifyDescriptor.Confirmation notify, List<String> existingNames) {
+            this.templatePanel = templatePanel;
+            this.notify = notify;
+            this.existingNames = existingNames;
+        }
+
+        @Override
+        @NbBundle.Messages({
+            "TemplatePanelChangeListener.invalid.empty=Name must be set.",
+            "TemplatePanelChangeListener.invalid.existing=It already exisits."
+        })
+        public void stateChanged(ChangeEvent e) {
+            // validate
+            String templateName = templatePanel.getTemplateName();
+            if ((templateName == null || templateName.isEmpty())) {
+                notify.setValid(false);
+                templatePanel.setErrorMessage(Bundle.TemplatePanelChangeListener_invalid_empty());
+                return;
+            }
+            if (existingNames.contains(templateName)) {
+                notify.setValid(false);
+                templatePanel.setErrorMessage(Bundle.TemplatePanelChangeListener_invalid_existing());
+                return;
+            }
+
+            // everything ok
+            notify.setValid(true);
+            templatePanel.setErrorMessage(" "); // NOI18N
         }
     }
 }
