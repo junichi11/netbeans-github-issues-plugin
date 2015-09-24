@@ -43,6 +43,7 @@ package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
@@ -69,6 +70,7 @@ import org.netbeans.modules.bugtracking.spi.IssueProvider;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.NbBundle;
 import org.pegdown.PegDownProcessor;
 
@@ -166,6 +168,15 @@ public final class GitHubIssue {
         return sb.toString();
     }
 
+    public Status getIssueStatus() {
+        return GitHubIssuesConfig.getInstance().getStatus(this);
+    }
+
+    public void setIssueStatus(Status status) {
+        GitHubIssuesConfig.getInstance().setStatus(this, status);
+        fireStatusChange();
+    }
+
     public boolean isNew() {
         return issue == null;
     }
@@ -250,6 +261,7 @@ public final class GitHubIssue {
 
     public void refreshIssue() {
         getRepository().refresh(this);
+        fireStatusChange();
     }
 
     public void addComment(String comment, boolean resolveAsFixed) {
@@ -288,6 +300,7 @@ public final class GitHubIssue {
             fireChange();
             fireDataChange();
             fireScheduleChange();
+            setIssueStatus(Status.SEEN);
         }
         return newIssue;
     }
@@ -420,6 +433,15 @@ public final class GitHubIssue {
 //            }
 //        }
         return null;
+    }
+
+    public long getLastUpdatedTime() {
+        Date updated = this.getUpdated();
+        if (updated != null) {
+            long time = updated.getTime();
+            return time;
+        }
+        return -1L;
     }
 
     @NbBundle.Messages({

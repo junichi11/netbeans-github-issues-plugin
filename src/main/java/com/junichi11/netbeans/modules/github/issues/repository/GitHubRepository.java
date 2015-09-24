@@ -393,10 +393,13 @@ public class GitHubRepository {
      * @param issue Issue
      * @return GitHubIssue
      */
-    public synchronized GitHubIssue createIssue(Issue issue) {
+    public synchronized GitHubIssue createIssue(Issue issue, boolean isRefresh) {
         String id = String.valueOf(issue.getNumber());
         GitHubIssue gitHubIssue = issueCache.get(id);
         if (gitHubIssue != null) {
+            if (isRefresh) {
+                gitHubIssue.setIssue(issue);
+            }
             return gitHubIssue;
         }
         gitHubIssue = new GitHubIssue(this, issue);
@@ -452,7 +455,7 @@ public class GitHubRepository {
      * @param filter
      * @return GitHubIssues
      */
-    public List<GitHubIssue> getIssues(Map<String, String> filter) {
+    public List<GitHubIssue> getIssues(Map<String, String> filter, boolean isRefresh) {
         Repository repository = getRepository();
         if (repository == null) {
             return null;
@@ -463,7 +466,7 @@ public class GitHubRepository {
             List<Issue> issues = issueService.getIssues(repository, filter);
             ArrayList<GitHubIssue> gitHubIssues = new ArrayList<>(issues.size());
             for (Issue issue : issues) {
-                GitHubIssue createIssue = createIssue(issue);
+                GitHubIssue createIssue = createIssue(issue, isRefresh);
                 gitHubIssues.add(createIssue);
             }
             return gitHubIssues;
@@ -510,7 +513,7 @@ public class GitHubRepository {
         try {
             Issue i = issueService.getIssue(getRepository(), id);
             if (i != null) {
-                return createIssue(i);
+                return createIssue(i, false);
             }
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "{0} : Can't get an issue.", getFullName()); // NOI18N
@@ -542,7 +545,7 @@ public class GitHubRepository {
      * @param params SearchIssuesParams
      * @return GitHubIssues
      */
-    public List<GitHubIssue> searchIssues(SearchIssuesParams params) {
+    public List<GitHubIssue> searchIssues(SearchIssuesParams params, boolean isRefresh) {
         GitHubClient client = createGitHubClient();
         SearchService searchService = new SearchService(client);
         String repositoryName = getFullName();
@@ -551,7 +554,7 @@ public class GitHubRepository {
             List<Issue> searchIssues = searchService.searchIssues(params);
             ArrayList<GitHubIssue> issues = new ArrayList<>(searchIssues.size());
             for (Issue searchIssue : searchIssues) {
-                issues.add(createIssue(searchIssue));
+                issues.add(createIssue(searchIssue, isRefresh));
             }
             return issues;
         } catch (IOException ex) {
@@ -575,7 +578,7 @@ public class GitHubRepository {
         }
         SearchIssuesParams params = new SearchIssuesParams();
         params.keyword(keyword);
-        issues.addAll(searchIssues(params));
+        issues.addAll(searchIssues(params, false));
         return issues;
     }
 
@@ -714,10 +717,8 @@ public class GitHubRepository {
             if (!getQueries().contains(query)) {
                 getQueries().add(query);
             }
-        } else {
-            if (getQueries().contains(query)) {
-                getQueries().remove(query);
-            }
+        } else if (getQueries().contains(query)) {
+            getQueries().remove(query);
         }
     }
 
