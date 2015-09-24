@@ -48,12 +48,15 @@ import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
 /**
@@ -73,6 +76,8 @@ public final class GitHubIssuesConfig {
     private static final String SCHEDULE = "schedule"; // NOI18N
     private static final String SCHEDULE_DUE_DATE = "schedule.due"; // NOI18N
     private static final String SCHEDULE_INTERVAL = "schedule.interval"; // NOI18N
+    private static final String TEMPLATE = "template"; // NOI18N
+    private static final String DEFAULT_TEMPLATE_NAME = "default"; // NOI18N
 
     // status
     private static final String STATUS = "status"; // NOI18N
@@ -93,7 +98,7 @@ public final class GitHubIssuesConfig {
      * @return saved query names
      */
     public String[] getQueryNames(GitHubRepository repository) {
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY);
+        Preferences preferences = getPreferences(repository).node(QUERY);
         try {
             return preferences.childrenNames();
         } catch (BackingStoreException ex) {
@@ -110,7 +115,7 @@ public final class GitHubIssuesConfig {
      * @return query parameters if name exists, otherwise {@code null}
      */
     public String getQueryParams(GitHubRepository repository, String queryName) {
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY).node(queryName);
+        Preferences preferences = getPreferences(repository).node(QUERY).node(queryName);
         return preferences.get(QUERY_PARAMS, null);
     }
 
@@ -121,8 +126,7 @@ public final class GitHubIssuesConfig {
      * @param query query
      */
     public void setQueryParams(GitHubRepository repository, GitHubQuery query) {
-        String id = repository.getID();
-        Preferences preferences = getPreferences().node(id).node(QUERY).node(query.getDisplayName());
+        Preferences preferences = getPreferences(repository).node(QUERY).node(query.getDisplayName());
         preferences.put(QUERY_PARAMS, query.getQueryParam());
     }
 
@@ -137,7 +141,7 @@ public final class GitHubIssuesConfig {
         if (StringUtils.isEmpty(displayName)) {
             return;
         }
-        Preferences preferences = getPreferences().node(repository.getID()).node(QUERY).node(displayName);
+        Preferences preferences = getPreferences(repository).node(QUERY).node(displayName);
         try {
             preferences.removeNode();
         } catch (BackingStoreException ex) {
@@ -202,6 +206,66 @@ public final class GitHubIssuesConfig {
         } catch (BackingStoreException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    /**
+     * Get the template for specified name.
+     *
+     * @param name the template name
+     * @return the template
+     */
+    @NbBundle.Messages("GitHubIssuesConfig.default.template=#### Overview description\n"
+            + "\n"
+            + "#### Steps to reproduce\n"
+            + "\n"
+            + "1. \n"
+            + "2. \n"
+            + "3. \n"
+            + "\n"
+            + "#### Actual results\n"
+            + "\n"
+            + "#### Expected results\n")
+    public String getTemplate(String name) {
+        return getPreferences().node(TEMPLATE).get(name, Bundle.GitHubIssuesConfig_default_template());
+    }
+
+    /**
+     * Set template.
+     *
+     * @param name the template name
+     * @param template the template
+     */
+    public void setTemplate(String name, String template) {
+        getPreferences().node(TEMPLATE).put(name, template);
+    }
+
+    /**
+     * Remove a template. <b>NOTE:</b> Can't remove the default template. But
+     * default template will be initialized.
+     *
+     * @param name the template name
+     */
+    public void removeTemplate(String name) {
+        getPreferences().node(TEMPLATE).remove(name);
+    }
+
+    /**
+     * Get all template names.
+     *
+     * @return all template names
+     */
+    public String[] getTemplateNames() {
+        ArrayList<String> names = new ArrayList<>();
+        names.add(DEFAULT_TEMPLATE_NAME);
+        Preferences preferences = getPreferences().node(TEMPLATE);
+        try {
+            String[] childrenNames = preferences.keys();
+            names.addAll(Arrays.asList(childrenNames));
+            return names.toArray(new String[childrenNames.length + 1]);
+        } catch (BackingStoreException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return names.toArray(new String[1]);
     }
 
     public Status getStatus(GitHubIssue issue) {
