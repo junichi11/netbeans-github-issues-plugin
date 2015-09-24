@@ -84,6 +84,18 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
     public GitHubRepositoryPanel() {
         initComponents();
         init();
+
+        // #31 set user name and oauth token from .github file
+        try {
+            String userName = GitHubIssuesUtils.getUserName();
+            String oAuthToken = GitHubIssuesUtils.getOAuthToken();
+            if (userName != null && oAuthToken != null) {
+                setUserName(userName);
+                setOAuthToken(oAuthToken);
+            }
+        } catch (IOException ex) {
+            // noop, just set nothing
+        }
     }
 
     public GitHubRepositoryPanel(GitHubRepository repository) {

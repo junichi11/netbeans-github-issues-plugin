@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.netbeans.api.annotations.common.CheckForNull;
 
 /**
  *
@@ -54,13 +55,14 @@ public final class GitHubIssuesUtils {
 
     public static final String PROPERTY_USER_NAME = "login"; // NOI18N
     public static final String PROPERTY_OAUTH_TOKEN = "oauth"; // NOI18N
+    private static final String DOT_GITHUB_NAME = ".github"; // NOI18N
 
     private GitHubIssuesUtils() {
     }
 
     public static File getDotGithub() {
         File homeDir = new File(System.getProperty("user.home")); // NOI18N
-        return new File(homeDir, ".github"); // NOI18N
+        return new File(homeDir, DOT_GITHUB_NAME);
     }
 
     public static Properties getProperties() throws IOException {
@@ -79,6 +81,34 @@ public final class GitHubIssuesUtils {
             properties.load(in);
         }
         return properties;
+    }
+
+    /**
+     * Get a user name from a .github file. The .github file must be put the
+     * user home directory.
+     *
+     * @return user name if .github file exists and name is set, otherwise
+     * {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public static String getUserName() throws IOException {
+        Properties properties = getProperties();
+        return properties.getProperty(GitHubIssuesUtils.PROPERTY_USER_NAME, null);
+    }
+
+    /**
+     * Get an OAuth token from a .github file. The .github file must be put the
+     * user home directory.
+     *
+     * @return OAuth token if .github file exists and the token is set,
+     * otherwise {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public static String getOAuthToken() throws IOException {
+        Properties properties = getProperties();
+        return properties.getProperty(GitHubIssuesUtils.PROPERTY_OAUTH_TOKEN, null);
     }
 
 }
