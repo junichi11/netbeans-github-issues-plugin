@@ -46,6 +46,17 @@ You cannot edit a template name. So, if you want to change it, just remove it, t
 
 If you want to enable/disable these queries, Please change them on the Options panel.(Tools > Options > Team > GitHub Issues)
 
+## .github file
+
+.github file can be set login name and oauth token. They are used as default values when we create a new repository. 
+It must be put in the user home directory.
+The format is the following:
+
+```
+login=junichi11
+oauth=*****************************
+```
+
 ## GitHub OAuth Token
 
 You can get a your OAuth token from the following: Settings > Applications > Personal access tokens > Generate new token
