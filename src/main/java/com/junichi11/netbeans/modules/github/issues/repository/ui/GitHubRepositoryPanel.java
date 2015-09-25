@@ -60,6 +60,7 @@ import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
+import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;
@@ -450,9 +451,12 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
 
     @NbBundle.Messages({
         "GitHubRepositoryPanel.addRepositoryButtonAction.error.empty.token=Please set OAuth token.",
-        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",})
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",
+        "GitHubRepositoryPanel.addRepositoryButtonAction.fetching.repositories=Fetching repositories..."
+    })
     private void addRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRepositoryButtonActionPerformed
         RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+
         rp.post(new Runnable() {
 
             @Override
@@ -463,7 +467,17 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
-                List<Repository> repositories = getRepositories(oAuthToken);
+
+                // show progress bar
+                ProgressHandle handle = ProgressHandle.createHandle(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_fetching_repositories());
+                List<Repository> repositories;
+                try {
+                    handle.start();
+                    repositories = getRepositories(oAuthToken);
+                } finally {
+                    handle.finish();
+                }
+
                 if (repositories.isEmpty()) {
                     SwingUtilities.invokeLater(new Runnable() {
 
@@ -476,6 +490,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
 
+                // selected repository
                 final Repository repository = GitHubRepositoryListPanel.showDialog(repositories);
 
                 SwingUtilities.invokeLater(new Runnable() {
