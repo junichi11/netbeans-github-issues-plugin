@@ -78,6 +78,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
     private boolean isUserNameValid;
     private boolean isDotGithubValid;
     private boolean hasIssues;
+    private List<Repository> repositoryCache;
 
     /**
      * Creates new form GithubRepositoryPanel
@@ -462,8 +463,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
-                boolean showParentRepository = GitHubIssuesOptions.getInstance().showParentRepository();
-                List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken, showParentRepository);
+                List<Repository> repositories = getRepositories(oAuthToken);
                 if (repositories.isEmpty()) {
                     SwingUtilities.invokeLater(new Runnable() {
 
@@ -499,6 +499,14 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
         });
 
     }//GEN-LAST:event_addRepositoryButtonActionPerformed
+
+    private List<Repository> getRepositories(String oAuthToken) {
+        boolean showParentRepository = GitHubIssuesOptions.getInstance().showParentRepository();
+        if (repositoryCache == null) {
+            repositoryCache = GitHubRepository.getRepositories(oAuthToken, showParentRepository);
+        }
+        return repositoryCache;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addRepositoryButton;
