@@ -65,6 +65,8 @@ final class GitHubIssuesOptionsPanel extends javax.swing.JPanel {
         openCheckBox = new javax.swing.JCheckBox();
         assignedToMeCheckBox = new javax.swing.JCheckBox();
         createdByMeCheckBox = new javax.swing.JCheckBox();
+        repositoriesLabel = new javax.swing.JLabel();
+        showParentRepositoryCheckBox = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(defaultQueriesLabel, org.openide.util.NbBundle.getMessage(GitHubIssuesOptionsPanel.class, "GitHubIssuesOptionsPanel.defaultQueriesLabel.text")); // NOI18N
 
@@ -74,6 +76,11 @@ final class GitHubIssuesOptionsPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(createdByMeCheckBox, org.openide.util.NbBundle.getMessage(GitHubIssuesOptionsPanel.class, "GitHubIssuesOptionsPanel.createdByMeCheckBox.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(repositoriesLabel, org.openide.util.NbBundle.getMessage(GitHubIssuesOptionsPanel.class, "GitHubIssuesOptionsPanel.repositoriesLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(showParentRepositoryCheckBox, org.openide.util.NbBundle.getMessage(GitHubIssuesOptionsPanel.class, "GitHubIssuesOptionsPanel.showParentRepositoryCheckBox.text")); // NOI18N
+        showParentRepositoryCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(GitHubIssuesOptionsPanel.class, "GitHubIssuesOptionsPanel.showParentRepositoryCheckBox.toolTipText")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -82,9 +89,11 @@ final class GitHubIssuesOptionsPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(defaultQueriesLabel)
+                    .addComponent(repositoriesLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(12, 12, 12)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(showParentRepositoryCheckBox)
                             .addComponent(createdByMeCheckBox)
                             .addComponent(openCheckBox)
                             .addComponent(assignedToMeCheckBox))))
@@ -101,22 +110,34 @@ final class GitHubIssuesOptionsPanel extends javax.swing.JPanel {
                 .addComponent(assignedToMeCheckBox)
                 .addGap(7, 7, 7)
                 .addComponent(createdByMeCheckBox)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(repositoriesLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(showParentRepositoryCheckBox)
+                .addContainerGap(28, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     void load() {
+        // queries
         GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
         setOpenQuery(options.isOpenQuery());
         setAssignedToMeQuery(options.isAssignedToMeQuery());
         setCreatedByMeQuery(options.isCreatedByMeQuery());
+
+        // repositories
+        setShowParentRepository(options.showParentRepository());
     }
 
     void store() {
+        // queries
         GitHubIssuesOptions options = GitHubIssuesOptions.getInstance();
         options.setOpenQuery(isOpenQuery());
         options.setAssignedToMeQuery(isAssignedToMeQuery());
         options.setCreatedByMeQuery(isCreatedByMeQuery());
+
+        // repositories
+        options.setShowParentRepository(showParentRepository());
     }
 
     boolean valid() {
@@ -148,10 +169,20 @@ final class GitHubIssuesOptionsPanel extends javax.swing.JPanel {
         createdByMeCheckBox.setSelected(isEnabled);
     }
 
+    private boolean showParentRepository() {
+        return showParentRepositoryCheckBox.isSelected();
+    }
+
+    private void setShowParentRepository(boolean showParent) {
+        showParentRepositoryCheckBox.setSelected(showParent);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox assignedToMeCheckBox;
     private javax.swing.JCheckBox createdByMeCheckBox;
     private javax.swing.JLabel defaultQueriesLabel;
     private javax.swing.JCheckBox openCheckBox;
+    private javax.swing.JLabel repositoriesLabel;
+    private javax.swing.JCheckBox showParentRepositoryCheckBox;
     // End of variables declaration//GEN-END:variables
 }

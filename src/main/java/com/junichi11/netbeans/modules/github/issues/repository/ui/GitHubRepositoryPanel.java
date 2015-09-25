@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.repository.ui;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
@@ -461,7 +462,8 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
-                List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken);
+                boolean showParentRepository = GitHubIssuesOptions.getInstance().showParentRepository();
+                List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken, showParentRepository);
                 if (repositories.isEmpty()) {
                     SwingUtilities.invokeLater(new Runnable() {
 

@@ -838,13 +838,33 @@ public class GitHubRepository {
     }
 
     public static List<Repository> getRepositories(String oauthToken) {
+        return getRepositories(oauthToken, false);
+    }
+
+    public static List<Repository> getRepositories(String oauthToken, boolean withParent) {
         GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
         RepositoryService repositoryService = new RepositoryService(client);
+        List<Repository> repositories = new ArrayList<>();
         try {
-            return repositoryService.getRepositories();
+            List<Repository> repos = repositoryService.getRepositories();
+            if (!withParent) {
+                return repos;
+            }
+
+            // XXX get recurcively?
+            for (Repository repo : repos) {
+                if (repo.isFork()) {
+                    Repository forked = repositoryService.getRepository(repo.getOwner().getLogin(), repo.getName());
+                    Repository parent = forked.getParent();
+                    if (parent != null) {
+                        repositories.add(parent);
+                    }
+                }
+                repositories.add(repo);
+            }
         } catch (IOException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
-        return Collections.emptyList();
+        return repositories;
     }
 }

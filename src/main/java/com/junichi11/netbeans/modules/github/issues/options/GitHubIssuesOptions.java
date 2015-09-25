@@ -56,6 +56,7 @@ public final class GitHubIssuesOptions {
 
     public static final String SUB_PATH = "Team/GitHubIssues"; // NOI18N
     private static final String PREFERENCES_PATH = "github.issues"; // NOI18N
+    private static final String SHOW_PARENT_REPO = "show.parent.repo"; // NOI18N
     private static final GitHubIssuesOptions INSTANCE = new GitHubIssuesOptions();
 
     private GitHubIssuesOptions() {
@@ -103,6 +104,14 @@ public final class GitHubIssuesOptions {
             map.put(type, isDefaultQuery(type));
         }
         return map;
+    }
+
+    public boolean showParentRepository() {
+        return getPreferences().getBoolean(SHOW_PARENT_REPO, false);
+    }
+
+    public void setShowParentRepository(boolean showParent) {
+        getPreferences().putBoolean(SHOW_PARENT_REPO, showParent);
     }
 
     private Preferences getPreferences() {
