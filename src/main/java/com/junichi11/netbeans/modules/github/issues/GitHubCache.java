@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues;
 
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -81,6 +82,8 @@ public final class GitHubCache {
     private final Map<String, Icon> userIcons = new HashMap<>();
     private final GitHubRepository repository;
     private static final Logger LOGGER = Logger.getLogger(GitHubCache.class.getName());
+    // <OAuth token, User>
+    private static final Map<String, User> USERS = Collections.synchronizedMap(new HashMap<String, User>());
 
     private GitHubCache(GitHubRepository repository) {
         this.repository = repository;
@@ -263,6 +266,34 @@ public final class GitHubCache {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Get the user for the OAuth Token.
+     *
+     * @param oAuthToken OAuth token
+     * @return User if it can be got, otherwise {@code null}
+     */
+    @CheckForNull
+    public static synchronized User getUser(String oAuthToken) {
+        if (StringUtils.isEmpty(oAuthToken)) {
+            return null;
+        }
+
+        User user = USERS.get(oAuthToken);
+        if (user == null) {
+            GitHubClient client = new GitHubClient().setOAuth2Token(oAuthToken);
+            UserService userService = new UserService(client);
+            try {
+                user = userService.getUser();
+                if (user != null) {
+                    USERS.put(oAuthToken, user);
+                }
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "Can't get user."); // NOI18N
+            }
+        }
+        return user;
     }
 
 }

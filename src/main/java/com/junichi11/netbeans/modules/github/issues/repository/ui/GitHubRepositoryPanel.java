@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.repository.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
@@ -493,6 +494,13 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                 // selected repository
                 final Repository repository = GitHubRepositoryListPanel.showDialog(repositories);
 
+                // #33 user name
+                User user = GitHubCache.getUser(oAuthToken);
+                if (user == null) {
+                    return;
+                }
+                final String userName = user.getLogin();
+
                 SwingUtilities.invokeLater(new Runnable() {
 
                     @Override
@@ -500,7 +508,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                         if (repository != null) {
                             String author = repository.getOwner().getLogin();
                             String repositoryName = repository.getName();
-                            setUserName(author);
+                            setUserName(userName);
                             setRepositoryAuthor(author);
                             setRepositoryName(repositoryName);
                             if (StringUtils.isEmpty(getDisplayName())) {
