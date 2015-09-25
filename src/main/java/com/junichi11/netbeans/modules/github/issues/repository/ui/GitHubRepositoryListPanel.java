@@ -148,7 +148,14 @@ public class GitHubRepositoryListPanel extends javax.swing.JPanel {
             String text = " "; // NOI18N
             if (value instanceof Repository) {
                 Repository repository = (Repository) value;
-                text = repository.getName();
+                String loginName = repository.getOwner().getLogin();
+                String repositoryName = repository.getName();
+                StringBuilder sb = new StringBuilder();
+                sb.append(loginName).append("/").append(repositoryName); // NOI18N
+                if (repository.isFork()) {
+                    sb.append("(fork)"); // NOI18N
+                }
+                text = sb.toString();
             }
             return renderer.getListCellRendererComponent(list, text, index, isSelected, cellHasFocus);
         }
