@@ -77,6 +77,7 @@ public final class GitHubIssues {
     private PegDownProcessor pegDownProcessor;
     public static final Color OPEN_STATE_COLOR = Color.decode("#6cc644"); // NOI18N
     public static final Color CLOSED_STATE_COLOR = Color.decode("#bd2c00"); // NOI18N
+    public static final Color MERGED_STATE_COLOR = Color.decode("#6e5494"); // NOI18N
 
     private static final GitHubIssues INSTANCE = new GitHubIssues();
 
