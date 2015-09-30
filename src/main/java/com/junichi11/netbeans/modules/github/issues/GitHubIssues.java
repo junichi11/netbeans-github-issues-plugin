@@ -75,9 +75,17 @@ public final class GitHubIssues {
     private IssueNode.ChangesProvider<GitHubIssue> changesProvider;
     private RequestProcessor rp;
     private PegDownProcessor pegDownProcessor;
+    // colors
+    public static final Color GREEN_COLOR = Color.decode("#6cc644"); // NOI18N
+    public static final Color RED_COLOR = Color.decode("#bd2c00"); // NOI18N
     public static final Color OPEN_STATE_COLOR = Color.decode("#6cc644"); // NOI18N
     public static final Color CLOSED_STATE_COLOR = Color.decode("#bd2c00"); // NOI18N
     public static final Color MERGED_STATE_COLOR = Color.decode("#6e5494"); // NOI18N
+    // url formats
+    /**
+     * https://github.com/[owner]/[repository]/raw/[sha]/[file name]
+     */
+    public static final String RAW_URL_FORMAT = "https://github.com/%s/%s/raw/%s/%s"; // NOI18N
 
     private static final GitHubIssues INSTANCE = new GitHubIssues();
 

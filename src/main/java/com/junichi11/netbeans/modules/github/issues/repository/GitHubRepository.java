@@ -71,9 +71,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.egit.github.core.Comment;
+import org.eclipse.egit.github.core.CommitFile;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
@@ -81,6 +83,7 @@ import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
+import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
@@ -98,7 +101,13 @@ public class GitHubRepository {
     private RepositoryInfo repositoryInfo;
     private GitHubRepositoryController controller;
     private Repository ghRepository;
+
+    // caches
+    // @GaurdedBy("this")
     private final Map<String, GitHubIssue> issueCache = Collections.synchronizedMap(new HashMap<String, GitHubIssue>());
+    // @GaurdedBy("this")
+    private final Map<String, PullRequest> pullRequestCache = Collections.synchronizedMap(new HashMap<String, PullRequest>());
+
     private Boolean isCollaborator = null;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -523,11 +532,89 @@ public class GitHubRepository {
     }
 
     /**
+     * Get a PullRequest of specified id number.
+     *
+     * @param id ID
+     * @param force {@code true} if don't use cache, otherwise {@code false}
+     * @return PullRequest if the pull request exists, otherwise {@code null}
+     */
+    @CheckForNull
+    public synchronized PullRequest getPullRequest(int id, boolean force) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+
+        // try getting from the cache
+        PullRequest pullRequest = pullRequestCache.get(String.valueOf(id));
+        if (pullRequest != null && !force) {
+            return pullRequest;
+        }
+
+        // get via API
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            pullRequest = pullRequestService.getPullRequest(repository, id);
+            if (pullRequest != null) {
+                pullRequestCache.put(String.valueOf(id), pullRequest);
+            }
+            return pullRequest;
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} Can't get the pull request of the id number.", ex.getMessage()); // NOI18N
+        }
+        return null;
+    }
+
+    /**
+     * Get PullRequests.
+     *
+     * @param state open, closed and all
+     * @return PullRequests
+     */
+    public List<PullRequest> getPullRequests(String state) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            List<PullRequest> pullRequests = pullRequestService.getPullRequests(repository, state);
+            return pullRequests;
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull requests.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get pull requests files.
+     *
+     * @param id the identifier
+     * @return CommitFiles
+     */
+    public List<CommitFile> getPullRequestsFiles(int id) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return Collections.emptyList();
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.getFiles(repository, id);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull request files.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Refresh GitHubIssue.
      *
      * @param issue GitHubIssue
      */
-    public void refresh(GitHubIssue issue) {
+    public synchronized void refresh(GitHubIssue issue) {
         if (issue == null || issue.isNew()) {
             return;
         }
@@ -537,6 +624,11 @@ public class GitHubRepository {
             return;
         }
         issue.setIssue(refreshed);
+
+        // PR
+        if (GitHubIssuesUtils.isPullRequest(refreshed)) {
+            pullRequestCache.remove(issue.getID());
+        }
     }
 
     /**
