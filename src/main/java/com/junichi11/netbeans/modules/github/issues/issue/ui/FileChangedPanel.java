@@ -93,6 +93,18 @@ public class FileChangedPanel extends javax.swing.JPanel {
         String filename = file.getFilename();
         fileNameLabel.setText(filename);
         diffPanel.setVisible(false);
+        setAdditions(file.getAdditions());
+        setDeletions(file.getDeletions());
+    }
+
+    private void setAdditions(int lines) {
+        additionsLabel.setText("+" + String.valueOf(lines)); // NOI18N
+        additionsLabel.setForeground(GitHubIssues.GREEN_COLOR);
+    }
+
+    private void setDeletions(int lines) {
+        deletionsLabel.setText("-" + String.valueOf(lines)); // NOI18N
+        deletionsLabel.setForeground(GitHubIssues.RED_COLOR);
     }
 
     /**
@@ -108,6 +120,8 @@ public class FileChangedPanel extends javax.swing.JPanel {
         diffButton = new javax.swing.JButton();
         diffPanel = new javax.swing.JPanel();
         jSeparator1 = new javax.swing.JSeparator();
+        deletionsLabel = new javax.swing.JLabel();
+        additionsLabel = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(fileNameLabel, org.openide.util.NbBundle.getMessage(FileChangedPanel.class, "FileChangedPanel.fileNameLabel.text")); // NOI18N
 
@@ -121,13 +135,21 @@ public class FileChangedPanel extends javax.swing.JPanel {
         diffPanel.setMaximumSize(new java.awt.Dimension(2147483647, 500));
         diffPanel.setLayout(new java.awt.BorderLayout());
 
+        org.openide.awt.Mnemonics.setLocalizedText(deletionsLabel, org.openide.util.NbBundle.getMessage(FileChangedPanel.class, "FileChangedPanel.deletionsLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(additionsLabel, org.openide.util.NbBundle.getMessage(FileChangedPanel.class, "FileChangedPanel.additionsLabel.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(fileNameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 291, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 116, Short.MAX_VALUE)
+                .addComponent(additionsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(deletionsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(diffButton))
             .addComponent(diffPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jSeparator1)
@@ -137,7 +159,9 @@ public class FileChangedPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(diffButton)
-                    .addComponent(fileNameLabel))
+                    .addComponent(fileNameLabel)
+                    .addComponent(deletionsLabel)
+                    .addComponent(additionsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(diffPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -256,6 +280,8 @@ public class FileChangedPanel extends javax.swing.JPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel additionsLabel;
+    private javax.swing.JLabel deletionsLabel;
     private javax.swing.JButton diffButton;
     private javax.swing.JPanel diffPanel;
     private javax.swing.JLabel fileNameLabel;
