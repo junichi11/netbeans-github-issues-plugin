@@ -580,6 +580,7 @@ public class GitHubIssuePanel extends JPanel {
     @NbBundle.Messages({
         "GitHubIssuePanel.label.close.issue=Close issue",
         "GitHubIssuePanel.label.reopen.issue=Reopen issue",
+        "GitHubIssuePanel.label.close.pull.request=Close pull request",
         "GitHubIssuePanel.label.reopen.pull.request=Reopen pull request"
     })
     private void setNewCommentButtonCloseOrReopen(boolean isClosed) {
@@ -589,6 +590,10 @@ public class GitHubIssuePanel extends JPanel {
             } else {
                 newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_reopen_issue());
             }
+            return;
+        }
+        if (isPullRequest()) {
+            newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_close_pull_request());
         } else {
             newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_close_issue());
         }
