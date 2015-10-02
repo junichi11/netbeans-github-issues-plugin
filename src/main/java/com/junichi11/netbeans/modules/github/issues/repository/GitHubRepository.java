@@ -74,6 +74,7 @@ import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.CommitFile;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.MergeStatus;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
@@ -561,7 +562,7 @@ public class GitHubRepository {
             }
             return pullRequest;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't get the pull request of the id number.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} Can't get the pull request of the id number({1}).", new Object[]{ex.getMessage(), id}); // NOI18N
         }
         return null;
     }
@@ -607,6 +608,22 @@ public class GitHubRepository {
             LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull request files.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
+    }
+
+    @CheckForNull
+    public MergeStatus merge(int id, String commitMessage) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.merge(repository, id, commitMessage);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't merge.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return null;
     }
 
     /**
