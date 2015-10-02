@@ -245,7 +245,7 @@ final class FilesChangedPanel extends JPanel implements PropertyChangeListener {
                     @Override
                     public void run() {
                         diffEditorPane.setText(diffText);
-                        diffTopComponent = new TopComponent();
+                        diffTopComponent = new DiffTopComponent();
                         diffTopComponent.setDisplayName(getShortDisplayName());
                         diffTopComponent.setToolTipText(getDisplayName());
                         diffTopComponent.setLayout(new BorderLayout());
