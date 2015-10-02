@@ -78,6 +78,7 @@ import org.eclipse.egit.github.core.MergeStatus;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
@@ -606,6 +607,27 @@ public class GitHubRepository {
             return pullRequestService.getFiles(repository, id);
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull request files.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get commits on the pull request.
+     *
+     * @param id the identifier for the pull request
+     * @return commits
+     */
+    public List<RepositoryCommit> getCommits(int id) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return Collections.emptyList();
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.getCommits(repository, id);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't get commits for the id({2}).", new Object[]{getFullName(), ex.getMessage(), id}); // NOI18N
         }
         return Collections.emptyList();
     }
