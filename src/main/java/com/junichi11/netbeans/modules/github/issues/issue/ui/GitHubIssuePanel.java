@@ -94,6 +94,7 @@ import org.eclipse.egit.github.core.MergeStatus;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
+import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
@@ -116,6 +117,7 @@ public class GitHubIssuePanel extends JPanel {
     private GitHubIssue gitHubIssue;
     private CommentsPanel commentsPanel;
     private FilesChangedPanel filesChangedPanel;
+    private CommitsPanel commitsPanel;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private final DefaultComboBoxModel<Milestone> milestoneComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<User> assigneeComboBoxModel = new DefaultComboBoxModel<>();
@@ -181,6 +183,8 @@ public class GitHubIssuePanel extends JPanel {
         ((GroupLayout) mainCommentsPanel.getLayout()).replace(dummyCommentsPanel, commentsPanel);
         filesChangedPanel = new FilesChangedPanel();
         ((GroupLayout) mainFilesChangedPanel.getLayout()).replace(dummyFilesChangedPanel, filesChangedPanel);
+        commitsPanel = new CommitsPanel();
+        ((GroupLayout) mainCommitsPanel.getLayout()).replace(dummyCommitsPanel, commitsPanel);
     }
 
     public void setIssue(GitHubIssue gitHubIssue) {
@@ -239,7 +243,9 @@ public class GitHubIssuePanel extends JPanel {
         "# {0} - count",
         "GitHubIssuePanel.comment.count=Comment({0})",
         "# {0} - count",
-        "GitHubIssuePanel.files.changed.count=Files Changed({0})"
+        "GitHubIssuePanel.files.changed.count=Files Changed({0})",
+        "# {0} - count",
+        "GitHubIssuePanel.commit.count=Commits({0})"
     })
     public void update() {
         assert EventQueue.isDispatchThread();
@@ -249,7 +255,7 @@ public class GitHubIssuePanel extends JPanel {
             return;
         }
 
-        GitHubRepository repository = gitHubIssue.getRepository();
+        GitHubRepository repository = getRepository();
         if (repository == null) {
             return;
         }
@@ -347,10 +353,21 @@ public class GitHubIssuePanel extends JPanel {
                 if (isPullRequest) {
                     PullRequest pullRequest = getPullRequest();
                     PullRequestMarker base = pullRequest.getBase();
+                    int id = getIssue().getIssue().getNumber();
+                    String summary = getIssue().getSummary();
+
+                    // commits
+                    List<RepositoryCommit> commits = repository.getCommits(id);
+                    commitsPanel.removeAllCommits();
+                    commitsCollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_commit_count(commits.size()));
+                    for (RepositoryCommit commit : commits) {
+                        Icon commiterIcon = cache.getUserIcon(commit.getCommitter());
+                        commitsPanel.addCommit(commit.getCommit(), commiterIcon);
+                    }
 
                     // files changed
-                    List<CommitFile> pullRequestsFiles = getRepository().getPullRequestsFiles(issue.getNumber());
-                    filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", getIssue().getID(), getIssue().getSummary())); // NOI18N
+                    List<CommitFile> pullRequestsFiles = repository.getPullRequestsFiles(issue.getNumber());
+                    filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", id, summary)); // NOI18N
                     filesChangedPanel.removeAllFiles();
                     for (CommitFile file : pullRequestsFiles) {
                         filesChangedPanel.addFile(file, base);
@@ -362,7 +379,7 @@ public class GitHubIssuePanel extends JPanel {
                     boolean isMergeable = isMergeable();
                     mergePanel.setMergeButtonEnabled(isMergeable && !isMerged());
                     if (isMergeable) {
-                        mergePanel.setCommitMessage(getIssue().getSummary());
+                        mergePanel.setCommitMessage(summary);
                     }
                 }
             }
@@ -374,6 +391,7 @@ public class GitHubIssuePanel extends JPanel {
         setCollaboratorsComponentsVisible(isCollaborator);
         attributesViewPanel.setVisible(isExistingIssue);
         // PR
+        commitsCollapsibleSectionPanel.setVisible(isPullRequest);
         filesChangedcollapsibleSectionPanel.setVisible(isPullRequest);
         mergePanel.setVisible(isPullRequest && isCollaborator);
 
@@ -728,6 +746,8 @@ public class GitHubIssuePanel extends JPanel {
         dummyCommentsPanel = new javax.swing.JPanel();
         mainFilesChangedPanel = new javax.swing.JPanel();
         dummyFilesChangedPanel = new javax.swing.JPanel();
+        mainCommitsPanel = new javax.swing.JPanel();
+        dummyCommitsPanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
         headerSubmitButton = new javax.swing.JButton();
         headerNameLabel = new javax.swing.JLabel();
@@ -797,6 +817,28 @@ public class GitHubIssuePanel extends JPanel {
             .addGap(0, 14, Short.MAX_VALUE)
             .addGroup(mainFilesChangedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addComponent(dummyFilesChangedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout dummyCommitsPanelLayout = new javax.swing.GroupLayout(dummyCommitsPanel);
+        dummyCommitsPanel.setLayout(dummyCommitsPanelLayout);
+        dummyCommitsPanelLayout.setHorizontalGroup(
+            dummyCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        dummyCommitsPanelLayout.setVerticalGroup(
+            dummyCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 16, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout mainCommitsPanelLayout = new javax.swing.GroupLayout(mainCommitsPanel);
+        mainCommitsPanel.setLayout(mainCommitsPanelLayout);
+        mainCommitsPanelLayout.setHorizontalGroup(
+            mainCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommitsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        mainCommitsPanelLayout.setVerticalGroup(
+            mainCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommitsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(headerSubmitButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerSubmitButton.text")); // NOI18N
@@ -978,6 +1020,10 @@ public class GitHubIssuePanel extends JPanel {
         filesChangedcollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.filesChangedcollapsibleSectionPanel.label")); // NOI18N
         filesChangedcollapsibleSectionPanel.setMaximumSize(new java.awt.Dimension(800, 31));
 
+        commitsCollapsibleSectionPanel.setContent(mainCommitsPanel);
+        commitsCollapsibleSectionPanel.setExpanded(false);
+        commitsCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.commitsCollapsibleSectionPanel.label")); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -1023,7 +1069,8 @@ public class GitHubIssuePanel extends JPanel {
                         .addComponent(newCommentButton))
                     .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(filesChangedcollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(mergePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(mergePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(commitsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -1057,9 +1104,11 @@ public class GitHubIssuePanel extends JPanel {
                     .addComponent(descriptionTabbedPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(attributesViewPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(commitsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(filesChangedcollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mergePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1254,9 +1303,11 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commentsCollapsibleSectionPanel;
+    private final org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commitsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
     private javax.swing.JLabel descriptionLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel descriptionTabbedPanel;
     private javax.swing.JPanel dummyCommentsPanel;
+    private javax.swing.JPanel dummyCommitsPanel;
     private javax.swing.JPanel dummyFilesChangedPanel;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel filesChangedcollapsibleSectionPanel;
     private javax.swing.JLabel headerCreatedByLabel;
@@ -1278,6 +1329,7 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JList<Label> labelsList;
     private javax.swing.JScrollPane labelsScrollPane;
     private javax.swing.JPanel mainCommentsPanel;
+    private javax.swing.JPanel mainCommitsPanel;
     private javax.swing.JPanel mainFilesChangedPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
