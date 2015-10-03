@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.eclipse.egit.github.core.Issue;
 import org.netbeans.api.annotations.common.CheckForNull;
 
 /**
@@ -58,6 +59,10 @@ public final class GitHubIssuesUtils {
     private static final String DOT_GITHUB_NAME = ".github"; // NOI18N
 
     private GitHubIssuesUtils() {
+    }
+
+    public static boolean isPullRequest(Issue issue) {
+        return issue != null && issue.getPullRequest() != null;
     }
 
     public static File getDotGithub() {

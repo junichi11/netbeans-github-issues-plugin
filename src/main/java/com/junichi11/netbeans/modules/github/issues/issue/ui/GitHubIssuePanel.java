@@ -45,6 +45,7 @@ import com.junichi11.netbeans.modules.github.issues.GitHubCache;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import static com.junichi11.netbeans.modules.github.issues.GitHubIssues.CLOSED_STATE_COLOR;
+import static com.junichi11.netbeans.modules.github.issues.GitHubIssues.MERGED_STATE_COLOR;
 import static com.junichi11.netbeans.modules.github.issues.GitHubIssues.OPEN_STATE_COLOR;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
@@ -54,6 +55,7 @@ import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueSupport;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
+import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -61,6 +63,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -84,10 +87,16 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.eclipse.egit.github.core.Comment;
+import org.eclipse.egit.github.core.CommitFile;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.MergeStatus;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
+import org.eclipse.egit.github.core.PullRequestMarker;
+import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -107,12 +116,15 @@ public class GitHubIssuePanel extends JPanel {
 
     private GitHubIssue gitHubIssue;
     private CommentsPanel commentsPanel;
+    private FilesChangedPanel filesChangedPanel;
+    private CommitsPanel commitsPanel;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private final DefaultComboBoxModel<Milestone> milestoneComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<User> assigneeComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultListModel<Label> labelsListModel = new DefaultListModel<>();
     private static final Icon ISSUE_OPENED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_opened_16.png", true); // NOI18N
     private static final Icon ISSUE_CLOSED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_closed_16.png", true); // NOI18N
+    private static final Icon PULL_REQUEST_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/git_pull_request_16.png", true); // NOI18N
     private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
     private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
     private static final Logger LOGGER = Logger.getLogger(GitHubIssuePanel.class.getName());
@@ -148,6 +160,10 @@ public class GitHubIssuePanel extends JPanel {
         DefaultDocumentListener documentListener = new DefaultDocumentListener();
         titleTextField.getDocument().addDocumentListener(documentListener);
 
+        // add property change listener
+        PropertyChangeListener mergeChangeListener = new MergePropertyChangeListener();
+        mergePanel.addPropertyChangeListener(mergeChangeListener);
+
         // set error
         headerErrorLabel.setForeground(UIManager.getColor("nb.errorForeground")); // NOI18N
         setErrorMessage(""); // NOI18N
@@ -165,6 +181,10 @@ public class GitHubIssuePanel extends JPanel {
         headerStatusLabel.setFont(bold);
         commentsPanel = new CommentsPanel();
         ((GroupLayout) mainCommentsPanel.getLayout()).replace(dummyCommentsPanel, commentsPanel);
+        filesChangedPanel = new FilesChangedPanel();
+        ((GroupLayout) mainFilesChangedPanel.getLayout()).replace(dummyFilesChangedPanel, filesChangedPanel);
+        commitsPanel = new CommitsPanel();
+        ((GroupLayout) mainCommitsPanel.getLayout()).replace(dummyCommitsPanel, commitsPanel);
     }
 
     public void setIssue(GitHubIssue gitHubIssue) {
@@ -182,18 +202,60 @@ public class GitHubIssuePanel extends JPanel {
         return gitHubIssue.getRepository();
     }
 
+    @CheckForNull
+    private PullRequest getPullRequest() {
+        if (isPullRequest()) {
+            GitHubIssue issue = getIssue();
+            GitHubRepository repository = getRepository();
+            if (repository != null) {
+                return repository.getPullRequest(issue.getIssue().getNumber(), false);
+            }
+        }
+        return null;
+    }
+
+    private boolean isPullRequest() {
+        GitHubIssue issue = getIssue();
+        return GitHubIssuesUtils.isPullRequest(issue.getIssue());
+    }
+
+    private boolean isMerged() {
+        if (isPullRequest()) {
+            PullRequest pullRequest = getPullRequest();
+            if (pullRequest != null) {
+                return pullRequest.isMerged();
+            }
+        }
+        return false;
+    }
+
+    private boolean isMergeable() {
+        if (isPullRequest()) {
+            PullRequest pullRequest = getPullRequest();
+            if (pullRequest != null) {
+                return pullRequest.isMergeable();
+            }
+        }
+        return false;
+    }
+
     @NbBundle.Messages({
         "# {0} - count",
-        "GitHubIssuePanel.comment.count=Comment({0})"
+        "GitHubIssuePanel.comment.count=Comment({0})",
+        "# {0} - count",
+        "GitHubIssuePanel.files.changed.count=Files Changed({0})",
+        "# {0} - count",
+        "GitHubIssuePanel.commit.count=Commits({0})"
     })
     public void update() {
+        assert EventQueue.isDispatchThread();
         // header
         setHeader();
         if (gitHubIssue == null) {
             return;
         }
 
-        GitHubRepository repository = gitHubIssue.getRepository();
+        GitHubRepository repository = getRepository();
         if (repository == null) {
             return;
         }
@@ -219,6 +281,7 @@ public class GitHubIssuePanel extends JPanel {
 
         // existing issue
         boolean isExistingIssue = !gitHubIssue.isNew();
+        boolean isPullRequest = isPullRequest();
         if (isExistingIssue) {
             Issue issue = gitHubIssue.getIssue();
             if (issue != null) {
@@ -285,6 +348,40 @@ public class GitHubIssuePanel extends JPanel {
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
                 commentsPanel.addComments(comments, repository);
+
+                // PR
+                if (isPullRequest) {
+                    PullRequest pullRequest = getPullRequest();
+                    PullRequestMarker base = pullRequest.getBase();
+                    int id = getIssue().getIssue().getNumber();
+                    String summary = getIssue().getSummary();
+
+                    // commits
+                    List<RepositoryCommit> commits = repository.getCommits(id);
+                    commitsPanel.removeAllCommits();
+                    commitsCollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_commit_count(commits.size()));
+                    for (RepositoryCommit commit : commits) {
+                        Icon commiterIcon = cache.getUserIcon(commit.getCommitter());
+                        commitsPanel.addCommit(commit.getCommit(), commiterIcon);
+                    }
+
+                    // files changed
+                    List<CommitFile> pullRequestsFiles = repository.getPullRequestsFiles(issue.getNumber());
+                    filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", id, summary)); // NOI18N
+                    filesChangedPanel.removeAllFiles();
+                    for (CommitFile file : pullRequestsFiles) {
+                        filesChangedPanel.addFile(file, base);
+                    }
+                    filesChangedPanel.setDetails(pullRequest);
+                    filesChangedcollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_files_changed_count(pullRequestsFiles.size()));
+
+                    // mergeable?
+                    boolean isMergeable = isMergeable();
+                    mergePanel.setMergeButtonEnabled(isMergeable && !isMerged());
+                    if (isMergeable) {
+                        mergePanel.setCommitMessage(summary);
+                    }
+                }
             }
         }
 
@@ -293,6 +390,10 @@ public class GitHubIssuePanel extends JPanel {
         setNewCommentVisible(isExistingIssue);
         setCollaboratorsComponentsVisible(isCollaborator);
         attributesViewPanel.setVisible(isExistingIssue);
+        // PR
+        commitsCollapsibleSectionPanel.setVisible(isPullRequest);
+        filesChangedcollapsibleSectionPanel.setVisible(isPullRequest);
+        mergePanel.setVisible(isPullRequest && isCollaborator);
 
         fireChange();
     }
@@ -414,38 +515,85 @@ public class GitHubIssuePanel extends JPanel {
             }
         }
         setHeaderStatus(state);
+
+        // PR
+        boolean isPullRequest = isPullRequest();
+        headerPrBaseHeadLabel.setVisible(isPullRequest);
+        if (isPullRequest) {
+            PullRequest pullRequest = getPullRequest();
+            PullRequestMarker base = pullRequest.getBase();
+            PullRequestMarker head = pullRequest.getHead();
+            headerPrBaseHeadLabel.setText(
+                    String.format("<html><b>Base</b>: %s <b>Head</b>: %s", // NOI18N
+                            base.getLabel().replace(":", "/"), // NOI18N
+                            head.getLabel().replace(":", "/"))); // NOI18N
+        } else {
+            headerPrBaseHeadLabel.setText(" "); // NOI18N
+        }
     }
 
     private void setHeaderStatus(GitHubIssueState status) {
-        boolean isClosed = status == GitHubIssueState.CLOSED;
+        String text = ""; // NOI18N
+        Icon icon = null;
+        boolean opaque = false;
+        boolean visible = false;
+        Color background = getBackground();
+        Color foreground = getForeground();
+
         switch (status) {
             case NEW:
-                headerStatusLabel.setText(""); // NOI18N
-                headerStatusLabel.setIcon(null);
-                headerStatusLabel.setOpaque(false);
-                headerStatusLabel.setVisible(false);
+                // noop
                 break;
-            case OPEN: // no break
+            case OPEN:
+                GitHubIssue issue = getIssue();
+                boolean isPR = GitHubIssuesUtils.isPullRequest(issue.getIssue());
+                text = "Open"; // NOI18N
+                icon = isPR ? PULL_REQUEST_ICON : ISSUE_OPENED_ICON;
+                opaque = true;
+                visible = true;
+                background = OPEN_STATE_COLOR;
+                foreground = Color.WHITE;
+                break;
             case CLOSED:
-                headerStatusLabel.setText(isClosed ? "Closed" : "Open");
-                headerStatusLabel.setIcon(isClosed ? ISSUE_CLOSED_ICON : ISSUE_OPENED_ICON);
-                headerStatusLabel.setBackground(isClosed ? CLOSED_STATE_COLOR : OPEN_STATE_COLOR);
-                headerStatusLabel.setForeground(Color.WHITE);
-                headerStatusLabel.setOpaque(true);
-                headerStatusLabel.setVisible(true);
+                issue = getIssue();
+                isPR = GitHubIssuesUtils.isPullRequest(issue.getIssue());
+                PullRequest pullRequest = getPullRequest();
+                text = isMerged() ? "Merged" : "Closed"; // NOI18N
+                icon = isPR ? PULL_REQUEST_ICON : ISSUE_CLOSED_ICON;
+                opaque = true;
+                visible = true;
+                background = (isPR && pullRequest != null && pullRequest.isMerged()) ? MERGED_STATE_COLOR : CLOSED_STATE_COLOR;
+                foreground = Color.WHITE;
                 break;
             default:
                 throw new AssertionError();
         }
+
+        headerStatusLabel.setText(text);
+        headerStatusLabel.setIcon(icon);
+        headerStatusLabel.setBackground(background);
+        headerStatusLabel.setForeground(foreground);
+        headerStatusLabel.setOpaque(opaque);
+        headerStatusLabel.setVisible(visible);
     }
 
     @NbBundle.Messages({
         "GitHubIssuePanel.label.close.issue=Close issue",
-        "GitHubIssuePanel.label.reopen.issue=Reopen issue"
+        "GitHubIssuePanel.label.reopen.issue=Reopen issue",
+        "GitHubIssuePanel.label.close.pull.request=Close pull request",
+        "GitHubIssuePanel.label.reopen.pull.request=Reopen pull request"
     })
     private void setNewCommentButtonCloseOrReopen(boolean isClosed) {
         if (isClosed) {
-            newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_reopen_issue());
+            if (isPullRequest()) {
+                newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_reopen_pull_request());
+            } else {
+                newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_reopen_issue());
+            }
+            return;
+        }
+        if (isPullRequest()) {
+            newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_close_pull_request());
         } else {
             newCommentCloseReopenIssueButton.setText(Bundle.GitHubIssuePanel_label_close_issue());
         }
@@ -534,7 +682,7 @@ public class GitHubIssuePanel extends JPanel {
         newCommentTabbedPanel.setVisible(isVisible);
         newCommentButton.setVisible(isVisible);
         if (isVisible) {
-            newCommentCloseReopenIssueButton.setVisible(gitHubIssue.isEditableUser());
+            newCommentCloseReopenIssueButton.setVisible(gitHubIssue.isEditableUser() && !isMerged());
         } else {
             newCommentCloseReopenIssueButton.setVisible(false);
         }
@@ -601,6 +749,10 @@ public class GitHubIssuePanel extends JPanel {
 
         mainCommentsPanel = new javax.swing.JPanel();
         dummyCommentsPanel = new javax.swing.JPanel();
+        mainFilesChangedPanel = new javax.swing.JPanel();
+        dummyFilesChangedPanel = new javax.swing.JPanel();
+        mainCommitsPanel = new javax.swing.JPanel();
+        dummyCommitsPanel = new javax.swing.JPanel();
         headerPanel = new javax.swing.JPanel();
         headerSubmitButton = new javax.swing.JButton();
         headerNameLabel = new javax.swing.JLabel();
@@ -617,6 +769,7 @@ public class GitHubIssuePanel extends JPanel {
         refreshLinkButton = new org.netbeans.modules.bugtracking.commons.LinkButton();
         newLabelButton = new javax.swing.JButton();
         newMilestoneButton = new javax.swing.JButton();
+        headerPrBaseHeadLabel = new javax.swing.JLabel();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
         assigneeLabel = new javax.swing.JLabel();
@@ -639,6 +792,7 @@ public class GitHubIssuePanel extends JPanel {
         commentsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
         insertTemplateButton = new javax.swing.JButton();
         manageTemplatesButton = new javax.swing.JButton();
+        filesChangedcollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
 
         dummyCommentsPanel.setLayout(new java.awt.BorderLayout());
 
@@ -651,6 +805,45 @@ public class GitHubIssuePanel extends JPanel {
         mainCommentsPanelLayout.setVerticalGroup(
             mainCommentsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(dummyCommentsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 13, Short.MAX_VALUE)
+        );
+
+        dummyFilesChangedPanel.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout mainFilesChangedPanelLayout = new javax.swing.GroupLayout(mainFilesChangedPanel);
+        mainFilesChangedPanel.setLayout(mainFilesChangedPanelLayout);
+        mainFilesChangedPanelLayout.setHorizontalGroup(
+            mainFilesChangedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 791, Short.MAX_VALUE)
+            .addGroup(mainFilesChangedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(dummyFilesChangedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
+        );
+        mainFilesChangedPanelLayout.setVerticalGroup(
+            mainFilesChangedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 14, Short.MAX_VALUE)
+            .addGroup(mainFilesChangedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(dummyFilesChangedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout dummyCommitsPanelLayout = new javax.swing.GroupLayout(dummyCommitsPanel);
+        dummyCommitsPanel.setLayout(dummyCommitsPanelLayout);
+        dummyCommitsPanelLayout.setHorizontalGroup(
+            dummyCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        dummyCommitsPanelLayout.setVerticalGroup(
+            dummyCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 16, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout mainCommitsPanelLayout = new javax.swing.GroupLayout(mainCommitsPanel);
+        mainCommitsPanel.setLayout(mainCommitsPanelLayout);
+        mainCommitsPanelLayout.setHorizontalGroup(
+            mainCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommitsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        mainCommitsPanelLayout.setVerticalGroup(
+            mainCommitsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(dummyCommitsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(headerSubmitButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerSubmitButton.text")); // NOI18N
@@ -703,6 +896,8 @@ public class GitHubIssuePanel extends JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(headerPrBaseHeadLabel, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerPrBaseHeadLabel.text")); // NOI18N
+
         javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
         headerPanel.setLayout(headerPanelLayout);
         headerPanelLayout.setHorizontalGroup(
@@ -719,28 +914,31 @@ public class GitHubIssuePanel extends JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(headerSubmitButton))
                     .addGroup(headerPanelLayout.createSequentialGroup()
-                        .addComponent(headerStatusLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerCreatedLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerCreatedDateLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(headerUpdatedLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerUpdatedDateLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(headerCreatedByLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerCreatedByUserLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(headerPanelLayout.createSequentialGroup()
                         .addComponent(headerNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(refreshLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerShowInBrowserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(headerShowInBrowserLinkButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(headerPanelLayout.createSequentialGroup()
+                        .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(headerPanelLayout.createSequentialGroup()
+                                .addComponent(headerStatusLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(headerCreatedLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(headerCreatedDateLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(headerUpdatedLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(headerUpdatedDateLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(headerCreatedByLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(headerCreatedByUserLabel))
+                            .addComponent(headerPrBaseHeadLabel))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         headerPanelLayout.setVerticalGroup(
@@ -762,6 +960,8 @@ public class GitHubIssuePanel extends JPanel {
                     .addComponent(headerCreatedByLabel)
                     .addComponent(headerCreatedByUserLabel)
                     .addComponent(headerStatusLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(headerPrBaseHeadLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(headerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(headerSubmitButton)
@@ -820,6 +1020,15 @@ public class GitHubIssuePanel extends JPanel {
             }
         });
 
+        filesChangedcollapsibleSectionPanel.setContent(mainFilesChangedPanel);
+        filesChangedcollapsibleSectionPanel.setExpanded(false);
+        filesChangedcollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.filesChangedcollapsibleSectionPanel.label")); // NOI18N
+        filesChangedcollapsibleSectionPanel.setMaximumSize(new java.awt.Dimension(800, 31));
+
+        commitsCollapsibleSectionPanel.setContent(mainCommitsPanel);
+        commitsCollapsibleSectionPanel.setExpanded(false);
+        commitsCollapsibleSectionPanel.setLabel(org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.commitsCollapsibleSectionPanel.label")); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -863,7 +1072,10 @@ public class GitHubIssuePanel extends JPanel {
                         .addComponent(newCommentCloseReopenIssueButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(newCommentButton))
-                    .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(filesChangedcollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(mergePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(commitsCollapsibleSectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -898,7 +1110,13 @@ public class GitHubIssuePanel extends JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(attributesViewPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(commitsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(filesChangedcollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(commentsCollapsibleSectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mergePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(newCommentLabel)
@@ -907,7 +1125,7 @@ public class GitHubIssuePanel extends JPanel {
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(newCommentButton)
                     .addComponent(newCommentCloseReopenIssueButton))
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         mainScrollPane.setViewportView(mainPanel);
@@ -940,24 +1158,7 @@ public class GitHubIssuePanel extends JPanel {
     }//GEN-LAST:event_headerShowInBrowserLinkButtonActionPerformed
 
     private void refreshLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshLinkButtonActionPerformed
-        RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
-        rp.post(new Runnable() {
-
-            @Override
-            public void run() {
-                if (gitHubIssue.isNew()) {
-                    return;
-                }
-                gitHubIssue.refreshIssue();
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        update();
-                    }
-                });
-            }
-        });
-
+        refresh();
     }//GEN-LAST:event_refreshLinkButtonActionPerformed
 
     @NbBundle.Messages({
@@ -1082,15 +1283,38 @@ public class GitHubIssuePanel extends JPanel {
         DialogDisplayer.getDefault().notify(descriptor);
     }//GEN-LAST:event_manageTemplatesButtonActionPerformed
 
+    private void refresh() {
+        RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+        rp.post(new Runnable() {
+            @Override
+            public void run() {
+                if (gitHubIssue.isNew()) {
+                    return;
+                }
+                gitHubIssue.refreshIssue();
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        update();
+                    }
+                });
+            }
+        });
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.netbeans.modules.bugtracking.commons.LinkButton assignYourselfLinkButton;
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commentsCollapsibleSectionPanel;
+    private final org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commitsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
     private javax.swing.JLabel descriptionLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel descriptionTabbedPanel;
     private javax.swing.JPanel dummyCommentsPanel;
+    private javax.swing.JPanel dummyCommitsPanel;
+    private javax.swing.JPanel dummyFilesChangedPanel;
+    private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel filesChangedcollapsibleSectionPanel;
     private javax.swing.JLabel headerCreatedByLabel;
     private javax.swing.JLabel headerCreatedByUserLabel;
     private javax.swing.JLabel headerCreatedDateLabel;
@@ -1098,6 +1322,7 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JLabel headerErrorLabel;
     private javax.swing.JLabel headerNameLabel;
     private javax.swing.JPanel headerPanel;
+    private javax.swing.JLabel headerPrBaseHeadLabel;
     private org.netbeans.modules.bugtracking.commons.LinkButton headerShowInBrowserLinkButton;
     private javax.swing.JLabel headerStatusLabel;
     private javax.swing.JButton headerSubmitButton;
@@ -1109,9 +1334,12 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JList<Label> labelsList;
     private javax.swing.JScrollPane labelsScrollPane;
     private javax.swing.JPanel mainCommentsPanel;
+    private javax.swing.JPanel mainCommitsPanel;
+    private javax.swing.JPanel mainFilesChangedPanel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JButton manageTemplatesButton;
+    private final com.junichi11.netbeans.modules.github.issues.issue.ui.MergePanel mergePanel = new com.junichi11.netbeans.modules.github.issues.issue.ui.MergePanel();
     private javax.swing.JComboBox<Milestone> milestoneComboBox;
     private javax.swing.JLabel milestoneLabel;
     private javax.swing.JButton newCommentButton;
@@ -1144,6 +1372,37 @@ public class GitHubIssuePanel extends JPanel {
 
         private void processUpdate() {
             fireChange();
+        }
+    }
+
+    private class MergePropertyChangeListener implements PropertyChangeListener {
+
+        public MergePropertyChangeListener() {
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(MergePanel.PROP_MERGE_CHANGED)) {
+                // merge
+                RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+                rp.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final MergeStatus mergeStatus = getRepository().merge(
+                                getIssue().getIssue().getNumber(),
+                                mergePanel.getCommitMessage());
+                        if (mergeStatus != null && mergeStatus.isMerged()) {
+                            refresh();
+                        }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                UiUtils.showPlainDialog(mergeStatus.getMessage());
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
 
@@ -1291,4 +1550,5 @@ public class GitHubIssuePanel extends JPanel {
             templatePanel.setErrorMessage(" "); // NOI18N
         }
     }
+
 }

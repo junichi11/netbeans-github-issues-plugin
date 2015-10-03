@@ -48,6 +48,7 @@ import com.junichi11.netbeans.modules.github.issues.issue.ui.GitHubIssuePanel;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -79,7 +80,18 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     public GitHubIssueController(GitHubIssue gitHubIssue) {
         repositoryId = gitHubIssue.getRepository().getID();
         getPanel().setIssue(gitHubIssue);
-        getPanel().update();
+        Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                getPanel().update();
+            }
+        };
+        if (EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            SwingUtilities.invokeLater(runnable);
+        }
     }
 
     @Override
