@@ -649,6 +649,31 @@ public class GitHubRepository {
     }
 
     /**
+     * Create a pull request from an existing issue.
+     *
+     * @param issueId an identifier
+     * @param head head username:branch
+     * @param base base branch name
+     * @return PullRequest if it was created successfully, otherwise
+     * {@code null}
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(int issueId, String head, String base) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.createPullRequest(repository, issueId, head, base);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't create a pull request.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
+    }
+
+    /**
      * Refresh GitHubIssue.
      *
      * @param issue GitHubIssue
