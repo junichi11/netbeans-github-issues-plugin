@@ -45,6 +45,7 @@ import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
@@ -54,6 +55,7 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
+import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.openide.util.ChangeSupport;
 import org.openide.util.ImageUtilities;
@@ -67,46 +69,103 @@ public final class CreatePullRequestPanel extends JPanel {
 
     private static final long serialVersionUID = 5695111005863831097L;
     private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
+    private final DefaultComboBoxModel<Repository> baseRepositoryComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<RepositoryBranch> baseComboBoxModel = new DefaultComboBoxModel();
-    private final DefaultComboBoxModel<RepositoryBranch> compareComboBoxModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel<Repository> headRepositoryComboBoxModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel<RepositoryBranch> headComboBoxModel = new DefaultComboBoxModel();
     private final ChangeSupport changeSupport = new ChangeSupport(this);
+    private final Map<Repository, List<RepositoryBranch>> baseRepositories;
+    private final Map<Repository, List<RepositoryBranch>> headRepositories;
+
+    public static final String PROP_COMPARE_PULL_REQUEST = "github.issues.pull.request.compare"; // NOI18N
 
     /**
      * Creates new form CreatePullRequestPanel
      */
-    public CreatePullRequestPanel(List<RepositoryBranch> baseBranches, List<RepositoryBranch> compareBranches) {
+    public CreatePullRequestPanel(Map<Repository, List<RepositoryBranch>> baseRepositories, Map<Repository, List<RepositoryBranch>> headRepositories) {
+        this.baseRepositories = baseRepositories;
+        this.headRepositories = headRepositories;
         initComponents();
 
+        baseRepositoryComboBox.setRenderer(new PullRequestListCellRenderer(baseRepositoryComboBox.getRenderer()));
+        headRepositoryComboBox.setRenderer(new PullRequestListCellRenderer(headRepositoryComboBox.getRenderer()));
         baseComboBox.setRenderer(new PullRequestListCellRenderer(baseComboBox.getRenderer()));
-        compareComboBox.setRenderer(new PullRequestListCellRenderer(compareComboBox.getRenderer()));
-        for (RepositoryBranch baseBranche : baseBranches) {
-            baseComboBoxModel.addElement(baseBranche);
-        }
-        for (RepositoryBranch compareBranch : compareBranches) {
-            compareComboBoxModel.addElement(compareBranch);
-        }
+        headComboBox.setRenderer(new PullRequestListCellRenderer(headComboBox.getRenderer()));
+
+        addRepositories(baseRepositoryComboBoxModel, baseComboBoxModel, baseRepositories);
+        addRepositories(headRepositoryComboBoxModel, headComboBoxModel, headRepositories);
+
+        baseRepositoryComboBox.setModel(baseRepositoryComboBoxModel);
+        headRepositoryComboBox.setModel(headRepositoryComboBoxModel);
         baseComboBox.setModel(baseComboBoxModel);
-        compareComboBox.setModel(compareComboBoxModel);
+        headComboBox.setModel(headComboBoxModel);
 
         init();
+    }
+
+    private void addRepositories(DefaultComboBoxModel<Repository> repositoryModel, DefaultComboBoxModel<RepositoryBranch> branchModel, Map<Repository, List<RepositoryBranch>> repositories) {
+        boolean first = true;
+        for (Repository repository : repositories.keySet()) {
+            repositoryModel.addElement(repository);
+            if (first) {
+                first = false;
+                addBranches(branchModel, repositories.get(repository));
+            }
+        }
+    }
+
+    private void addBranches(DefaultComboBoxModel<RepositoryBranch> model, List<RepositoryBranch> branches) {
+        model.removeAllElements();
+        for (RepositoryBranch branch : branches) {
+            model.addElement(branch);
+        }
     }
 
     private void init() {
         setMessage(""); // NOI18N
         errorLabel.setForeground(UIManager.getColor("nb.errorForeground")); // NOI18N
         setErrorMessage(""); // NOI18N
+
         // add listener
         DefaultItemListener itemListener = new DefaultItemListener();
         baseComboBox.addItemListener(itemListener);
-        compareComboBox.addItemListener(itemListener);
+        headComboBox.addItemListener(itemListener);
+        baseRepositoryComboBox.addItemListener(itemListener);
+        headRepositoryComboBox.addItemListener(itemListener);
+        baseRepositoryComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                Repository repository = getSelectedBaseRepository();
+                addBranches(baseComboBoxModel, CreatePullRequestPanel.this.baseRepositories.get(repository));
+            }
+        });
+        headRepositoryComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                Repository repository = getSelectedHeadRepository();
+                addBranches(baseComboBoxModel, CreatePullRequestPanel.this.headRepositories.get(repository));
+            }
+        });
+    }
+
+    public void setCompareButtonEnabled(boolean isEnabled) {
+        compareButton.setEnabled(isEnabled);
+    }
+
+    public Repository getSelectedBaseRepository() {
+        return (Repository) baseRepositoryComboBox.getSelectedItem();
     }
 
     public RepositoryBranch getSelectedBaseBranch() {
         return (RepositoryBranch) baseComboBox.getSelectedItem();
     }
 
-    public RepositoryBranch getSelectedCompareBranch() {
-        return (RepositoryBranch) compareComboBox.getSelectedItem();
+    public Repository getSelectedHeadRepository() {
+        return (Repository) headRepositoryComboBox.getSelectedItem();
+    }
+
+    public RepositoryBranch getSelectedHeadBranch() {
+        return (RepositoryBranch) headComboBox.getSelectedItem();
     }
 
     public void setMessage(String message) {
@@ -145,19 +204,25 @@ public final class CreatePullRequestPanel extends JPanel {
     private void initComponents() {
 
         baseLabel = new javax.swing.JLabel();
-        baseComboBox = new javax.swing.JComboBox<RepositoryBranch>();
-        compareLabel = new javax.swing.JLabel();
-        compareComboBox = new javax.swing.JComboBox<RepositoryBranch>();
+        headLabel = new javax.swing.JLabel();
         messageLabel = new javax.swing.JLabel();
         errorLabel = new javax.swing.JLabel();
+        compareButton = new javax.swing.JButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(baseLabel, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.baseLabel.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(compareLabel, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.compareLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(headLabel, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.headLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(messageLabel, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.messageLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(errorLabel, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.errorLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(compareButton, org.openide.util.NbBundle.getMessage(CreatePullRequestPanel.class, "CreatePullRequestPanel.compareButton.text")); // NOI18N
+        compareButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compareButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -167,18 +232,24 @@ public final class CreatePullRequestPanel extends JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(messageLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(errorLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(compareButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(baseLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(baseRepositoryComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(baseComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addComponent(compareLabel)
+                        .addComponent(headLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(compareComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(messageLabel)
-                            .addComponent(errorLabel))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(headRepositoryComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(headComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -190,20 +261,31 @@ public final class CreatePullRequestPanel extends JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(baseComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(baseLabel)
-                    .addComponent(compareLabel)
-                    .addComponent(compareComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(headLabel)
+                    .addComponent(headComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(baseRepositoryComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(headRepositoryComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(errorLabel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(errorLabel)
+                    .addComponent(compareButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void compareButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compareButtonActionPerformed
+        firePropertyChange(PROP_COMPARE_PULL_REQUEST, null, null);
+    }//GEN-LAST:event_compareButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<RepositoryBranch> baseComboBox;
+    private final javax.swing.JComboBox<RepositoryBranch> baseComboBox = new javax.swing.JComboBox<RepositoryBranch>();
     private javax.swing.JLabel baseLabel;
-    private javax.swing.JComboBox<RepositoryBranch> compareComboBox;
-    private javax.swing.JLabel compareLabel;
+    private final javax.swing.JComboBox<Repository> baseRepositoryComboBox = new javax.swing.JComboBox<Repository>();
+    private javax.swing.JButton compareButton;
     private javax.swing.JLabel errorLabel;
+    private final javax.swing.JComboBox<RepositoryBranch> headComboBox = new javax.swing.JComboBox<RepositoryBranch>();
+    private javax.swing.JLabel headLabel;
+    private final javax.swing.JComboBox<Repository> headRepositoryComboBox = new javax.swing.JComboBox<Repository>();
     private javax.swing.JLabel messageLabel;
     // End of variables declaration//GEN-END:variables
 
@@ -223,6 +305,9 @@ public final class CreatePullRequestPanel extends JPanel {
             if (value instanceof RepositoryBranch) {
                 RepositoryBranch branch = (RepositoryBranch) value;
                 text = branch.getName();
+            } else if (value instanceof Repository) {
+                Repository repository = (Repository) value;
+                text = repository.getOwner().getLogin() + "/" + repository.getName(); // NOI18N
             }
             if (text == null) {
                 text = " "; // NOI18N
