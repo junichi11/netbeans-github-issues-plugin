@@ -103,6 +103,7 @@ public final class GitHubIssueSupport {
                 if (editedIssue != null) {
                     gitHubIssue.setIssue(editedIssue);
                     StatusDisplayer.getDefault().setStatusText("Status has been changed.");
+                    gitHubIssue.fireDataChange();
                     return true;
                 }
             }
