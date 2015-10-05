@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="OptionsExport">
+        <folder name="Team">
+            <file name="GitHub Issues">
+                <attr name="include" stringvalue="config/Preferences/com/junichi11/netbeans/github/issues/.*"/>
+                <attr name="displayName" bundlevalue="com.junichi11.netbeans.modules.github.issues.resources.Bundle#LBL_GitHubIssuesExportName"/>
+                <attr name="position" intvalue="1000"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
