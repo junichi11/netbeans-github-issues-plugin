@@ -527,9 +527,9 @@ public class GitHubIssuePanel extends JPanel {
             PullRequestMarker base = pullRequest.getBase();
             PullRequestMarker head = pullRequest.getHead();
             headerPrBaseHeadLabel.setText(
-                    String.format("<html><b>Base</b>: %s <b>Head</b>: %s", // NOI18N
-                            base.getLabel().replace(":", "/"), // NOI18N
-                            head.getLabel().replace(":", "/"))); // NOI18N
+                    String.format("<html>Base: <b>%s</b> Head: <b>%s</b>", // NOI18N
+                            base.getLabel(),
+                            head.getLabel()));
             changeToPullRequestButton.setVisible(false);
         } else {
             headerPrBaseHeadLabel.setText(" "); // NOI18N
