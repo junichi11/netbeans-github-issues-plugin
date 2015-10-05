@@ -381,17 +381,6 @@ public final class GitHubIssue {
     })
     public void setSchedule(IssueScheduleInfo scheduleInfo) {
         UiUtils.showPlainDialog(Bundle.GitHubIssue_MSG_setSchedule());
-        // remove ?
-//        this.scheduleInfo = scheduleInfo;
-//        if (scheduleInfo == null) {
-//            // remove schedule
-//            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
-//        } else {
-//            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
-//            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
-//        }
-//        fireDataChange();
-//        fireScheduleChange();
     }
 
     public Date getDueDate() {
@@ -404,21 +393,6 @@ public final class GitHubIssue {
             return milestone.getDueOn();
         }
         return null;
-
-        // remove?
-//        IssueScheduleInfo info = getSchedule();
-//        if (info == null) {
-//            return null;
-//        }
-//        Calendar calendar = Calendar.getInstance();
-//        Date date = info.getDate();
-//        int interval = info.getInterval();
-//        if (interval < 1) {
-//            return null;
-//        }
-//        calendar.setTime(date);
-//        calendar.add(Calendar.DATE, interval);
-//        return calendar.getTime();
     }
 
     public IssueScheduleInfo getSchedule() {
@@ -440,17 +414,6 @@ public final class GitHubIssue {
                 return new IssueScheduleInfo(dueDate, 1);
             }
         }
-        // XXX remove ?
-//        GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
-//        Date dueDate = config.getScheduleDueDate(repository, this);
-//        int interval = config.getScheduleInterval(repository, this);
-//        if (dueDate != null) {
-//            if (interval > 0) {
-//                return new IssueScheduleInfo(dueDate, interval);
-//            } else {
-//                return new IssueScheduleInfo(dueDate);
-//            }
-//        }
         return null;
     }
 
