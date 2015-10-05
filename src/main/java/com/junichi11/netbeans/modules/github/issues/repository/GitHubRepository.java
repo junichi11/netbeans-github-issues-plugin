@@ -79,9 +79,11 @@ import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryCommit;
+import org.eclipse.egit.github.core.RepositoryCommitCompare;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
@@ -646,6 +648,54 @@ public class GitHubRepository {
             LOGGER.log(Level.WARNING, "{0}: {1} Can't merge.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return null;
+    }
+
+    /**
+     * Create a pull request from an existing issue.
+     *
+     * @param issueId an identifier
+     * @param head head username:branch
+     * @param base base branch name
+     * @return PullRequest if it was created successfully, otherwise
+     * {@code null}
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(int issueId, String head, String base) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.createPullRequest(repository, issueId, head, base);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't create a pull request.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
+    }
+
+    /**
+     * Compare two commits.
+     *
+     * @param base base branch name e.g. username:branchname
+     * @param head head branch name e.g. username:branchname
+     * @return RepositoryCommitCompare
+     * @throws IOException
+     */
+    public RepositoryCommitCompare compare(String base, String head) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            CommitService commitService = new CommitService(client);
+            return commitService.compare(repository, base, head);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: {1} Can't compare two commits.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
     }
 
     /**

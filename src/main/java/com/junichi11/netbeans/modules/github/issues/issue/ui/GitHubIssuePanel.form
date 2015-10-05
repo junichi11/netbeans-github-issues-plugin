@@ -124,6 +124,8 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="headerErrorLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="changeToPullRequestButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="newMilestoneButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="newLabelButton" min="-2" max="-2" attributes="0"/>
@@ -195,6 +197,7 @@
                       <Component id="headerErrorLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="newLabelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="newMilestoneButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="changeToPullRequestButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -320,6 +323,13 @@
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.headerPrBaseHeadLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="changeToPullRequestButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.changeToPullRequestButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>

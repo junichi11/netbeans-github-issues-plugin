@@ -51,6 +51,7 @@ import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssue;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.CloseReopenAction;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.CommentAction;
+import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.CreatePullRequestAction;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.SubmitIssueAction;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueSupport;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
@@ -233,7 +234,9 @@ public class GitHubIssuePanel extends JPanel {
         if (isPullRequest()) {
             PullRequest pullRequest = getPullRequest();
             if (pullRequest != null) {
-                return pullRequest.isMergeable();
+                return pullRequest.isMergeable()
+                        && !pullRequest.isMerged()
+                        && pullRequest.getState().equals("open"); // NOI18N
             }
         }
         return false;
@@ -377,7 +380,7 @@ public class GitHubIssuePanel extends JPanel {
 
                     // mergeable?
                     boolean isMergeable = isMergeable();
-                    mergePanel.setMergeButtonEnabled(isMergeable && !isMerged());
+                    mergePanel.setMergeButtonEnabled(isMergeable);
                     if (isMergeable) {
                         mergePanel.setCommitMessage(summary);
                     }
@@ -524,11 +527,13 @@ public class GitHubIssuePanel extends JPanel {
             PullRequestMarker base = pullRequest.getBase();
             PullRequestMarker head = pullRequest.getHead();
             headerPrBaseHeadLabel.setText(
-                    String.format("<html><b>Base</b>: %s <b>Head</b>: %s", // NOI18N
-                            base.getLabel().replace(":", "/"), // NOI18N
-                            head.getLabel().replace(":", "/"))); // NOI18N
+                    String.format("<html>Base: <b>%s</b> Head: <b>%s</b>", // NOI18N
+                            base.getLabel(),
+                            head.getLabel()));
+            changeToPullRequestButton.setVisible(false);
         } else {
             headerPrBaseHeadLabel.setText(" "); // NOI18N
+            changeToPullRequestButton.setVisible(getIssue().isCreatedUser());
         }
     }
 
@@ -702,6 +707,10 @@ public class GitHubIssuePanel extends JPanel {
         headerSubmitButton.setEnabled(isEnabled);
     }
 
+    public void setCreatePullRequestButtonEnabled(boolean isEnabled) {
+        changeToPullRequestButton.setEnabled(isEnabled);
+    }
+
     public void addAction(SubmitIssueAction listener) {
         headerSubmitButton.addActionListener(listener);
     }
@@ -714,6 +723,10 @@ public class GitHubIssuePanel extends JPanel {
         newCommentCloseReopenIssueButton.addActionListener(listener);
     }
 
+    public void addAction(CreatePullRequestAction listener) {
+        changeToPullRequestButton.addActionListener(listener);
+    }
+
     public void removeAction(SubmitIssueAction listener) {
         headerSubmitButton.removeActionListener(listener);
     }
@@ -724,6 +737,10 @@ public class GitHubIssuePanel extends JPanel {
 
     public void removeAction(CloseReopenAction listener) {
         newCommentCloseReopenIssueButton.removeActionListener(listener);
+    }
+
+    public void removeAction(CreatePullRequestAction listener) {
+        changeToPullRequestButton.removeActionListener(listener);
     }
 
     public void addChangeListener(ChangeListener listener) {
@@ -770,6 +787,7 @@ public class GitHubIssuePanel extends JPanel {
         newLabelButton = new javax.swing.JButton();
         newMilestoneButton = new javax.swing.JButton();
         headerPrBaseHeadLabel = new javax.swing.JLabel();
+        changeToPullRequestButton = new javax.swing.JButton();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
         assigneeLabel = new javax.swing.JLabel();
@@ -898,6 +916,8 @@ public class GitHubIssuePanel extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(headerPrBaseHeadLabel, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.headerPrBaseHeadLabel.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(changeToPullRequestButton, org.openide.util.NbBundle.getMessage(GitHubIssuePanel.class, "GitHubIssuePanel.changeToPullRequestButton.text")); // NOI18N
+
         javax.swing.GroupLayout headerPanelLayout = new javax.swing.GroupLayout(headerPanel);
         headerPanel.setLayout(headerPanelLayout);
         headerPanelLayout.setHorizontalGroup(
@@ -908,6 +928,8 @@ public class GitHubIssuePanel extends JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerPanelLayout.createSequentialGroup()
                         .addComponent(headerErrorLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(changeToPullRequestButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(newMilestoneButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(newLabelButton)
@@ -967,7 +989,8 @@ public class GitHubIssuePanel extends JPanel {
                     .addComponent(headerSubmitButton)
                     .addComponent(headerErrorLabel)
                     .addComponent(newLabelButton)
-                    .addComponent(newMilestoneButton)))
+                    .addComponent(newMilestoneButton)
+                    .addComponent(changeToPullRequestButton)))
         );
 
         mainPanel.setAutoscrolls(true);
@@ -1283,7 +1306,7 @@ public class GitHubIssuePanel extends JPanel {
         DialogDisplayer.getDefault().notify(descriptor);
     }//GEN-LAST:event_manageTemplatesButtonActionPerformed
 
-    private void refresh() {
+    public void refresh() {
         RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
         rp.post(new Runnable() {
             @Override
@@ -1307,6 +1330,7 @@ public class GitHubIssuePanel extends JPanel {
     private javax.swing.JComboBox<User> assigneeComboBox;
     private javax.swing.JLabel assigneeLabel;
     private com.junichi11.netbeans.modules.github.issues.issue.ui.AttributesViewPanel attributesViewPanel;
+    private javax.swing.JButton changeToPullRequestButton;
     private org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commentsCollapsibleSectionPanel;
     private final org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel commitsCollapsibleSectionPanel = new org.netbeans.modules.bugtracking.commons.CollapsibleSectionPanel();
     private javax.swing.JLabel descriptionLabel;

@@ -59,11 +59,13 @@ import javax.swing.ImageIcon;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
@@ -74,10 +76,15 @@ import org.netbeans.api.annotations.common.NonNull;
  */
 public final class GitHubCache {
 
+    // @GuardedBy("this")
     private static final Map<String, GitHubCache> CACHES = Collections.synchronizedMap(new HashMap<String, GitHubCache>());
     private List<User> collaborators;
     private List<Milestone> milestones;
     private List<Label> labels;
+    // @GuardedBy("this")
+    private List<RepositoryBranch> branches;
+    // @GuardedBy("this")
+    private List<Repository> forks;
     private User myself;
     private final Map<String, Icon> userIcons = new HashMap<>();
     private final GitHubRepository repository;
@@ -266,6 +273,65 @@ public final class GitHubCache {
             LOGGER.log(Level.WARNING, ex.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Get branches on a repository. Get them from a cache.
+     *
+     * @return RepositoryBranches
+     */
+    public List<RepositoryBranch> getBranches() {
+        return getBranches(false);
+    }
+
+    /**
+     * Get branches on a repository.
+     *
+     * @param force {@code true} if reload branches, otherwise {@code false}
+     * @return RepositoryBranches
+     */
+    public synchronized List<RepositoryBranch> getBranches(boolean force) {
+        if (branches == null || force) {
+            if (branches != null) {
+                branches.clear();
+            }
+            GitHubClient client = repository.createGitHubClient();
+            if (client == null) {
+                return Collections.emptyList();
+            }
+            RepositoryService service = new RepositoryService(client);
+            Repository ghRepository = repository.getRepository();
+            try {
+                branches = service.getBranches(ghRepository);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "{0} : Can't get branches.", repository.getRepositoryName()); // NOI18N
+            }
+        }
+        return branches;
+    }
+
+    public List<Repository> getForks() {
+        return getForks(false);
+    }
+
+    public synchronized List<Repository> getForks(boolean force) {
+        if (forks == null || force) {
+            if (forks != null) {
+                forks.clear();
+            }
+            GitHubClient client = repository.createGitHubClient();
+            if (client == null) {
+                return Collections.emptyList();
+            }
+            RepositoryService service = new RepositoryService(client);
+            Repository ghRepository = repository.getRepository();
+            try {
+                forks = service.getForks(ghRepository);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "{0} : Can't get forks.", repository.getRepositoryName()); // NOI18N
+            }
+        }
+        return forks;
     }
 
     /**

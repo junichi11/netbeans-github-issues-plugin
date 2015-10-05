@@ -50,6 +50,7 @@ import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -61,7 +62,9 @@ import javax.swing.JTable;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.User;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
@@ -339,6 +342,22 @@ public final class GitHubIssue {
             }
         }
         return null;
+    }
+
+    /**
+     * Create a pull request from an existing issue.
+     *
+     * @param head head username:branch
+     * @param base base branch name
+     * @return PullRequest if it was created successfully, otherwise
+     * {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(String head, String base) throws IOException {
+        GitHubRepository repo = getRepository();
+        PullRequest pullRequest = repo.createPullRequest(getIssue().getNumber(), head, base);
+        return pullRequest;
     }
 
     public boolean isCreatedUser() {
