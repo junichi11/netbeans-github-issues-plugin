@@ -665,6 +665,8 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                         panel.setErrorMessage(Bundle.ComparePullRequestPropertyChangeListener_message_conflict());
                         descriptor.setValid(true);
                         return;
+                    case "ahead": // NOI18N
+                        break;
                     default:
                         break;
                 }
