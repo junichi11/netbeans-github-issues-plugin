@@ -68,6 +68,7 @@ You can get a your OAuth token from the following: Settings > Applications > Per
 ## Resources
 
 - [egit-github](https://github.com/eclipse/egit-github)
+- [octicons](https://octicons.github.com/)
 
 ## License
 
