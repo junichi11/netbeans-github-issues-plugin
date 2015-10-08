@@ -572,7 +572,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                                 createPullRequestPanel.addChangeListener(changeListener);
                                 ComparePullRequestPropertyChangeListener propertyChangeListener = new ComparePullRequestPropertyChangeListener(repository, createPullRequestPanel, descriptor);
                                 createPullRequestPanel.addPropertyChangeListener(propertyChangeListener);
-                                propertyChangeListener.propertyChange(null);
+                                changeListener.stateChanged(null);
 
                                 // show dialog
                                 if (DialogDisplayer.getDefault().notify(descriptor) == NotifyDescriptor.OK_OPTION) {
