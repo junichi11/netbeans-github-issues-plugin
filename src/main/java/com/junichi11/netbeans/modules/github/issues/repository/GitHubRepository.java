@@ -307,7 +307,7 @@ public class GitHubRepository {
                 isCollaborator = collaboratorService.isCollaborator(repository, getUserName());
             } catch (IOException ex) {
                 isCollaborator = false;
-                LOGGER.log(Level.WARNING, "{0} Can''t check whether user is a collaborator.", ex.getMessage()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t check whether user is a collaborator. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return isCollaborator;
@@ -361,7 +361,7 @@ public class GitHubRepository {
         try {
             createdIssue = issueService.createIssue(repository, issue);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't create an issue.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t create an issue. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return createdIssue;
     }
@@ -395,7 +395,7 @@ public class GitHubRepository {
         try {
             updatedIssue = issueService.editIssue(repository, issue);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't edit an issue.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t edit an issue. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return updatedIssue;
     }
@@ -457,7 +457,7 @@ public class GitHubRepository {
             IssueService issueService = new IssueService(client);
             return issueService.getIssue(repository, id);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't get an issue of the id number.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get an issue of the id number. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return null;
     }
@@ -484,7 +484,7 @@ public class GitHubRepository {
             }
             return gitHubIssues;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't get issues.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get issues. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
     }
@@ -529,7 +529,7 @@ public class GitHubRepository {
                 return createIssue(i, false);
             }
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} : Can't get an issue.", getFullName()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get an issue.. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
 
         return null;
@@ -565,7 +565,7 @@ public class GitHubRepository {
             }
             return pullRequest;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't get the pull request of the id number({1}).", new Object[]{ex.getMessage(), id}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get the pull request of the id number({1}). {2}", new Object[]{getFullName(), id, ex.getMessage()}); // NOI18N
         }
         return null;
     }
@@ -587,7 +587,7 @@ public class GitHubRepository {
             List<PullRequest> pullRequests = pullRequestService.getPullRequests(repository, state);
             return pullRequests;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull requests.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get pull requests. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
     }
@@ -608,7 +608,7 @@ public class GitHubRepository {
             PullRequestService pullRequestService = new PullRequestService(client);
             return pullRequestService.getFiles(repository, id);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't get pull request files.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get pull request files. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
     }
@@ -629,7 +629,7 @@ public class GitHubRepository {
             PullRequestService pullRequestService = new PullRequestService(client);
             return pullRequestService.getCommits(repository, id);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't get commits for the id({2}).", new Object[]{getFullName(), ex.getMessage(), id}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get commits for the id({1}). {2}", new Object[]{getFullName(), id, ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
     }
@@ -645,7 +645,7 @@ public class GitHubRepository {
             PullRequestService pullRequestService = new PullRequestService(client);
             return pullRequestService.merge(repository, id, commitMessage);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't merge.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t merge. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return null;
     }
@@ -670,7 +670,7 @@ public class GitHubRepository {
             PullRequestService pullRequestService = new PullRequestService(client);
             return pullRequestService.createPullRequest(repository, issueId, head, base);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}:Can't create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
             throw ex;
         }
     }
@@ -716,7 +716,7 @@ public class GitHubRepository {
             CommitService commitService = new CommitService(client);
             return commitService.compare(repository, base, head);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't compare two commits.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can't compare two commits. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
             throw ex;
         }
     }
@@ -987,7 +987,7 @@ public class GitHubRepository {
                 RepositoryService service = new RepositoryService(client);
                 ghRepository = service.getRepository(getRepositoryAuthor(), getRepositoryName());
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "Invalid repository:{0}", getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "Invalid repository : {0}", getFullName()); // NOI18N
             }
         }
         return ghRepository;

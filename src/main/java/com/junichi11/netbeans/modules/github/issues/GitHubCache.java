@@ -138,7 +138,7 @@ public final class GitHubCache {
             try {
                 collaborators = collaboratorService.getCollaborators(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get collaborators.", repository.getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get collaborators. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return collaborators;
@@ -174,7 +174,7 @@ public final class GitHubCache {
             try {
                 milestones = milestoneService.getMilestones(gHRepository, "open"); // NOI18N
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get milestones.", repository.getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get milestones. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return milestones;
@@ -209,7 +209,7 @@ public final class GitHubCache {
             try {
                 labels = labelService.getLabels(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get labels.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get labels. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return labels;
@@ -230,7 +230,7 @@ public final class GitHubCache {
             try {
                 myself = userService.getUser();
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can''t get myself.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get myself. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return myself;
@@ -304,7 +304,7 @@ public final class GitHubCache {
             try {
                 branches = service.getBranches(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get branches.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get branches. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return branches;
@@ -328,7 +328,7 @@ public final class GitHubCache {
             try {
                 forks = service.getForks(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get forks.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get forks. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return forks;
@@ -356,7 +356,7 @@ public final class GitHubCache {
                     USERS.put(oAuthToken, user);
                 }
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "Can't get user."); // NOI18N
+                LOGGER.log(Level.WARNING, "Can''t get user. {0}", ex.getMessage()); // NOI18N
             }
         }
         return user;
