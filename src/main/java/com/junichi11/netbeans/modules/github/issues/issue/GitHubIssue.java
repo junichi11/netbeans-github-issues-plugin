@@ -295,6 +295,16 @@ public final class GitHubIssue {
 
     public Issue submitNewIssue(CreateIssueParams params) {
         Issue newIssue = repository.submitNewIssue(params);
+        setNewIssue(newIssue);
+        return newIssue;
+    }
+
+    /**
+     * Set a new issue. Add GitHubIssue to the issue cache.
+     *
+     * @param newIssue a new Issue
+     */
+    private void setNewIssue(Issue newIssue) {
         if (newIssue != null) {
             setIssue(newIssue);
             // add to cache
@@ -305,7 +315,6 @@ public final class GitHubIssue {
             fireScheduleChange();
             setIssueStatus(Status.SEEN);
         }
-        return newIssue;
     }
 
     public Issue editIssue(CreateIssueParams params) {
@@ -358,6 +367,25 @@ public final class GitHubIssue {
         GitHubRepository repo = getRepository();
         PullRequest pullRequest = repo.createPullRequest(getIssue().getNumber(), head, base);
         return pullRequest;
+    }
+
+    /**
+     * Create a new pull request. Title, body, base and head can be set.
+     *
+     * @param pullRequest PullRequest
+     * @return PullRequest if new pull request has been created, otherwise
+     * {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(PullRequest pullRequest) throws IOException {
+        GitHubRepository repo = getRepository();
+        PullRequest newPullRequest = repo.createPullRequest(pullRequest);
+        if (newPullRequest != null) {
+            Issue newIssue = repo.getIssue(newPullRequest.getNumber());
+            setNewIssue(newIssue);
+        }
+        return newPullRequest;
     }
 
     public boolean isCreatedUser() {

@@ -124,6 +124,8 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="headerErrorLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="newPullRequestToggleButton" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="changeToPullRequestButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="newMilestoneButton" min="-2" max="-2" attributes="0"/>
@@ -198,6 +200,7 @@
                       <Component id="newLabelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="newMilestoneButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="changeToPullRequestButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="newPullRequestToggleButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -330,6 +333,13 @@
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.changeToPullRequestButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JToggleButton" name="newPullRequestToggleButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="com/junichi11/netbeans/modules/github/issues/issue/ui/Bundle.properties" key="GitHubIssuePanel.newPullRequestToggleButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>

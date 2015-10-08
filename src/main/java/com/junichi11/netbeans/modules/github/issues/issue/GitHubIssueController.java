@@ -69,6 +69,7 @@ import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.PullRequest;
+import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.RepositoryCommitCompare;
@@ -316,6 +317,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
         }
 
         @NbBundle.Messages({
+            "SubmitIssueAction.message.pull.request.added.fail=The pull request has not been added.",
             "SubmitIssueAction.message.issue.added.fail=The issue has not been added.",
             "SubmitIssueAction.message.issue.updated.fail=The issue has not been updated."
         })
@@ -334,13 +336,36 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                             GitHubIssue issue = p.getIssue();
                             CreateIssueParams issueParams = getCreateIssueParams(issue.isNew(), p);
                             if (issue.isNew()) {
-                                // add issue
-                                Issue newIssue = issue.submitNewIssue(issueParams);
-                                if (newIssue != null) {
-                                    p.update();
+                                if (p.isNewPullRequestSelected()) {
+                                    // add pull request
+                                    // can be added only title and body to a pull request
+                                    // add other than those after the pull request was created
+                                    PullRequest newPullRequest = p.getNewPullRequest();
+                                    if (newPullRequest != null) {
+                                        newPullRequest.setTitle(issueParams.getTitle())
+                                                .setBody(issueParams.getBody());
+                                        try {
+                                            PullRequest createdPullRequest = issue.createPullRequest(newPullRequest);
+                                            if (createdPullRequest != null) {
+                                                issue.editIssue(issueParams);
+                                                p.update();
+                                            } else {
+                                                // show dialog
+                                                UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_pull_request_added_fail());
+                                            }
+                                        } catch (IOException ex) {
+                                            UiUtils.showErrorDialog(ex.getMessage());
+                                        }
+                                    }
                                 } else {
-                                    // show dialog
-                                    UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_issue_added_fail());
+                                    // add issue
+                                    Issue newIssue = issue.submitNewIssue(issueParams);
+                                    if (newIssue != null) {
+                                        p.update();
+                                    } else {
+                                        // show dialog
+                                        UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_issue_added_fail());
+                                    }
                                 }
                             } else {
                                 // edit issue
@@ -482,15 +507,29 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     @NbBundle.Messages({
         "CreatePullRequestAction.confirmation.message=Do you want to change this issue to Pull Request?",
         "CreatePullRequestAction.error.message.same.branch=Another branch must be set.",
-        "CreatePullRequestAction.descriptor.title=Change to Pull Request"
+        "CreatePullRequestAction.descriptor.title=Pull Request"
     })
     public class CreatePullRequestAction implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            String actionCommand = e.getActionCommand();
+            final boolean isNewPullRequest = actionCommand.equals("New PR"); // NOI18N
             GitHubIssuePanel p = getPanel();
             p.setCreatePullRequestButtonEnabled(false);
             final GitHubIssue issue = p.getIssue();
+
+            if (isNewPullRequest && !p.isNewPullRequestSelected()) {
+                // remove the new pull request from the panle
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        getPanel().setNewPullRequest(null);
+                    }
+                });
+                return;
+            }
+
             RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
             rp.post(new Runnable() {
                 @Override
@@ -533,7 +572,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                                 createPullRequestPanel.addChangeListener(changeListener);
                                 ComparePullRequestPropertyChangeListener propertyChangeListener = new ComparePullRequestPropertyChangeListener(repository, createPullRequestPanel, descriptor);
                                 createPullRequestPanel.addPropertyChangeListener(propertyChangeListener);
-                                propertyChangeListener.propertyChange(null);
+                                changeListener.stateChanged(null);
 
                                 // show dialog
                                 if (DialogDisplayer.getDefault().notify(descriptor) == NotifyDescriptor.OK_OPTION) {
@@ -543,13 +582,27 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                                     String headBranch = mySelf.getLogin() + ":" + selectedHeadBranch.getName(); // NOI18N
                                     PullRequest pullRequest;
                                     try {
-                                        pullRequest = issue.createPullRequest(headBranch, baseBranch);
-                                        if (pullRequest != null) {
-                                            getPanel().refresh();
+                                        if (isNewPullRequest) {
+                                            // set new pull request to panel
+                                            PullRequestMarker baseMarker = new PullRequestMarker();
+                                            baseMarker.setLabel(baseBranch);
+                                            PullRequestMarker headMarker = new PullRequestMarker();
+                                            headMarker.setLabel(headBranch);
+                                            PullRequest newPullRequest = new PullRequest()
+                                                    .setBase(baseMarker)
+                                                    .setHead(headMarker);
+                                            getPanel().setNewPullRequest(newPullRequest);
+                                        } else {
+                                            pullRequest = issue.createPullRequest(headBranch, baseBranch);
+                                            if (pullRequest != null) {
+                                                getPanel().refresh();
+                                            }
                                         }
                                     } catch (IOException ex) {
                                         UiUtils.showErrorDialog("Can't create a pull request:" + ex.getMessage()); // NOI18N
                                     }
+                                } else if (isNewPullRequest) {
+                                    getPanel().setNewPullRequestSelected(false);
                                 }
 
                                 // remove listeners
