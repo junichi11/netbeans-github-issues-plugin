@@ -670,7 +670,30 @@ public class GitHubRepository {
             PullRequestService pullRequestService = new PullRequestService(client);
             return pullRequestService.createPullRequest(repository, issueId, head, base);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't create a pull request.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0}:Can't create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
+    }
+
+    /**
+     * Create a pull request.
+     *
+     * @param pullRequest PullRequest
+     * @return
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(PullRequest pullRequest) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.createPullRequest(repository, pullRequest);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: Can''t create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
             throw ex;
         }
     }
