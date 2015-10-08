@@ -341,19 +341,21 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                                     // can be added only title and body to a pull request
                                     // add other than those after the pull request was created
                                     PullRequest newPullRequest = p.getNewPullRequest();
-                                    newPullRequest.setTitle(issueParams.getTitle())
-                                            .setBody(issueParams.getBody());
-                                    try {
-                                        PullRequest createdPullRequest = issue.createPullRequest(newPullRequest);
-                                        if (createdPullRequest != null) {
-                                            issue.editIssue(issueParams);
-                                            p.update();
-                                        } else {
-                                            // show dialog
-                                            UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_pull_request_added_fail());
+                                    if (newPullRequest != null) {
+                                        newPullRequest.setTitle(issueParams.getTitle())
+                                                .setBody(issueParams.getBody());
+                                        try {
+                                            PullRequest createdPullRequest = issue.createPullRequest(newPullRequest);
+                                            if (createdPullRequest != null) {
+                                                issue.editIssue(issueParams);
+                                                p.update();
+                                            } else {
+                                                // show dialog
+                                                UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_pull_request_added_fail());
+                                            }
+                                        } catch (IOException ex) {
+                                            UiUtils.showErrorDialog(ex.getMessage());
                                         }
-                                    } catch (IOException ex) {
-                                        UiUtils.showErrorDialog(ex.getMessage());
                                     }
                                 } else {
                                     // add issue
