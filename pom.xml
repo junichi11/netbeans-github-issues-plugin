@@ -190,6 +190,8 @@
 &lt;li&gt;Create queries&lt;/li&gt;
 &lt;li&gt;Edit an issue comment&lt;/li&gt;
 &lt;li&gt;Delete an issue comment&lt;/li&gt;
+&lt;li&gt;Create a new pull request&lt;/li&gt;
+&lt;li&gt;Change an existing issue to a pull request&lt;/li&gt;
 &lt;li&gt;Search issues with issue number or keywords&lt;/li&gt;
 &lt;li&gt;Create a new label&lt;/li&gt;
 &lt;li&gt;Create a new milestone&lt;/li&gt;
