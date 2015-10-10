@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import static com.junichi11.netbeans.modules.github.issues.GitHubIssues.CLOSED_STATE_COLOR;
@@ -102,7 +103,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.pegdown.PegDownProcessor;
@@ -124,11 +124,6 @@ public class GitHubIssuePanel extends JPanel {
     private final DefaultComboBoxModel<Milestone> milestoneComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<User> assigneeComboBoxModel = new DefaultComboBoxModel<>();
     private final DefaultListModel<Label> labelsListModel = new DefaultListModel<>();
-    private static final Icon ISSUE_OPENED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_opened_16.png", true); // NOI18N
-    private static final Icon ISSUE_CLOSED_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/issue_closed_16.png", true); // NOI18N
-    private static final Icon PULL_REQUEST_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/git_pull_request_16.png", true); // NOI18N
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
-    private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
     private static final Logger LOGGER = Logger.getLogger(GitHubIssuePanel.class.getName());
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // NOI18N
     private final String repositoryId;
@@ -173,7 +168,7 @@ public class GitHubIssuePanel extends JPanel {
         // change header title size
         Font font = headerErrorLabel.getFont();
         headerNameLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
-        headerNameLabel.setIcon(ICON_32);
+        headerNameLabel.setIcon(GitHubIcons.GITHUB_ICON_32);
 
         headerStatusLabel.setBorder(new EmptyBorder(3, 5, 3, 5));
 
@@ -640,7 +635,7 @@ public class GitHubIssuePanel extends JPanel {
                 GitHubIssue issue = getIssue();
                 boolean isPR = GitHubIssuesUtils.isPullRequest(issue.getIssue());
                 text = "Open"; // NOI18N
-                icon = isPR ? PULL_REQUEST_ICON : ISSUE_OPENED_ICON;
+                icon = isPR ? GitHubIcons.GIT_PULL_REQUEST_ICON_16 : GitHubIcons.ISSUE_OPENED_ICON_16;
                 opaque = true;
                 visible = true;
                 background = OPEN_STATE_COLOR;
@@ -651,7 +646,7 @@ public class GitHubIssuePanel extends JPanel {
                 isPR = GitHubIssuesUtils.isPullRequest(issue.getIssue());
                 PullRequest pullRequest = getPullRequest();
                 text = isMerged() ? "Merged" : "Closed"; // NOI18N
-                icon = isPR ? PULL_REQUEST_ICON : ISSUE_CLOSED_ICON;
+                icon = isPR ? GitHubIcons.GIT_PULL_REQUEST_ICON_16 : GitHubIcons.ISSUE_CLOSED_ICON_16;
                 opaque = true;
                 visible = true;
                 background = (isPR && pullRequest != null && pullRequest.isMerged()) ? MERGED_STATE_COLOR : CLOSED_STATE_COLOR;
@@ -763,7 +758,7 @@ public class GitHubIssuePanel extends JPanel {
             headerErrorLabel.setIcon(null);
             headerSubmitButton.setEnabled(true);
         } else {
-            headerErrorLabel.setIcon(ERROR_ICON);
+            headerErrorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
             headerSubmitButton.setEnabled(false);
         }
         headerErrorLabel.setText(errorMessage);

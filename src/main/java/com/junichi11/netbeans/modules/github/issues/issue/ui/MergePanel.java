@@ -41,15 +41,14 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
-import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -59,7 +58,6 @@ public final class MergePanel extends JPanel {
 
     public static final String PROP_MERGE_CHANGED = "github.issues.confirm.merge"; // NOI18N
     private static final long serialVersionUID = 4232217025134323257L;
-    private static final Icon GIT_MERGE_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/git_merge_16.png", true); // NOI18N
 
     /**
      * Creates new form MergePanel
@@ -70,12 +68,12 @@ public final class MergePanel extends JPanel {
     }
 
     private void init() {
-        mergePullRequestButton.setIcon(GIT_MERGE_ICON);
+        mergePullRequestButton.setIcon(GitHubIcons.GIT_MERGE_ICON_16);
         mergePullRequestButton.setContentAreaFilled(false);
         mergePullRequestButton.setForeground(Color.WHITE);
         mergePullRequestButton.setBackground(GitHubIssues.GREEN_COLOR);
         mergePullRequestButton.setOpaque(true);
-        confirmMergeButton.setIcon(GIT_MERGE_ICON);
+        confirmMergeButton.setIcon(GitHubIcons.GIT_MERGE_ICON_16);
         confirmMergeButton.setContentAreaFilled(false);
         confirmMergeButton.setBackground(GitHubIssues.GREEN_COLOR);
         confirmMergeButton.setForeground(Color.white);

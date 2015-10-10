@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -48,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -58,7 +58,6 @@ import javax.swing.event.ChangeListener;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.parboiled.common.StringUtils;
 
 /**
@@ -68,7 +67,6 @@ import org.parboiled.common.StringUtils;
 public final class CreatePullRequestPanel extends JPanel {
 
     private static final long serialVersionUID = 5695111005863831097L;
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
     private final DefaultComboBoxModel<Repository> baseRepositoryComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<RepositoryBranch> baseComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<Repository> headRepositoryComboBoxModel = new DefaultComboBoxModel();
@@ -177,7 +175,7 @@ public final class CreatePullRequestPanel extends JPanel {
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorLabel.setIcon(null);
         } else {
-            errorLabel.setIcon(ERROR_ICON);
+            errorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
         }
         errorLabel.setText(errorMessage);
     }
