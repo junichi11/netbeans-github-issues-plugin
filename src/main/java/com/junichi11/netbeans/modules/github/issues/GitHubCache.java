@@ -78,14 +78,18 @@ public final class GitHubCache {
 
     // @GuardedBy("this")
     private static final Map<String, GitHubCache> CACHES = Collections.synchronizedMap(new HashMap<String, GitHubCache>());
+    // @GuardedBy("this")
     private List<User> collaborators;
+    // @GuardedBy("this")
     private List<Milestone> milestones;
+    // @GuardedBy("this")
     private List<Label> labels;
     // @GuardedBy("this")
     private List<RepositoryBranch> branches;
     // @GuardedBy("this")
     private List<Repository> forks;
     private User myself;
+    // @GuardedBy("this")
     private final Map<String, Icon> userIcons = new HashMap<>();
     private final GitHubRepository repository;
     private static final Logger LOGGER = Logger.getLogger(GitHubCache.class.getName());
@@ -127,7 +131,7 @@ public final class GitHubCache {
      *
      * @return collaborators
      */
-    public List<User> getCollaborators() {
+    public synchronized List<User> getCollaborators() {
         if (collaborators == null) {
             Repository ghRepository = repository.getRepository();
             GitHubClient client = repository.createGitHubClient();
@@ -160,7 +164,7 @@ public final class GitHubCache {
      * {@code false}
      * @return milestones
      */
-    public List<Milestone> getMilestones(boolean force) {
+    public synchronized List<Milestone> getMilestones(boolean force) {
         if (milestones == null || force) {
             if (milestones != null) {
                 milestones.clear();
@@ -195,7 +199,7 @@ public final class GitHubCache {
      * @param force {@code true} if reload labels, otherwise {@code false}
      * @return labels
      */
-    public List<Label> getLabels(boolean force) {
+    public synchronized List<Label> getLabels(boolean force) {
         if (labels == null || force) {
             if (labels != null) {
                 labels.clear();
@@ -220,7 +224,8 @@ public final class GitHubCache {
      *
      * @return myself
      */
-    public User getMySelf() {
+    @CheckForNull
+    public synchronized User getMySelf() {
         if (myself == null) {
             GitHubClient client = repository.createGitHubClient();
             if (client == null) {
@@ -243,7 +248,7 @@ public final class GitHubCache {
      * @return user icon if it was got, otherwise {@code null}
      */
     @CheckForNull
-    public Icon getUserIcon(User user) {
+    public synchronized Icon getUserIcon(User user) {
         if (user == null) {
             return null;
         }
@@ -361,5 +366,4 @@ public final class GitHubCache {
         }
         return user;
     }
-
 }
