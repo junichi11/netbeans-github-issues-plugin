@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.query.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.Is;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.No;
@@ -53,14 +54,12 @@ import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery.QParam;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 /**
@@ -80,8 +79,6 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
     private final DefaultComboBoxModel<SearchIssuesParams.Sort> sortComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<SearchIssuesParams.Order> orderComboBoxModel = new DefaultComboBoxModel();
     private final ChangeSupport changeSupport = new ChangeSupport(this);
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
-    private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
 
     /**
      * Creates new form GitHubQueryPanel
@@ -96,7 +93,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
 
         Font font = headerErrorLabel.getFont();
         headerNameLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
-        headerNameLabel.setIcon(ICON_32);
+        headerNameLabel.setIcon(GitHubIcons.GITHUB_ICON_32);
 
         // state
         stateComboBoxModel.addElement(null);
@@ -211,7 +208,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
             errorMessage = ""; // NOI18N
             headerErrorLabel.setIcon(null);
         } else {
-            headerErrorLabel.setIcon(ERROR_ICON);
+            headerErrorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
         }
         headerErrorLabel.setText(errorMessage);
     }
