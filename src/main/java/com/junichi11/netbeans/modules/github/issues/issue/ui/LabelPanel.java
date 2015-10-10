@@ -84,7 +84,7 @@ public class LabelPanel extends javax.swing.JPanel {
         nameTextField.getDocument().addDocumentListener(documentListener);
         colorTextField.getDocument().addDocumentListener(documentListener);
         errorLabel.setForeground(UIManager.getColor("nb.errorForeground")); // NOI18N
-        setError("");
+        setError(""); // NOI18N
     }
 
     /**
