@@ -46,6 +46,7 @@ import org.netbeans.api.annotations.common.StaticResource;
 import org.openide.util.ImageUtilities;
 
 /**
+ * Icons.
  *
  * @author junichi11
  */

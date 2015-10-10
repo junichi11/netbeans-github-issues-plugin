@@ -71,6 +71,7 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 
 /**
+ * Cached data via GitHub API.
  *
  * @author junichi11
  */
@@ -149,7 +150,7 @@ public final class GitHubCache {
     }
 
     /**
-     * Get milestones.
+     * Get milestones. If there is a cache, it is returned.
      *
      * @return milestones
      */
@@ -185,7 +186,7 @@ public final class GitHubCache {
     }
 
     /**
-     * Get labels.
+     * Get labels. If there is a cache, it is returned.
      *
      * @return labels
      */
@@ -315,10 +316,21 @@ public final class GitHubCache {
         return branches;
     }
 
+    /**
+     * Get forks for a repository. If there is a cache, it is returned.
+     *
+     * @return forks
+     */
     public List<Repository> getForks() {
         return getForks(false);
     }
 
+    /**
+     * Get forks for a repository.
+     *
+     * @param force {@code true} if don't use the cache, otherwise {@code false}
+     * @return forks
+     */
     public synchronized List<Repository> getForks(boolean force) {
         if (forks == null || force) {
             if (forks != null) {
