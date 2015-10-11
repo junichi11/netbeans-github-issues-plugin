@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.repository;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConnector;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
@@ -94,7 +95,6 @@ import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -120,7 +120,6 @@ public class GitHubRepository {
     private static final String PROPERTY_REPOSITORY_AUTHOR = "github.issues.repository.author"; // NOI18N
     private static final String PROPERTY_REPOSITORY_NAME = "github.issues.repository.name"; // NOI18N
     private static final String PROPERTY_BOOLEAN_PROPERTY_FILE = "github.issues.boolean.property.file"; // NOI18N
-    private static final Image ICON = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/icon_16.png", false);
     private static final Logger LOGGER = Logger.getLogger(GitHubRepository.class.getName());
 
     public GitHubRepository() {
@@ -166,7 +165,7 @@ public class GitHubRepository {
      * @return icon
      */
     public Image getIcon() {
-        return ICON;
+        return GitHubIcons.GITHUB_IMAGE_16;
     }
 
     /**

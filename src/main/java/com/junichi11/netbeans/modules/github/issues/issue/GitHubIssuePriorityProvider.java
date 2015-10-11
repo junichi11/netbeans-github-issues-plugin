@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
 import java.awt.Image;
@@ -49,7 +50,6 @@ import java.util.List;
 import org.eclipse.egit.github.core.Issue;
 import org.netbeans.modules.bugtracking.spi.IssuePriorityInfo;
 import org.netbeans.modules.bugtracking.spi.IssuePriorityProvider;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -57,21 +57,15 @@ import org.openide.util.ImageUtilities;
  */
 public class GitHubIssuePriorityProvider implements IssuePriorityProvider<GitHubIssue> {
 
-    private static final Image CLOSED_IMAGE = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/closed_issue_16.png", true);
-    private static final Image OPEN_IMAGE = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/open_issue_16.png", true);
-    private static final Image CLOSED_PULL_REQUEST_IMAGE = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/closed_pull_request_16.png", true);
-    private static final Image OPEN_PULL_REQUEST_IMAGE = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/open_pull_request_16.png", true);
-    private static final Image MERGED_PULL_REQUEST_IMAGE = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/merged_pull_request_16.png", true);
-
     /**
      * GitHub Issues doesn't have priorities. Use this feature to show icons.
      */
     public enum GitHubIssuePriority {
-        Open("open", "Open", OPEN_IMAGE), // NOI18N
-        Closed("closed", "Closed", CLOSED_IMAGE), // NOI18N
-        OpenPullRequest("open.pull.request", "Open", OPEN_PULL_REQUEST_IMAGE), // NOI18N
-        ClosedPullRequest("closed.pull.request", "Closed", CLOSED_PULL_REQUEST_IMAGE), // NOI18N
-        MergedPullRequest("merged.pull.request", "Merged", MERGED_PULL_REQUEST_IMAGE), // NOI18N
+        Open("open", "Open", GitHubIcons.OPEN_ISSUE_IMAGE_16), // NOI18N
+        Closed("closed", "Closed", GitHubIcons.CLOSED_ISSUE_IMAGE_16), // NOI18N
+        OpenPullRequest("open.pull.request", "Open", GitHubIcons.OPEN_PULL_REQUEST_IMAGE_16), // NOI18N
+        ClosedPullRequest("closed.pull.request", "Closed", GitHubIcons.CLOSED_PULL_REQUEST_IMAGE_16), // NOI18N
+        MergedPullRequest("merged.pull.request", "Merged", GitHubIcons.MERGED_PULL_REQUEST_IMAGE_16), // NOI18N
         None("", "", null); // NOI18N
 
         private final String id;
