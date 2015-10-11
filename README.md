@@ -2,6 +2,10 @@
 
 This plugin provides support for GitHub Issue Tracker.
 
+## Requirements
+
+- NetBeans 8.1+
+
 ## Features
 
 - Create a new issue
