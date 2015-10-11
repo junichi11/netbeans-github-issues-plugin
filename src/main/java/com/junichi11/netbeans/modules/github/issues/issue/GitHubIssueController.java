@@ -507,6 +507,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     @NbBundle.Messages({
         "CreatePullRequestAction.confirmation.message=Do you want to change this issue to Pull Request?",
         "CreatePullRequestAction.error.message.same.branch=Another branch must be set.",
+        "CreatePullRequestAction.error.message.cannot.find.base.head.repositories=Can't find base or your head repositories.",
         "CreatePullRequestAction.descriptor.title=Pull Request"
     })
     public class CreatePullRequestAction implements ActionListener {
@@ -548,6 +549,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                         public void run() {
                             try {
                                 if (baseRepositories.isEmpty() || headRepositories.isEmpty()) {
+                                    UiUtils.showErrorDialog(Bundle.CreatePullRequestAction_error_message_cannot_find_base_head_repositories());
                                     return;
                                 }
 
