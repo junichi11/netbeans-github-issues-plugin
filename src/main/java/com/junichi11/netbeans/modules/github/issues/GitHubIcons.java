@@ -58,7 +58,7 @@ public final class GitHubIcons {
     @StaticResource
     public static final String CLOSED_PULL_REQUEST_16 = "com/junichi11/netbeans/modules/github/issues/resources/closed_pull_request_16.png"; // NOI18N
     @StaticResource
-    public static final String ERROR_16 = "com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png"; // NOI18N
+    public static final String ERROR_16 = "com/junichi11/netbeans/modules/github/issues/resources/error_16.png"; // NOI18N
     @StaticResource
     public static final String GIT_MERGE_16 = "com/junichi11/netbeans/modules/github/issues/resources/git_merge_16.png"; // NOI18N
     @StaticResource
