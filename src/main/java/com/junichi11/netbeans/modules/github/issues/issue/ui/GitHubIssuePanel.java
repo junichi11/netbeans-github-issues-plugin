@@ -1340,7 +1340,7 @@ public class GitHubIssuePanel extends JPanel {
         GitHubCache cache = GitHubCache.create(repository);
         User myself = cache.getMySelf();
         if (myself == null) {
-            LOGGER.log(Level.WARNING, "{0} : Can't get myself.", repository.getFullName()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get myself.", repository.getFullName()); // NOI18N
             return;
         }
         setAssigneeSelected(myself);
