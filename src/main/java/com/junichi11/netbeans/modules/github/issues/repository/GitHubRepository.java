@@ -852,9 +852,9 @@ public class GitHubRepository {
                 if (StringUtils.isEmpty(queryParams)) {
                     continue;
                 }
-                GitHubQuery backlogQuery = new GitHubQuery(this, queryName, queryParams);
-                backlogQuery.setSaved(true);
-                addQuery(backlogQuery);
+                GitHubQuery gitHubQuery = new GitHubQuery(this, queryName, queryParams);
+                gitHubQuery.setSaved(true);
+                addQuery(gitHubQuery);
             }
         }
         return queries;
