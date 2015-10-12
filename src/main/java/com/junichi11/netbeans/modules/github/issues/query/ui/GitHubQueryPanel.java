@@ -230,12 +230,16 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
             resultsLabel.setText(""); // NOI18N
             return;
         }
-        if (count == 0) {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_empty());
-        } else if (count == 1) {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issue());
-        } else {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issues(count));
+        switch (count) {
+            case 0:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_empty());
+                break;
+            case 1:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issue());
+                break;
+            default:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issues(count));
+                break;
         }
     }
 
