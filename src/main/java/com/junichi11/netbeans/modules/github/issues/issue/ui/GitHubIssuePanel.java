@@ -506,6 +506,10 @@ public class GitHubIssuePanel extends JPanel {
                 break;
             }
         }
+
+        // closed milestone
+        milestoneComboBoxModel.addElement(milestone);
+        milestoneComboBox.setSelectedItem(milestone);
     }
 
     private void setLabelsSelected(List<Label> labels) {
