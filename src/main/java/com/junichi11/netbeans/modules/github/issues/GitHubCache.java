@@ -82,7 +82,7 @@ public final class GitHubCache {
     // @GuardedBy("this")
     private List<User> collaborators;
     // @GuardedBy("this")
-    private List<Milestone> milestones;
+    private final Map<String, List<Milestone>> milestoneMap = Collections.synchronizedMap(new HashMap<String, List<Milestone>>());
     // @GuardedBy("this")
     private List<Label> labels;
     // @GuardedBy("this")
@@ -152,23 +152,26 @@ public final class GitHubCache {
     /**
      * Get milestones. If there is a cache, it is returned.
      *
+     * @param state open, closed or all
      * @return milestones
      */
-    public List<Milestone> getMilestones() {
-        return getMilestones(false);
+    public List<Milestone> getMilestones(String state) {
+        return getMilestones(state, false);
     }
 
     /**
      * Get milestones.
      *
+     * @param state open, closed or all
      * @param force {@code true} if don't use cache data, otherwise
      * {@code false}
      * @return milestones
      */
-    public synchronized List<Milestone> getMilestones(boolean force) {
-        if (milestones == null || force) {
-            if (milestones != null) {
-                milestones.clear();
+    public synchronized List<Milestone> getMilestones(String state, boolean force) {
+        List<Milestone> milestone = milestoneMap.get(state);
+        if (milestone == null || force) {
+            if (milestone != null) {
+                milestone.clear();
             }
             Repository gHRepository = repository.getRepository();
             GitHubClient client = repository.createGitHubClient();
@@ -177,12 +180,13 @@ public final class GitHubCache {
             }
             MilestoneService milestoneService = new MilestoneService(client);
             try {
-                milestones = milestoneService.getMilestones(gHRepository, "open"); // NOI18N
+                milestone = milestoneService.getMilestones(gHRepository, state);
+                milestoneMap.put(state, milestone);
             } catch (IOException ex) {
                 LOGGER.log(Level.WARNING, "{0} : Can''t get milestones. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
-        return milestones;
+        return milestone;
     }
 
     /**

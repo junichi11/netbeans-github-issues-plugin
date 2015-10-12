@@ -282,11 +282,13 @@ public class GitHubRepository {
     /**
      * Get milestones.
      *
+     * @param state open, closed or all
+     * @param force {@code true} if refresh the cache, otherwise {@code false}
      * @return milestones
      */
-    public List<Milestone> getMilestones() {
+    public List<Milestone> getMilestones(String state, boolean force) {
         GitHubCache cache = GitHubCache.create(this);
-        return cache.getMilestones();
+        return cache.getMilestones(state, force);
     }
 
     /**

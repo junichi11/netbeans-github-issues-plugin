@@ -98,6 +98,7 @@ import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.service.IssueService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -454,7 +455,7 @@ public class GitHubIssuePanel extends JPanel {
     }
 
     private void updateMilestones(GitHubCache cache, boolean force) {
-        List<Milestone> milestones = cache.getMilestones(force);
+        List<Milestone> milestones = cache.getMilestones(IssueService.STATE_OPEN, force);
         milestoneComboBoxModel.removeAllElements();
         milestoneComboBoxModel.addElement(null);
         for (Milestone milestone : milestones) {
@@ -1310,8 +1311,7 @@ public class GitHubIssuePanel extends JPanel {
         if (repository == null) {
             return;
         }
-        GitHubCache cache = GitHubCache.create(repository);
-        Milestone milestone = MilestonePanel.showDialog(cache.getMilestones());
+        Milestone milestone = MilestonePanel.showDialog(repository.getMilestones("all", false)); // NOI18N
         if (milestone != null) {
             Milestone newMilestone = repository.addMilestone(milestone);
             if (newMilestone == null) {
@@ -1319,6 +1319,7 @@ public class GitHubIssuePanel extends JPanel {
                 UiUtils.showErrorDialog(Bundle.GitHubIssuePanel_message_addMilestone_error());
                 return;
             }
+            GitHubCache cache = GitHubCache.create(repository);
             updateMilestones(cache, true);
             Issue issue = getIssue().getIssue();
             if (issue != null) {

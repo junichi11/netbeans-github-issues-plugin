@@ -137,7 +137,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
 
         // milestone
         GitHubRepository repository = query.getRepository();
-        List<Milestone> milestones = repository.getMilestones();
+        List<Milestone> milestones = repository.getMilestones("all", false); // NOI18N
         setComboBox(milestoneComboBox, milestoneComboBoxModel, milestones.toArray());
 
         // add listener
