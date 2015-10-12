@@ -68,6 +68,7 @@ public class GitHubQuery {
     public enum QParam {
 
         KEYWORD("keyword", "keyword"), // NOI18N
+        MILESTONE("milestone", "milestone"), // NOI18N
         TYPE("type", "type"), // NOI18N
         IN("in", "in"), // NOI18N
         AUTHOR("author", "author"), // NOI18N
@@ -296,6 +297,7 @@ public class GitHubQuery {
     private SearchIssuesParams createSearchIssuesParams() {
         return new SearchIssuesParams()
                 .keyword(getParameter(QParam.KEYWORD))
+                .milestone(getParameter(QParam.MILESTONE))
                 .assignee(getParameter(QParam.ASSIGNEE))
                 .author(getParameter(QParam.AUTHOR))
                 .commenter(getParameter(QParam.COMMENTER))

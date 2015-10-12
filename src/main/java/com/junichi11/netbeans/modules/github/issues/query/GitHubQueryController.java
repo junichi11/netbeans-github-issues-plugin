@@ -246,6 +246,7 @@ public class GitHubQueryController implements QueryController, ActionListener, C
         GitHubQueryPanel p = getPanel();
         return new SearchIssuesParams()
                 .keyword(p.getKeyword())
+                .milestone(p.getMilestone())
                 .state(p.getState())
                 .type(p.getType())
                 .comments(p.getComments())

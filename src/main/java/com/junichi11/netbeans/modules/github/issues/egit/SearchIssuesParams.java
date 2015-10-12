@@ -45,6 +45,7 @@ import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.Milestone;
 import org.openide.util.Pair;
 
 /**
@@ -234,6 +235,20 @@ public class SearchIssuesParams {
             keyword = ""; // NOI18N
         }
         this.qKeyword = keyword;
+        return this;
+    }
+
+    public SearchIssuesParams milestone(Milestone milestone) {
+        if (milestone != null) {
+            qParameters.add(Pair.of("milestone", milestone.getTitle())); // NOI18N
+        }
+        return this;
+    }
+
+    public SearchIssuesParams milestone(String milestone) {
+        if (milestone != null) {
+            qParameters.add(Pair.of("milestone", milestone)); // NOI18N
+        }
         return this;
     }
 
