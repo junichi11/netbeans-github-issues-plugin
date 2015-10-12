@@ -102,20 +102,10 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         headerNameLabel.setIcon(GitHubIcons.GITHUB_ICON_32);
 
         // state
-        stateComboBoxModel.addElement(null);
-        for (State state : State.values()) {
-            stateComboBoxModel.addElement(state);
-        }
-        stateComboBox.setModel(stateComboBoxModel);
-        stateComboBox.setRenderer(new GitHubQueryListCellRenderer(stateComboBox.getRenderer()));
+        setComboBox(stateComboBox, stateComboBoxModel, State.values());
 
         // type
-        typeComboBoxModel.addElement(null);
-        for (Type type : Type.values()) {
-            typeComboBoxModel.addElement(type);
-        }
-        typeComboBox.setModel(typeComboBoxModel);
-        typeComboBox.setRenderer(new GitHubQueryListCellRenderer(typeComboBox.getRenderer()));
+        setComboBox(typeComboBox, typeComboBoxModel, Type.values());
 
         // is
         isOpenComboBoxModel.addElement(null);
@@ -137,28 +127,13 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         isIssueComboBox.setRenderer(new GitHubQueryListCellRenderer(isIssueComboBox.getRenderer()));
 
         // no
-        noComboBoxModel.addElement(null);
-        for (No no : No.values()) {
-            noComboBoxModel.addElement(no);
-        }
-        noComboBox.setModel(noComboBoxModel);
-        noComboBox.setRenderer(new GitHubQueryListCellRenderer(noComboBox.getRenderer()));
+        setComboBox(noComboBox, noComboBoxModel, No.values());
 
         // sort
-        sortComboBoxModel.addElement(null);
-        for (Sort sort : Sort.values()) {
-            sortComboBoxModel.addElement(sort);
-        }
-        sortComboBox.setModel(sortComboBoxModel);
-        sortComboBox.setRenderer(new GitHubQueryListCellRenderer(sortComboBox.getRenderer()));
+        setComboBox(sortComboBox, sortComboBoxModel, Sort.values());
 
         // order
-        orderComboBoxModel.addElement(null);
-        for (Order order : Order.values()) {
-            orderComboBoxModel.addElement(order);
-        }
-        orderComboBox.setModel(orderComboBoxModel);
-        orderComboBox.setRenderer(new GitHubQueryListCellRenderer(orderComboBox.getRenderer()));
+        setComboBox(orderComboBox, orderComboBoxModel, Order.values());
 
         // milestone
         GitHubRepository repository = query.getRepository();
