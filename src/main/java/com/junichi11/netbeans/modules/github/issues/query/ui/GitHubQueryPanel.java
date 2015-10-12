@@ -108,23 +108,9 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         setComboBox(typeComboBox, typeComboBoxModel, Type.values());
 
         // is
-        isOpenComboBoxModel.addElement(null);
-        isOpenComboBoxModel.addElement(Is.OPEN);
-        isOpenComboBoxModel.addElement(Is.CLOSED);
-        isOpenComboBox.setModel(isOpenComboBoxModel);
-        isOpenComboBox.setRenderer(new GitHubQueryListCellRenderer(isOpenComboBox.getRenderer()));
-
-        isMergedComboBoxModel.addElement(null);
-        isMergedComboBoxModel.addElement(Is.MERGED);
-        isMergedComboBoxModel.addElement(Is.UNMERGED);
-        isMergedComboBox.setModel(isMergedComboBoxModel);
-        isMergedComboBox.setRenderer(new GitHubQueryListCellRenderer(isMergedComboBox.getRenderer()));
-
-        isIssueComboBoxModel.addElement(null);
-        isIssueComboBoxModel.addElement(Is.ISSUE);
-        isIssueComboBoxModel.addElement(Is.PR);
-        isIssueComboBox.setModel(isIssueComboBoxModel);
-        isIssueComboBox.setRenderer(new GitHubQueryListCellRenderer(isIssueComboBox.getRenderer()));
+        setComboBox(isOpenComboBox, isOpenComboBoxModel, new Object[]{Is.OPEN, Is.CLOSED});
+        setComboBox(isMergedComboBox, isMergedComboBoxModel, new Object[]{Is.MERGED, Is.UNMERGED});
+        setComboBox(isIssueComboBox, isIssueComboBoxModel, new Object[]{Is.ISSUE, Is.PR});
 
         // no
         setComboBox(noComboBox, noComboBoxModel, No.values());
