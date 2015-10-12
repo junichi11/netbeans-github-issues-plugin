@@ -101,6 +101,20 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         headerNameLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
         headerNameLabel.setIcon(GitHubIcons.GITHUB_ICON_32);
 
+        initComboBox();
+
+        // add listener
+        addDocumentListener();
+
+        // issue table
+        mainIssueTablePanel.add(table);
+
+        resultsLabel.setText(""); // NOI18N
+
+        update();
+    }
+
+    private void initComboBox() {
         // state
         setComboBox(stateComboBox, stateComboBoxModel, State.values());
 
@@ -125,16 +139,6 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         GitHubRepository repository = query.getRepository();
         List<Milestone> milestones = repository.getMilestones("all", false); // NOI18N
         setComboBox(milestoneComboBox, milestoneComboBoxModel, milestones.toArray());
-
-        // add listener
-        addDocumentListener();
-
-        // issue table
-        mainIssueTablePanel.add(table);
-
-        resultsLabel.setText(""); // NOI18N
-
-        update();
     }
 
     private void setComboBox(JComboBox comboBox, DefaultComboBoxModel model, Object[] values) {
