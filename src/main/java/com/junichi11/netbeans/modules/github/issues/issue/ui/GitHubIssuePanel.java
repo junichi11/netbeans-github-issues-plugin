@@ -55,6 +55,7 @@ import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.CreatePullRequestAction;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueController.SubmitIssueAction;
 import com.junichi11.netbeans.modules.github.issues.issue.GitHubIssueSupport;
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
@@ -192,6 +193,19 @@ public class GitHubIssuePanel extends JPanel {
 
     public void setIssue(GitHubIssue gitHubIssue) {
         this.gitHubIssue = gitHubIssue;
+
+        // insert the default template
+        if (isNew()) {
+            if (GitHubIssuesOptions.getInstance().insertDefaultTemplate()) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        String template = GitHubIssuesConfig.getInstance().getTemplate(GitHubIssuesConfig.DEFAULT_TEMPLATE_NAME);
+                        descriptionTabbedPanel.setText(template);
+                    }
+                });
+            }
+        }
     }
 
     public GitHubIssue getIssue() {

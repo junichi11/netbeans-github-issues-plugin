@@ -76,8 +76,10 @@ public final class GitHubIssuesConfig {
     private static final String SCHEDULE = "schedule"; // NOI18N
     private static final String SCHEDULE_DUE_DATE = "schedule.due"; // NOI18N
     private static final String SCHEDULE_INTERVAL = "schedule.interval"; // NOI18N
+
+    // template
     private static final String TEMPLATE = "template"; // NOI18N
-    private static final String DEFAULT_TEMPLATE_NAME = "default"; // NOI18N
+    public static final String DEFAULT_TEMPLATE_NAME = "default"; // NOI18N
 
     // status
     private static final String STATUS = "status"; // NOI18N
