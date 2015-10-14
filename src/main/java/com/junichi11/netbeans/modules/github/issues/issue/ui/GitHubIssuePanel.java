@@ -517,7 +517,7 @@ public class GitHubIssuePanel extends JPanel {
             }
             if (m.getNumber() == milestone.getNumber()) {
                 milestoneComboBox.setSelectedItem(m);
-                break;
+                return;
             }
         }
 
