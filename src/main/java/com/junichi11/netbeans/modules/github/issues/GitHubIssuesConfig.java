@@ -49,7 +49,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -248,9 +247,16 @@ public final class GitHubIssuesConfig {
         names.add(DEFAULT_TEMPLATE_NAME);
         Preferences preferences = getPreferences().node(TEMPLATE);
         try {
+            // contains the default template if it was edited
             String[] childrenNames = preferences.keys();
-            names.addAll(Arrays.asList(childrenNames));
-            return names.toArray(new String[childrenNames.length + 1]);
+            int count = 1; // default template
+            for (String childName : childrenNames) {
+                if (!childName.equals(DEFAULT_TEMPLATE_NAME)) {
+                    names.add(childName);
+                    count++;
+                }
+            }
+            return names.toArray(new String[count]);
         } catch (BackingStoreException ex) {
             Exceptions.printStackTrace(ex);
         }
