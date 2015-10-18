@@ -77,7 +77,6 @@ public class InsertTemplatePanel extends javax.swing.JPanel {
 
         templatesComboBox = new javax.swing.JComboBox<String>();
 
-        templatesComboBox.setToolTipText(org.openide.util.NbBundle.getMessage(InsertTemplatePanel.class, "InsertTemplatePanel.templatesComboBox.toolTipText")); // NOI18N
         templatesComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
