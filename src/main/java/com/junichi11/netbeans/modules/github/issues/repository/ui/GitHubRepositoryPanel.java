@@ -41,7 +41,9 @@
  */
 package com.junichi11.netbeans.modules.github.issues.repository.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
@@ -59,6 +61,7 @@ import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
+import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;
@@ -77,6 +80,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
     private boolean isUserNameValid;
     private boolean isDotGithubValid;
     private boolean hasIssues;
+    private List<Repository> repositoryCache;
 
     /**
      * Creates new form GithubRepositoryPanel
@@ -84,6 +88,18 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
     public GitHubRepositoryPanel() {
         initComponents();
         init();
+
+        // #31 set user name and oauth token from .github file
+        try {
+            String userName = GitHubIssuesUtils.getUserName();
+            String oAuthToken = GitHubIssuesUtils.getOAuthToken();
+            if (userName != null && oAuthToken != null) {
+                setUserName(userName);
+                setOAuthToken(oAuthToken);
+            }
+        } catch (IOException ex) {
+            // noop, just set nothing
+        }
     }
 
     public GitHubRepositoryPanel(GitHubRepository repository) {
@@ -363,42 +379,33 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(oauthTokenLabel)
+                    .addComponent(displayNameLabel)
+                    .addComponent(repositoryLabel)
+                    .addComponent(userNameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(oauthTokenLabel)
+                        .addComponent(repositoryAuthorTextField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(repositorySeparationLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(repositoryNameTextField))
+                    .addComponent(userNameTextField)
+                    .addComponent(displayNameTextField)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(oauthTokenTextField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addRepositoryButton)
-                        .addGap(12, 12, 12))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(propertyFileCheckBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
-                                .addComponent(connectButton))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(userNameLabel)
-                                    .addComponent(displayNameLabel)
-                                    .addComponent(repositoryLabel))
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(repositoryAuthorTextField)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(repositorySeparationLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(repositoryNameTextField))
-                                    .addComponent(displayNameTextField)
-                                    .addComponent(userNameTextField))))
-                        .addContainerGap())))
+                        .addComponent(addRepositoryButton))))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(propertyFileCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                .addComponent(connectButton))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(oauthTokenLabel)
                     .addComponent(oauthTokenTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -409,19 +416,18 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(displayNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(displayNameLabel))
+                    .addComponent(displayNameLabel)
+                    .addComponent(displayNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(repositoryAuthorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(repositoryLabel)
-                    .addComponent(repositoryNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(repositorySeparationLabel))
+                    .addComponent(repositoryAuthorTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(repositorySeparationLabel)
+                    .addComponent(repositoryNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(propertyFileCheckBox)
-                    .addComponent(connectButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(connectButton)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -446,9 +452,12 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
 
     @NbBundle.Messages({
         "GitHubRepositoryPanel.addRepositoryButtonAction.error.empty.token=Please set OAuth token.",
-        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",})
+        "GitHubRepositoryPanel.addRepositoryButtonAction.error.wrong.token=There is no repository or your OAuth token is wrong.",
+        "GitHubRepositoryPanel.addRepositoryButtonAction.fetching.repositories=Fetching repositories..."
+    })
     private void addRepositoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRepositoryButtonActionPerformed
         RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+
         rp.post(new Runnable() {
 
             @Override
@@ -459,7 +468,17 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
                 setAddRepositoryButtonEnabled(false);
-                List<Repository> repositories = GitHubRepository.getRepositories(oAuthToken);
+
+                // show progress bar
+                ProgressHandle handle = ProgressHandle.createHandle(Bundle.GitHubRepositoryPanel_addRepositoryButtonAction_fetching_repositories());
+                List<Repository> repositories;
+                try {
+                    handle.start();
+                    repositories = getRepositories(oAuthToken);
+                } finally {
+                    handle.finish();
+                }
+
                 if (repositories.isEmpty()) {
                     SwingUtilities.invokeLater(new Runnable() {
 
@@ -472,7 +491,15 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                     return;
                 }
 
+                // selected repository
                 final Repository repository = GitHubRepositoryListPanel.showDialog(repositories);
+
+                // #33 user name
+                User user = GitHubCache.getUser(oAuthToken);
+                if (user == null) {
+                    return;
+                }
+                final String userName = user.getLogin();
 
                 SwingUtilities.invokeLater(new Runnable() {
 
@@ -481,7 +508,7 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
                         if (repository != null) {
                             String author = repository.getOwner().getLogin();
                             String repositoryName = repository.getName();
-                            setUserName(author);
+                            setUserName(userName);
                             setRepositoryAuthor(author);
                             setRepositoryName(repositoryName);
                             if (StringUtils.isEmpty(getDisplayName())) {
@@ -495,6 +522,14 @@ public class GitHubRepositoryPanel extends javax.swing.JPanel {
         });
 
     }//GEN-LAST:event_addRepositoryButtonActionPerformed
+
+    private List<Repository> getRepositories(String oAuthToken) {
+        boolean showParentRepository = GitHubIssuesOptions.getInstance().showParentRepository();
+        if (repositoryCache == null) {
+            repositoryCache = GitHubRepository.getRepositories(oAuthToken, showParentRepository);
+        }
+        return repositoryCache;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addRepositoryButton;

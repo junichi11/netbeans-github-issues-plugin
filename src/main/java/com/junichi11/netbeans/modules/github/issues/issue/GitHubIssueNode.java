@@ -83,7 +83,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.id.displayName=ID",
-        "GitHubIssueNode.id.shortDescription=ID",})
+        "GitHubIssueNode.id.shortDescription=ID"
+    })
     private class IDProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public IDProperty() {
@@ -98,7 +99,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.created.displayName=Created",
-        "GitHubIssueNode.created.shortDescription=Created",})
+        "GitHubIssueNode.created.shortDescription=Created"
+    })
     private class CreatedProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public CreatedProperty() {
@@ -117,7 +119,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.updated.displayName=Updated",
-        "GitHubIssueNode.updated.shortDescription=Updated",})
+        "GitHubIssueNode.updated.shortDescription=Updated"
+    })
     private class UpdatedProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public UpdatedProperty() {
@@ -136,7 +139,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.createdBy.displayName=Registered By",
-        "GitHubIssueNode.createdBy.shortDescription=Registered By",})
+        "GitHubIssueNode.createdBy.shortDescription=Registered By"
+    })
     private class CreatedByProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public CreatedByProperty() {
@@ -155,7 +159,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.assignee.displayName=Assignee",
-        "GitHubIssueNode.assignee.shortDescription=Assignee",})
+        "GitHubIssueNode.assignee.shortDescription=Assignee"
+    })
     private class AssigneeProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public AssigneeProperty() {
@@ -174,7 +179,8 @@ public class GitHubIssueNode extends IssueNode<GitHubIssue> {
 
     @NbBundle.Messages({
         "GitHubIssueNode.status.displayName=Status",
-        "GitHubIssueNode.status.shortDescription=Status",})
+        "GitHubIssueNode.status.shortDescription=Status"
+    })
     public class StatusProperty extends IssueNode<GitHubIssue>.IssueProperty<String> {
 
         public StatusProperty() {

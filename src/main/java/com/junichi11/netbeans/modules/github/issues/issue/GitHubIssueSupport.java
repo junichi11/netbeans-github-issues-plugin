@@ -103,6 +103,7 @@ public final class GitHubIssueSupport {
                 if (editedIssue != null) {
                     gitHubIssue.setIssue(editedIssue);
                     StatusDisplayer.getDefault().setStatusText("Status has been changed.");
+                    gitHubIssue.fireDataChange();
                     return true;
                 }
             }
@@ -110,7 +111,7 @@ public final class GitHubIssueSupport {
             // set original state
             issue.setState(state.toString());
             LOGGER.log(Level.WARNING, ex.getMessage());
-            UiUtils.showErrorDialog("Can't change issue status.");
+            UiUtils.showErrorDialog("Can''t change issue status.");
         }
         return false;
     }
@@ -205,7 +206,7 @@ public final class GitHubIssueSupport {
                 URL url = new URL(htmlUrl);
                 HtmlBrowser.URLDisplayer.getDefault().showURL(url);
             } catch (MalformedURLException ex) {
-                LOGGER.log(Level.WARNING, "Can't open the browser:{0}", ex.getMessage()); // NOI18N
+                LOGGER.log(Level.WARNING, "Can''t open the browser : {0}", ex.getMessage()); // NOI18N
             }
         }
 

@@ -51,6 +51,7 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import org.eclipse.egit.github.core.Milestone;
 
 /**
  *
@@ -87,6 +88,9 @@ public class GitHubQueryListCellRenderer extends DefaultListCellRenderer {
         } else if (value instanceof No) {
             No no = (No) value;
             text = no.getValue();
+        } else if (value instanceof Milestone) {
+            Milestone milestone = (Milestone) value;
+            text = milestone.getTitle();
         }
         if (text == null) {
             text = " "; // NOI18N

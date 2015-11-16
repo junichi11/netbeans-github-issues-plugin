@@ -41,17 +41,26 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubCache;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentTabbedPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.CommentsPanel;
+import com.junichi11.netbeans.modules.github.issues.issue.ui.CreatePullRequestPanel;
 import com.junichi11.netbeans.modules.github.issues.issue.ui.GitHubIssuePanel;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -59,9 +68,20 @@ import javax.swing.event.ChangeListener;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
+import org.eclipse.egit.github.core.PullRequestMarker;
+import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryBranch;
+import org.eclipse.egit.github.core.RepositoryCommitCompare;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.RepositoryService;
+import org.netbeans.api.progress.BaseProgressUtils;
 import org.netbeans.modules.bugtracking.spi.IssueController;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -79,7 +99,18 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
     public GitHubIssueController(GitHubIssue gitHubIssue) {
         repositoryId = gitHubIssue.getRepository().getID();
         getPanel().setIssue(gitHubIssue);
-        getPanel().update();
+        Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                getPanel().update();
+            }
+        };
+        if (EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            SwingUtilities.invokeLater(runnable);
+        }
     }
 
     @Override
@@ -132,6 +163,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
             panel.addAction(getSubmitIssueAction());
             panel.addAction(getCommentAction());
             panel.addAction(getCloseReopenAction());
+            panel.addAction(getCreatePullRequestAction());
             panel.addCommentsChangeListener(this);
         }
         return panel;
@@ -177,6 +209,10 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
 
     private CloseReopenAction getCloseReopenAction() {
         return new CloseReopenAction();
+    }
+
+    private CreatePullRequestAction getCreatePullRequestAction() {
+        return new CreatePullRequestAction();
     }
 
     @Override
@@ -281,6 +317,7 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
         }
 
         @NbBundle.Messages({
+            "SubmitIssueAction.message.pull.request.added.fail=The pull request has not been added.",
             "SubmitIssueAction.message.issue.added.fail=The issue has not been added.",
             "SubmitIssueAction.message.issue.updated.fail=The issue has not been updated."
         })
@@ -299,13 +336,36 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
                             GitHubIssue issue = p.getIssue();
                             CreateIssueParams issueParams = getCreateIssueParams(issue.isNew(), p);
                             if (issue.isNew()) {
-                                // add issue
-                                Issue newIssue = issue.submitNewIssue(issueParams);
-                                if (newIssue != null) {
-                                    p.update();
+                                if (p.isNewPullRequestSelected()) {
+                                    // add pull request
+                                    // can be added only title and body to a pull request
+                                    // add other than those after the pull request was created
+                                    PullRequest newPullRequest = p.getNewPullRequest();
+                                    if (newPullRequest != null) {
+                                        newPullRequest.setTitle(issueParams.getTitle())
+                                                .setBody(issueParams.getBody());
+                                        try {
+                                            PullRequest createdPullRequest = issue.createPullRequest(newPullRequest);
+                                            if (createdPullRequest != null) {
+                                                issue.editIssue(issueParams);
+                                                p.update();
+                                            } else {
+                                                // show dialog
+                                                UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_pull_request_added_fail());
+                                            }
+                                        } catch (IOException ex) {
+                                            UiUtils.showErrorDialog(ex.getMessage());
+                                        }
+                                    }
                                 } else {
-                                    // show dialog
-                                    UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_issue_added_fail());
+                                    // add issue
+                                    Issue newIssue = issue.submitNewIssue(issueParams);
+                                    if (newIssue != null) {
+                                        p.update();
+                                    } else {
+                                        // show dialog
+                                        UiUtils.showErrorDialog(Bundle.SubmitIssueAction_message_issue_added_fail());
+                                    }
                                 }
                             } else {
                                 // edit issue
@@ -442,6 +502,253 @@ public class GitHubIssueController implements IssueController, ChangeListener, P
         private boolean closeReopen() {
             return GitHubIssueSupport.toggleState(getPanel().getIssue());
         }
+    }
 
+    @NbBundle.Messages({
+        "CreatePullRequestAction.confirmation.message=Do you want to change this issue to Pull Request?",
+        "CreatePullRequestAction.error.message.same.branch=Another branch must be set.",
+        "CreatePullRequestAction.error.message.cannot.find.base.head.repositories=Can't find base or your head repositories.",
+        "CreatePullRequestAction.descriptor.title=Pull Request"
+    })
+    public class CreatePullRequestAction implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String actionCommand = e.getActionCommand();
+            final boolean isNewPullRequest = actionCommand.equals("New PR"); // NOI18N
+            GitHubIssuePanel p = getPanel();
+            p.setCreatePullRequestButtonEnabled(false);
+            final GitHubIssue issue = p.getIssue();
+
+            if (isNewPullRequest && !p.isNewPullRequestSelected()) {
+                // remove the new pull request from the panle
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        getPanel().setNewPullRequest(null);
+                    }
+                });
+                return;
+            }
+
+            RequestProcessor rp = GitHubIssues.getInstance().getRequestProcessor();
+            rp.post(new Runnable() {
+                @Override
+                public void run() {
+                    final GitHubRepository repository = issue.getRepository();
+                    GitHubCache cache = GitHubCache.create(repository);
+                    final User mySelf = cache.getMySelf();
+
+                    List<RepositoryBranch> baseBranches = cache.getBranches(true);
+                    final HashMap<Repository, List<RepositoryBranch>> baseRepositories = new HashMap<>();
+                    baseRepositories.put(repository.getRepository(), baseBranches);
+                    final Map<Repository, List<RepositoryBranch>> headRepositories = getHeadRepositories(repository, baseBranches);
+
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (baseRepositories.isEmpty() || headRepositories.isEmpty()) {
+                                    UiUtils.showErrorDialog(Bundle.CreatePullRequestAction_error_message_cannot_find_base_head_repositories());
+                                    return;
+                                }
+
+                                // create descriptor
+                                final CreatePullRequestPanel createPullRequestPanel = new CreatePullRequestPanel(baseRepositories, headRepositories);
+                                createPullRequestPanel.setMessage(Bundle.CreatePullRequestAction_confirmation_message());
+                                final NotifyDescriptor.Confirmation descriptor = new NotifyDescriptor.Confirmation(
+                                        createPullRequestPanel,
+                                        Bundle.CreatePullRequestAction_descriptor_title(),
+                                        NotifyDescriptor.OK_CANCEL_OPTION,
+                                        NotifyDescriptor.QUESTION_MESSAGE
+                                );
+
+                                // add listeners
+                                ChangeListener changeListener = new ChangeListener() {
+                                    @Override
+                                    public void stateChanged(ChangeEvent e) {
+                                        descriptor.setValid(false);
+                                        createPullRequestPanel.setErrorMessage(""); // NOI18N
+                                    }
+                                };
+                                createPullRequestPanel.addChangeListener(changeListener);
+                                ComparePullRequestPropertyChangeListener propertyChangeListener = new ComparePullRequestPropertyChangeListener(repository, createPullRequestPanel, descriptor);
+                                createPullRequestPanel.addPropertyChangeListener(propertyChangeListener);
+                                changeListener.stateChanged(null);
+
+                                // show dialog
+                                if (DialogDisplayer.getDefault().notify(descriptor) == NotifyDescriptor.OK_OPTION) {
+                                    RepositoryBranch selectedBaseBranch = createPullRequestPanel.getSelectedBaseBranch();
+                                    RepositoryBranch selectedHeadBranch = createPullRequestPanel.getSelectedHeadBranch();
+                                    String baseBranch = selectedBaseBranch.getName();
+                                    String headBranch = mySelf.getLogin() + ":" + selectedHeadBranch.getName(); // NOI18N
+                                    PullRequest pullRequest;
+                                    try {
+                                        if (isNewPullRequest) {
+                                            // set new pull request to panel
+                                            PullRequestMarker baseMarker = new PullRequestMarker();
+                                            baseMarker.setLabel(baseBranch);
+                                            PullRequestMarker headMarker = new PullRequestMarker();
+                                            headMarker.setLabel(headBranch);
+                                            PullRequest newPullRequest = new PullRequest()
+                                                    .setBase(baseMarker)
+                                                    .setHead(headMarker);
+                                            getPanel().setNewPullRequest(newPullRequest);
+                                        } else {
+                                            pullRequest = issue.createPullRequest(headBranch, baseBranch);
+                                            if (pullRequest != null) {
+                                                getPanel().refresh();
+                                            }
+                                        }
+                                    } catch (IOException ex) {
+                                        UiUtils.showErrorDialog("Can't create a pull request:" + ex.getMessage()); // NOI18N
+                                    }
+                                } else if (isNewPullRequest) {
+                                    getPanel().setNewPullRequestSelected(false);
+                                }
+
+                                // remove listeners
+                                createPullRequestPanel.removeChangeListener(changeListener);
+                                createPullRequestPanel.removePropertyChangeListener(propertyChangeListener);
+                            } finally {
+                                getPanel().setCreatePullRequestButtonEnabled(true);
+                            }
+                        }
+                    });
+                }
+            });
+
+        }
+
+        private Map<Repository, List<RepositoryBranch>> getHeadRepositories(GitHubRepository repository, List<RepositoryBranch> baseBranches) {
+            Map<Repository, List<RepositoryBranch>> myRepositories = new HashMap<>();
+            GitHubCache cache = GitHubCache.create(repository);
+            final User mySelf = cache.getMySelf();
+            String repositoryAuthor = repository.getRepositoryAuthor();
+            if (repositoryAuthor.equals(mySelf.getLogin())) {
+                myRepositories.put(repository.getRepository(), baseBranches);
+            } else {
+                if (repository.isCollaborator()) {
+                    myRepositories.put(repository.getRepository(), baseBranches);
+                }
+                List<Repository> forks = cache.getForks();
+                Repository myRepository = null;
+                for (Repository fork : forks) {
+                    User owner = fork.getOwner();
+                    if (owner.getLogin().equals(mySelf.getLogin())) {
+                        myRepository = fork;
+                        break;
+                    }
+                }
+                if (myRepository == null) {
+                    return Collections.emptyMap();
+                }
+
+                // get my branches
+                GitHubClient client = repository.createGitHubClient();
+                List<RepositoryBranch> myRepositoryBranches = getMyRepositoryBranches(client, myRepository);
+                myRepositories.put(myRepository, myRepositoryBranches);
+            }
+            return myRepositories;
+        }
+
+        private List<RepositoryBranch> getMyRepositoryBranches(GitHubClient client, Repository myRepository) {
+            RepositoryService service = new RepositoryService(client);
+            try {
+                return service.getBranches(myRepository);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return Collections.emptyList();
+        }
+
+    }
+
+    static class ComparePullRequestPropertyChangeListener implements PropertyChangeListener {
+
+        private final GitHubRepository repository;
+        private final CreatePullRequestPanel panel;
+        private final NotifyDescriptor descriptor;
+
+        private String errorMessage;
+        private RepositoryCommitCompare compare;
+
+        public ComparePullRequestPropertyChangeListener(GitHubRepository repository, CreatePullRequestPanel createPullRequestPanel, NotifyDescriptor descriptor) {
+            this.repository = repository;
+            this.panel = createPullRequestPanel;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        @NbBundle.Messages({
+            "ComparePullRequestPropertyChangeListener.message.no.compare=There isn't anything to compare.",
+            "ComparePullRequestPropertyChangeListener.message.conflict=Can't automatically merge."
+        })
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt != null && !evt.getPropertyName().equals(CreatePullRequestPanel.PROP_COMPARE_PULL_REQUEST)) {
+                return;
+            }
+            errorMessage = null;
+            compare = null;
+            panel.setCompareButtonEnabled(false);
+            try {
+                // validate
+                // same commit
+                RepositoryBranch baseBranch = panel.getSelectedBaseBranch();
+                RepositoryBranch headBranch = panel.getSelectedHeadBranch();
+                if (baseBranch.getCommit().getSha().equals(headBranch.getCommit().getSha())) {
+                    panel.setErrorMessage(Bundle.ComparePullRequestPropertyChangeListener_message_no_compare());
+                    descriptor.setValid(false);
+                }
+
+                // compare two commits
+                compare();
+                if (compare == null) {
+                    panel.setErrorMessage(errorMessage);
+                    descriptor.setValid(false);
+                    return;
+                }
+
+                String status = compare.getStatus();
+                switch (status) {
+                    case "identical": // no break NOI18N
+                    case "behind": // NOI18N
+                        panel.setErrorMessage(Bundle.ComparePullRequestPropertyChangeListener_message_no_compare());
+                        descriptor.setValid(false);
+                        return;
+                    case "diverged": // NOI18N
+                        panel.setErrorMessage(Bundle.ComparePullRequestPropertyChangeListener_message_conflict());
+                        descriptor.setValid(true);
+                        return;
+                    case "ahead": // NOI18N
+                        break;
+                    default:
+                        break;
+                }
+
+                // everything ok
+                panel.setErrorMessage(""); // NOI18N
+                descriptor.setValid(true);
+            } finally {
+                panel.setCompareButtonEnabled(true);
+            }
+        }
+
+        private void compare() {
+            Repository headRepo = panel.getSelectedHeadRepository();
+            final User owner = headRepo.getOwner();
+            BaseProgressUtils.runOffEventDispatchThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        compare = repository.compare(
+                                panel.getSelectedBaseBranch().getName(),
+                                owner.getLogin() + ":" + panel.getSelectedHeadBranch().getName());
+                    } catch (IOException ex) {
+                        errorMessage = ex.getMessage();
+                    }
+                }
+            }, "Comparing...", new AtomicBoolean(), false); // NOI18N
+        }
     }
 }

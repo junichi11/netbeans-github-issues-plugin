@@ -41,12 +41,12 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import java.awt.Dialog;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import javax.swing.Icon;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -57,7 +57,6 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 /**
@@ -66,7 +65,6 @@ import org.openide.util.NbBundle;
  */
 public class MilestonePanel extends javax.swing.JPanel {
 
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
     private static final long serialVersionUID = -4759519190789532723L;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private String errorMessage;
@@ -150,7 +148,7 @@ public class MilestonePanel extends javax.swing.JPanel {
             return;
         }
         errorLabel.setText(errorMessage);
-        errorLabel.setIcon(ERROR_ICON);
+        errorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
     }
 
     void fireChange() {

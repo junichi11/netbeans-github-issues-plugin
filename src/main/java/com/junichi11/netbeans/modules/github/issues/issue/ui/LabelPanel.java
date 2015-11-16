@@ -41,11 +41,11 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.Icon;
 import javax.swing.JColorChooser;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -57,7 +57,6 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 /**
@@ -67,7 +66,6 @@ import org.openide.util.NbBundle;
 public class LabelPanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = -9122329677222779787L;
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
     private final ChangeSupport changeSupport = new ChangeSupport(this);
     private String errorMessage;
     private final List<Label> filter;
@@ -86,7 +84,7 @@ public class LabelPanel extends javax.swing.JPanel {
         nameTextField.getDocument().addDocumentListener(documentListener);
         colorTextField.getDocument().addDocumentListener(documentListener);
         errorLabel.setForeground(UIManager.getColor("nb.errorForeground")); // NOI18N
-        setError("");
+        setError(""); // NOI18N
     }
 
     /**
@@ -140,7 +138,7 @@ public class LabelPanel extends javax.swing.JPanel {
             return;
         }
         errorLabel.setText(errorMessage);
-        errorLabel.setIcon(ERROR_ICON);
+        errorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
     }
 
     void fireChange() {

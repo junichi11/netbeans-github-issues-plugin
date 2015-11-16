@@ -68,6 +68,7 @@ public class GitHubQuery {
     public enum QParam {
 
         KEYWORD("keyword", "keyword"), // NOI18N
+        MILESTONE("milestone", "milestone"), // NOI18N
         TYPE("type", "type"), // NOI18N
         IN("in", "in"), // NOI18N
         AUTHOR("author", "author"), // NOI18N
@@ -235,7 +236,7 @@ public class GitHubQuery {
             if (issueContainer != null) {
                 issueContainer.refreshingStarted();
                 issueContainer.clear();
-                for (GitHubIssue issue : getIssues()) {
+                for (GitHubIssue issue : getIssues(true)) {
                     issueContainer.add(issue);
                 }
             }
@@ -250,23 +251,23 @@ public class GitHubQuery {
         }
     }
 
-    public List<GitHubIssue> getIssues() {
+    public List<GitHubIssue> getIssues(boolean isRefresh) {
         Map<String, String> filter = getFilter();
         if (filter.isEmpty()) {
             if (StringUtils.isEmpty(queryParam)) {
                 return Collections.emptyList();
             }
-            return searchIssues(createSearchIssuesParams());
+            return searchIssues(createSearchIssuesParams(), isRefresh);
         }
-        return repository.getIssues(filter);
+        return repository.getIssues(filter, isRefresh);
     }
 
     protected Map<String, String> getFilter() {
         return Collections.emptyMap();
     }
 
-    public List<GitHubIssue> searchIssues(SearchIssuesParams params) {
-        return repository.searchIssues(params);
+    public List<GitHubIssue> searchIssues(SearchIssuesParams params, boolean isRefresh) {
+        return repository.searchIssues(params, isRefresh);
     }
 
     public String getKeyword() {
@@ -296,6 +297,7 @@ public class GitHubQuery {
     private SearchIssuesParams createSearchIssuesParams() {
         return new SearchIssuesParams()
                 .keyword(getParameter(QParam.KEYWORD))
+                .milestone(getParameter(QParam.MILESTONE))
                 .assignee(getParameter(QParam.ASSIGNEE))
                 .author(getParameter(QParam.AUTHOR))
                 .commenter(getParameter(QParam.COMMENTER))

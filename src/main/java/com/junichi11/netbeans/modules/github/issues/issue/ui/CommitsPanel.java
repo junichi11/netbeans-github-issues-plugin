@@ -41,29 +41,35 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
+import java.awt.EventQueue;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import org.eclipse.egit.github.core.Commit;
+
 /**
  *
  * @author junichi11
  */
-public class InsertTemplatePanel extends javax.swing.JPanel {
+public class CommitsPanel extends JPanel {
 
-    private static final long serialVersionUID = 9141701783165717038L;
+    private static final long serialVersionUID = -6067465889360927986L;
 
     /**
-     * Creates new form InsertTemplatePanel
+     * Creates new form CommitsPane
      */
-    public InsertTemplatePanel() {
+    public CommitsPanel() {
         initComponents();
     }
 
-    public void setTemplates(String[] templates) {
-        for (String template : templates) {
-            templatesComboBox.addItem(template);
-        }
+    public void addCommit(Commit commit, Icon commiterIcon) {
+        assert EventQueue.isDispatchThread();
+        CommitPanel commitPanel = new CommitPanel(commit, commiterIcon);
+        add(commitPanel);
     }
 
-    public String getSelectedTemplateName() {
-        return (String) templatesComboBox.getSelectedItem();
+    public void removeAllCommits() {
+        assert EventQueue.isDispatchThread();
+        removeAll();
     }
 
     /**
@@ -75,23 +81,9 @@ public class InsertTemplatePanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        templatesComboBox = new javax.swing.JComboBox<String>();
-
-        templatesComboBox.setPreferredSize(new java.awt.Dimension(200, 27));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(templatesComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(templatesComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
+        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> templatesComboBox;
     // End of variables declaration//GEN-END:variables
 }

@@ -165,11 +165,11 @@ public class GetIssuesParams {
         HashMap<String, String> filterMap = new HashMap<>();
 
         if (milestone != null) {
-            filterMap.put(IssueService.FILTER_MILESTONE, String.valueOf(milestone.getNumber())); // NOI18N
+            filterMap.put(IssueService.FILTER_MILESTONE, String.valueOf(milestone.getNumber()));
         }
 
         if (!StringUtils.isEmpty(assignee)) {
-            filterMap.put(IssueService.FILTER_ASSIGNEE, assignee); // NOI18N
+            filterMap.put(IssueService.FILTER_ASSIGNEE, assignee);
         }
 
         if (!StringUtils.isEmpty(creator)) {
@@ -177,11 +177,11 @@ public class GetIssuesParams {
         }
 
         if (!StringUtils.isEmpty(mentioned)) {
-            filterMap.put(IssueService.FILTER_MENTIONED, mentioned); // NOI18N
+            filterMap.put(IssueService.FILTER_MENTIONED, mentioned);
         }
 
         if (state != null) {
-            filterMap.put(IssueService.FILTER_STATE, state.getName()); // NOI18N
+            filterMap.put(IssueService.FILTER_STATE, state.getName());
         }
 
         if (labels != null) {
@@ -194,20 +194,20 @@ public class GetIssuesParams {
             }
             String labelsWithComma = sb.toString();
             if (!StringUtils.isEmpty(labelsWithComma)) {
-                filterMap.put(IssueService.FILTER_LABELS, labelsWithComma); // NOI18N
+                filterMap.put(IssueService.FILTER_LABELS, labelsWithComma);
             }
         }
 
         if (sort != null) {
-            filterMap.put(IssueService.FIELD_SORT, sort.getName()); // NOI18N
+            filterMap.put(IssueService.FIELD_SORT, sort.getName());
         }
 
         if (direction != null) {
-            filterMap.put(IssueService.FIELD_DIRECTION, direction.getName()); // NOI18N
+            filterMap.put(IssueService.FIELD_DIRECTION, direction.getName());
         }
 
         if (since != null) {
-            filterMap.put(IssueService.FIELD_SINCE, DATE_FORMAT.format(since)); // NOI18N
+            filterMap.put(IssueService.FIELD_SINCE, DATE_FORMAT.format(since));
         }
 
         return filterMap;

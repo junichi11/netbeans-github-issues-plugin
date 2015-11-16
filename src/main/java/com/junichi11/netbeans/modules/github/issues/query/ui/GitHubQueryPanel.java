@@ -41,6 +41,7 @@
  */
 package com.junichi11.netbeans.modules.github.issues.query.ui;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.Is;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.No;
@@ -50,17 +51,19 @@ import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.Stat
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams.Type;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery;
 import com.junichi11.netbeans.modules.github.issues.query.GitHubQuery.QParam;
+import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.eclipse.egit.github.core.Milestone;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle;
 
 /**
@@ -79,14 +82,14 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
     private final DefaultComboBoxModel<SearchIssuesParams.No> noComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<SearchIssuesParams.Sort> sortComboBoxModel = new DefaultComboBoxModel();
     private final DefaultComboBoxModel<SearchIssuesParams.Order> orderComboBoxModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel<Milestone> milestoneComboBoxModel = new DefaultComboBoxModel();
     private final ChangeSupport changeSupport = new ChangeSupport(this);
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
-    private static final Icon ICON_32 = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/icon_32.png", true); // NOI18N
 
     /**
      * Creates new form GitHubQueryPanel
      */
     public GitHubQueryPanel(GitHubQuery query, JComponent table) {
+        assert query != null;
         this.query = query;
         initComponents();
 
@@ -96,66 +99,9 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
 
         Font font = headerErrorLabel.getFont();
         headerNameLabel.setFont(font.deriveFont((float) (font.getSize() * 1.5)));
-        headerNameLabel.setIcon(ICON_32);
+        headerNameLabel.setIcon(GitHubIcons.GITHUB_ICON_32);
 
-        // state
-        stateComboBoxModel.addElement(null);
-        for (State state : State.values()) {
-            stateComboBoxModel.addElement(state);
-        }
-        stateComboBox.setModel(stateComboBoxModel);
-        stateComboBox.setRenderer(new GitHubQueryListCellRenderer(stateComboBox.getRenderer()));
-
-        // type
-        typeComboBoxModel.addElement(null);
-        for (Type type : Type.values()) {
-            typeComboBoxModel.addElement(type);
-        }
-        typeComboBox.setModel(typeComboBoxModel);
-        typeComboBox.setRenderer(new GitHubQueryListCellRenderer(typeComboBox.getRenderer()));
-
-        // is
-        isOpenComboBoxModel.addElement(null);
-        isOpenComboBoxModel.addElement(Is.OPEN);
-        isOpenComboBoxModel.addElement(Is.CLOSED);
-        isOpenComboBox.setModel(isOpenComboBoxModel);
-        isOpenComboBox.setRenderer(new GitHubQueryListCellRenderer(isOpenComboBox.getRenderer()));
-
-        isMergedComboBoxModel.addElement(null);
-        isMergedComboBoxModel.addElement(Is.MERGED);
-        isMergedComboBoxModel.addElement(Is.UNMERGED);
-        isMergedComboBox.setModel(isMergedComboBoxModel);
-        isMergedComboBox.setRenderer(new GitHubQueryListCellRenderer(isMergedComboBox.getRenderer()));
-
-        isIssueComboBoxModel.addElement(null);
-        isIssueComboBoxModel.addElement(Is.ISSUE);
-        isIssueComboBoxModel.addElement(Is.PR);
-        isIssueComboBox.setModel(isIssueComboBoxModel);
-        isIssueComboBox.setRenderer(new GitHubQueryListCellRenderer(isIssueComboBox.getRenderer()));
-
-        // no
-        noComboBoxModel.addElement(null);
-        for (No no : No.values()) {
-            noComboBoxModel.addElement(no);
-        }
-        noComboBox.setModel(noComboBoxModel);
-        noComboBox.setRenderer(new GitHubQueryListCellRenderer(noComboBox.getRenderer()));
-
-        // sort
-        sortComboBoxModel.addElement(null);
-        for (Sort sort : Sort.values()) {
-            sortComboBoxModel.addElement(sort);
-        }
-        sortComboBox.setModel(sortComboBoxModel);
-        sortComboBox.setRenderer(new GitHubQueryListCellRenderer(sortComboBox.getRenderer()));
-
-        // order
-        orderComboBoxModel.addElement(null);
-        for (Order order : Order.values()) {
-            orderComboBoxModel.addElement(order);
-        }
-        orderComboBox.setModel(orderComboBoxModel);
-        orderComboBox.setRenderer(new GitHubQueryListCellRenderer(orderComboBox.getRenderer()));
+        initComboBox();
 
         // add listener
         addDocumentListener();
@@ -166,6 +112,42 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         resultsLabel.setText(""); // NOI18N
 
         update();
+    }
+
+    private void initComboBox() {
+        // state
+        setComboBox(stateComboBox, stateComboBoxModel, State.values());
+
+        // type
+        setComboBox(typeComboBox, typeComboBoxModel, Type.values());
+
+        // is
+        setComboBox(isOpenComboBox, isOpenComboBoxModel, new Object[]{Is.OPEN, Is.CLOSED});
+        setComboBox(isMergedComboBox, isMergedComboBoxModel, new Object[]{Is.MERGED, Is.UNMERGED});
+        setComboBox(isIssueComboBox, isIssueComboBoxModel, new Object[]{Is.ISSUE, Is.PR});
+
+        // no
+        setComboBox(noComboBox, noComboBoxModel, No.values());
+
+        // sort
+        setComboBox(sortComboBox, sortComboBoxModel, Sort.values());
+
+        // order
+        setComboBox(orderComboBox, orderComboBoxModel, Order.values());
+
+        // milestone
+        GitHubRepository repository = query.getRepository();
+        List<Milestone> milestones = repository.getMilestones("all", false); // NOI18N
+        setComboBox(milestoneComboBox, milestoneComboBoxModel, milestones.toArray());
+    }
+
+    private void setComboBox(JComboBox comboBox, DefaultComboBoxModel model, Object[] values) {
+        model.addElement(null);
+        for (Object value : values) {
+            model.addElement(value);
+        }
+        comboBox.setModel(model);
+        comboBox.setRenderer(new GitHubQueryListCellRenderer(comboBox.getRenderer()));
     }
 
     private void addDocumentListener() {
@@ -204,6 +186,17 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         isIssueComboBox.setSelectedItem(Is.valueOfString(query.getParameter(QParam.IS_ISSUE)));
         sortComboBox.setSelectedItem(Sort.valueOfString(query.getParameter(GitHubQuery.Param.SORT)));
         orderComboBox.setSelectedItem(Order.valueOfString(query.getParameter(GitHubQuery.Param.ORDER)));
+        // milestone
+        String milestoneTitle = query.getParameter(QParam.MILESTONE);
+        for (int i = 0; i < milestoneComboBox.getItemCount(); i++) {
+            Milestone milestone = milestoneComboBox.getItemAt(i);
+            if (milestone != null) {
+                if (milestone.getTitle().equals(milestoneTitle)) {
+                    milestoneComboBox.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
     }
 
     public final void setErrorMessage(String errorMessage) {
@@ -211,7 +204,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
             errorMessage = ""; // NOI18N
             headerErrorLabel.setIcon(null);
         } else {
-            headerErrorLabel.setIcon(ERROR_ICON);
+            headerErrorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
         }
         headerErrorLabel.setText(errorMessage);
     }
@@ -227,12 +220,16 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
             resultsLabel.setText(""); // NOI18N
             return;
         }
-        if (count == 0) {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_empty());
-        } else if (count == 1) {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issue());
-        } else {
-            resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issues(count));
+        switch (count) {
+            case 0:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_empty());
+                break;
+            case 1:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issue());
+                break;
+            default:
+                resultsLabel.setText(Bundle.GitHubQueryPanel_message_result_issues(count));
+                break;
         }
     }
 
@@ -249,6 +246,10 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
 
     public String getKeyword() {
         return keywordTextField.getText().trim();
+    }
+
+    public Milestone getMilestone() {
+        return (Milestone) milestoneComboBox.getSelectedItem();
     }
 
     public State getState() {
@@ -383,7 +384,7 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         stateLabel = new javax.swing.JLabel();
-        stateComboBox = new javax.swing.JComboBox<State>();
+        stateComboBox = new javax.swing.JComboBox<>();
         keywordLabel = new javax.swing.JLabel();
         keywordTextField = new javax.swing.JTextField();
         searchButton = new javax.swing.JButton();
@@ -415,21 +416,23 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
         mergedTextField = new javax.swing.JTextField();
         closedTextField = new javax.swing.JTextField();
         sortLabel = new javax.swing.JLabel();
-        sortComboBox = new javax.swing.JComboBox<Sort>();
+        sortComboBox = new javax.swing.JComboBox<>();
         orderLabel = new javax.swing.JLabel();
-        orderComboBox = new javax.swing.JComboBox<Order>();
+        orderComboBox = new javax.swing.JComboBox<>();
         headerPanel = new javax.swing.JPanel();
         headerNameLabel = new javax.swing.JLabel();
         headerErrorLabel = new javax.swing.JLabel();
         resetButton = new javax.swing.JButton();
         mainIssueTablePanel = new javax.swing.JPanel();
         resultsLabel = new javax.swing.JLabel();
-        isOpenComboBox = new javax.swing.JComboBox<Is>();
-        isMergedComboBox = new javax.swing.JComboBox<Is>();
-        isIssueComboBox = new javax.swing.JComboBox<Is>();
-        noComboBox = new javax.swing.JComboBox<No>();
+        isOpenComboBox = new javax.swing.JComboBox<>();
+        isMergedComboBox = new javax.swing.JComboBox<>();
+        isIssueComboBox = new javax.swing.JComboBox<>();
+        noComboBox = new javax.swing.JComboBox<>();
         typeLabel = new javax.swing.JLabel();
-        typeComboBox = new javax.swing.JComboBox<Type>();
+        typeComboBox = new javax.swing.JComboBox<>();
+        milestoneLabel = new javax.swing.JLabel();
+        milestoneComboBox = new javax.swing.JComboBox<>();
 
         org.openide.awt.Mnemonics.setLocalizedText(stateLabel, org.openide.util.NbBundle.getMessage(GitHubQueryPanel.class, "GitHubQueryPanel.stateLabel.text")); // NOI18N
 
@@ -540,6 +543,8 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(typeLabel, org.openide.util.NbBundle.getMessage(GitHubQueryPanel.class, "GitHubQueryPanel.typeLabel.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(milestoneLabel, org.openide.util.NbBundle.getMessage(GitHubQueryPanel.class, "GitHubQueryPanel.milestoneLabel.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -583,6 +588,10 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
                             .addComponent(commentsTextField)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(keywordTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(milestoneLabel)
+                        .addGap(6, 6, 6)
+                        .addComponent(milestoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(stateLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -638,7 +647,9 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
                     .addComponent(keywordLabel)
                     .addComponent(keywordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stateLabel)
-                    .addComponent(stateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stateComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(milestoneLabel)
+                    .addComponent(milestoneComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(authorLabel)
@@ -750,6 +761,8 @@ public class GitHubQueryPanel extends javax.swing.JPanel {
     private javax.swing.JTextField mentionsTextField;
     private javax.swing.JLabel mergedLabel;
     private javax.swing.JTextField mergedTextField;
+    private javax.swing.JComboBox<Milestone> milestoneComboBox;
+    private javax.swing.JLabel milestoneLabel;
     private javax.swing.JComboBox<No> noComboBox;
     private javax.swing.JLabel noLabel;
     private javax.swing.JComboBox<Order> orderComboBox;

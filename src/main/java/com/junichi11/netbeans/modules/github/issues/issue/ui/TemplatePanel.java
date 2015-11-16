@@ -41,13 +41,12 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
-import javax.swing.Icon;
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.util.ChangeSupport;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -57,7 +56,6 @@ public class TemplatePanel extends javax.swing.JPanel {
 
     private static final long serialVersionUID = 799388642653499961L;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
-    private static final Icon ERROR_ICON = ImageUtilities.loadImageIcon("com/junichi11/netbeans/modules/github/issues/resources/error_icon_16.png", true); // NOI18N
 
     /**
      * Creates new form TemplatePanel
@@ -101,7 +99,7 @@ public class TemplatePanel extends javax.swing.JPanel {
             errorMessage = ""; // NOI18N
             errorLabel.setIcon(null);
         } else {
-            errorLabel.setIcon(ERROR_ICON);
+            errorLabel.setIcon(GitHubIcons.ERROR_ICON_16);
         }
         errorLabel.setText(errorMessage);
     }

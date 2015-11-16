@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Install: com/junichi11/netbeans/modules/github/issues/Installer.class
+OpenIDE-Module-Layer: com/junichi11/netbeans/modules/github/issues/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: com/junichi11/netbeans/modules/github/issues/Bundle.properties

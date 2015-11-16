@@ -41,6 +41,13 @@
  */
 package com.junichi11.netbeans.modules.github.issues.issue;
 
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
+import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
+import java.awt.Image;
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.egit.github.core.Issue;
 import org.netbeans.modules.bugtracking.spi.IssuePriorityInfo;
 import org.netbeans.modules.bugtracking.spi.IssuePriorityProvider;
 
@@ -50,16 +57,84 @@ import org.netbeans.modules.bugtracking.spi.IssuePriorityProvider;
  */
 public class GitHubIssuePriorityProvider implements IssuePriorityProvider<GitHubIssue> {
 
+    /**
+     * GitHub Issues doesn't have priorities. Use this feature to show icons.
+     */
+    public enum GitHubIssuePriority {
+        Open("open", "Open", GitHubIcons.OPEN_ISSUE_IMAGE_16), // NOI18N
+        Closed("closed", "Closed", GitHubIcons.CLOSED_ISSUE_IMAGE_16), // NOI18N
+        OpenPullRequest("open.pull.request", "Open", GitHubIcons.OPEN_PULL_REQUEST_IMAGE_16), // NOI18N
+        ClosedPullRequest("closed.pull.request", "Closed", GitHubIcons.CLOSED_PULL_REQUEST_IMAGE_16), // NOI18N
+        MergedPullRequest("merged.pull.request", "Merged", GitHubIcons.MERGED_PULL_REQUEST_IMAGE_16), // NOI18N
+        None("", "", null); // NOI18N
+
+        private final String id;
+        private final String state;
+        private final Image image;
+
+        private GitHubIssuePriority(String id, String state, Image image) {
+            this.id = id;
+            this.state = state;
+            this.image = image;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public Image getImage() {
+            return image;
+        }
+
+    }
+
     @Override
-    public String getPriorityID(GitHubIssue issue) {
-        // TODO there is no priority
-        return ""; // NOI18N
+    public String getPriorityID(GitHubIssue githubIssue) {
+        Issue issue = githubIssue.getIssue();
+        if (issue == null) {
+            return ""; // NOI18N
+        }
+        GitHubIssuePriority priority = GitHubIssuePriority.None;
+        GitHubIssueState state = GitHubIssueState.toEnum(issue.getState());
+        boolean isPullRequest = GitHubIssuesUtils.isPullRequest(issue);
+        switch (state) {
+            case CLOSED:
+                if (isPullRequest) {
+                    // XXX merged should be added.
+                    // But set the same priority as the closed becase many requests are sent via API.
+                    priority = GitHubIssuePriority.ClosedPullRequest;
+                } else {
+                    priority = GitHubIssuePriority.Closed;
+                }
+                break;
+            case OPEN:
+                if (isPullRequest) {
+                    priority = GitHubIssuePriority.OpenPullRequest;
+                } else {
+                    priority = GitHubIssuePriority.Open;
+                }
+            default:
+                break;
+        }
+        return priority.getId();
     }
 
     @Override
     public IssuePriorityInfo[] getPriorityInfos() {
-        // TODO there is no priority
-        return new IssuePriorityInfo[0];
+        List<IssuePriorityInfo> info = new ArrayList<>();
+        for (GitHubIssuePriority priority : GitHubIssuePriority.values()) {
+            Image image = priority.getImage();
+            if (image != null) {
+                info.add(new IssuePriorityInfo(priority.getId(), priority.getState(), image));
+            } else {
+                info.add(new IssuePriorityInfo(priority.getId(), priority.getState()));
+            }
+        }
+        return info.toArray(new IssuePriorityInfo[info.size()]);
     }
 
 }

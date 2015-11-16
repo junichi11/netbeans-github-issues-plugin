@@ -43,12 +43,14 @@ package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -60,7 +62,9 @@ import javax.swing.JTable;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.User;
+import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.commons.UIUtils;
 import org.netbeans.modules.bugtracking.issuetable.ColumnDescriptor;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
@@ -69,6 +73,7 @@ import org.netbeans.modules.bugtracking.spi.IssueProvider;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleInfo;
 import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
+import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.NbBundle;
 import org.pegdown.PegDownProcessor;
 
@@ -166,6 +171,15 @@ public final class GitHubIssue {
         return sb.toString();
     }
 
+    public Status getIssueStatus() {
+        return GitHubIssuesConfig.getInstance().getStatus(this);
+    }
+
+    public void setIssueStatus(Status status) {
+        GitHubIssuesConfig.getInstance().setStatus(this, status);
+        fireStatusChange();
+    }
+
     public boolean isNew() {
         return issue == null;
     }
@@ -250,6 +264,7 @@ public final class GitHubIssue {
 
     public void refreshIssue() {
         getRepository().refresh(this);
+        fireStatusChange();
     }
 
     public void addComment(String comment, boolean resolveAsFixed) {
@@ -280,6 +295,16 @@ public final class GitHubIssue {
 
     public Issue submitNewIssue(CreateIssueParams params) {
         Issue newIssue = repository.submitNewIssue(params);
+        setNewIssue(newIssue);
+        return newIssue;
+    }
+
+    /**
+     * Set a new issue. Add GitHubIssue to the issue cache.
+     *
+     * @param newIssue a new Issue
+     */
+    private void setNewIssue(Issue newIssue) {
         if (newIssue != null) {
             setIssue(newIssue);
             // add to cache
@@ -288,8 +313,8 @@ public final class GitHubIssue {
             fireChange();
             fireDataChange();
             fireScheduleChange();
+            setIssueStatus(Status.SEEN);
         }
-        return newIssue;
     }
 
     public Issue editIssue(CreateIssueParams params) {
@@ -328,6 +353,41 @@ public final class GitHubIssue {
         return null;
     }
 
+    /**
+     * Create a pull request from an existing issue.
+     *
+     * @param head head username:branch
+     * @param base base branch name
+     * @return PullRequest if it was created successfully, otherwise
+     * {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(String head, String base) throws IOException {
+        GitHubRepository repo = getRepository();
+        PullRequest pullRequest = repo.createPullRequest(getIssue().getNumber(), head, base);
+        return pullRequest;
+    }
+
+    /**
+     * Create a new pull request. Title, body, base and head can be set.
+     *
+     * @param pullRequest PullRequest
+     * @return PullRequest if new pull request has been created, otherwise
+     * {@code null}
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(PullRequest pullRequest) throws IOException {
+        GitHubRepository repo = getRepository();
+        PullRequest newPullRequest = repo.createPullRequest(pullRequest);
+        if (newPullRequest != null) {
+            Issue newIssue = repo.getIssue(newPullRequest.getNumber());
+            setNewIssue(newIssue);
+        }
+        return newPullRequest;
+    }
+
     public boolean isCreatedUser() {
         if (issue == null) {
             return false;
@@ -349,17 +409,6 @@ public final class GitHubIssue {
     })
     public void setSchedule(IssueScheduleInfo scheduleInfo) {
         UiUtils.showPlainDialog(Bundle.GitHubIssue_MSG_setSchedule());
-        // remove ?
-//        this.scheduleInfo = scheduleInfo;
-//        if (scheduleInfo == null) {
-//            // remove schedule
-//            GitHubIssuesConfig.getInstance().removeSchedule(repository, this);
-//        } else {
-//            GitHubIssuesConfig.getInstance().setScheduleDueDate(repository, this, scheduleInfo.getDate());
-//            GitHubIssuesConfig.getInstance().setScheduleInterval(repository, this, scheduleInfo.getInterval());
-//        }
-//        fireDataChange();
-//        fireScheduleChange();
     }
 
     public Date getDueDate() {
@@ -372,21 +421,6 @@ public final class GitHubIssue {
             return milestone.getDueOn();
         }
         return null;
-
-        // remove?
-//        IssueScheduleInfo info = getSchedule();
-//        if (info == null) {
-//            return null;
-//        }
-//        Calendar calendar = Calendar.getInstance();
-//        Date date = info.getDate();
-//        int interval = info.getInterval();
-//        if (interval < 1) {
-//            return null;
-//        }
-//        calendar.setTime(date);
-//        calendar.add(Calendar.DATE, interval);
-//        return calendar.getTime();
     }
 
     public IssueScheduleInfo getSchedule() {
@@ -408,18 +442,16 @@ public final class GitHubIssue {
                 return new IssueScheduleInfo(dueDate, 1);
             }
         }
-        // XXX remove ?
-//        GitHubIssuesConfig config = GitHubIssuesConfig.getInstance();
-//        Date dueDate = config.getScheduleDueDate(repository, this);
-//        int interval = config.getScheduleInterval(repository, this);
-//        if (dueDate != null) {
-//            if (interval > 0) {
-//                return new IssueScheduleInfo(dueDate, interval);
-//            } else {
-//                return new IssueScheduleInfo(dueDate);
-//            }
-//        }
         return null;
+    }
+
+    public long getLastUpdatedTime() {
+        Date updated = this.getUpdated();
+        if (updated != null) {
+            long time = updated.getTime();
+            return time;
+        }
+        return -1L;
     }
 
     @NbBundle.Messages({

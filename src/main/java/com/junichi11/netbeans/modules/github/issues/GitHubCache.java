@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues;
 
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -58,29 +59,43 @@ import javax.swing.ImageIcon;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryBranch;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
+import org.eclipse.egit.github.core.service.RepositoryService;
 import org.eclipse.egit.github.core.service.UserService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.annotations.common.NonNull;
 
 /**
+ * Cached data via GitHub API.
  *
  * @author junichi11
  */
 public final class GitHubCache {
 
+    // @GuardedBy("this")
     private static final Map<String, GitHubCache> CACHES = Collections.synchronizedMap(new HashMap<String, GitHubCache>());
+    // @GuardedBy("this")
     private List<User> collaborators;
-    private List<Milestone> milestones;
+    // @GuardedBy("this")
+    private final Map<String, List<Milestone>> milestoneMap = Collections.synchronizedMap(new HashMap<String, List<Milestone>>());
+    // @GuardedBy("this")
     private List<Label> labels;
+    // @GuardedBy("this")
+    private List<RepositoryBranch> branches;
+    // @GuardedBy("this")
+    private List<Repository> forks;
     private User myself;
+    // @GuardedBy("this")
     private final Map<String, Icon> userIcons = new HashMap<>();
     private final GitHubRepository repository;
     private static final Logger LOGGER = Logger.getLogger(GitHubCache.class.getName());
+    // <OAuth token, User>
+    private static final Map<String, User> USERS = Collections.synchronizedMap(new HashMap<String, User>());
 
     private GitHubCache(GitHubRepository repository) {
         this.repository = repository;
@@ -117,7 +132,7 @@ public final class GitHubCache {
      *
      * @return collaborators
      */
-    public List<User> getCollaborators() {
+    public synchronized List<User> getCollaborators() {
         if (collaborators == null) {
             Repository ghRepository = repository.getRepository();
             GitHubClient client = repository.createGitHubClient();
@@ -128,32 +143,35 @@ public final class GitHubCache {
             try {
                 collaborators = collaboratorService.getCollaborators(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get collaborators.", repository.getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get collaborators. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return collaborators;
     }
 
     /**
-     * Get milestones.
+     * Get milestones. If there is a cache, it is returned.
      *
+     * @param state open, closed or all
      * @return milestones
      */
-    public List<Milestone> getMilestones() {
-        return getMilestones(false);
+    public List<Milestone> getMilestones(String state) {
+        return getMilestones(state, false);
     }
 
     /**
      * Get milestones.
      *
+     * @param state open, closed or all
      * @param force {@code true} if don't use cache data, otherwise
      * {@code false}
      * @return milestones
      */
-    public List<Milestone> getMilestones(boolean force) {
-        if (milestones == null || force) {
-            if (milestones != null) {
-                milestones.clear();
+    public synchronized List<Milestone> getMilestones(String state, boolean force) {
+        List<Milestone> milestone = milestoneMap.get(state);
+        if (milestone == null || force) {
+            if (milestone != null) {
+                milestone.clear();
             }
             Repository gHRepository = repository.getRepository();
             GitHubClient client = repository.createGitHubClient();
@@ -162,16 +180,17 @@ public final class GitHubCache {
             }
             MilestoneService milestoneService = new MilestoneService(client);
             try {
-                milestones = milestoneService.getMilestones(gHRepository, "open"); // NOI18N
+                milestone = milestoneService.getMilestones(gHRepository, state);
+                milestoneMap.put(state, milestone);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get milestones.", repository.getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get milestones. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
-        return milestones;
+        return milestone;
     }
 
     /**
-     * Get labels.
+     * Get labels. If there is a cache, it is returned.
      *
      * @return labels
      */
@@ -185,7 +204,7 @@ public final class GitHubCache {
      * @param force {@code true} if reload labels, otherwise {@code false}
      * @return labels
      */
-    public List<Label> getLabels(boolean force) {
+    public synchronized List<Label> getLabels(boolean force) {
         if (labels == null || force) {
             if (labels != null) {
                 labels.clear();
@@ -199,7 +218,7 @@ public final class GitHubCache {
             try {
                 labels = labelService.getLabels(ghRepository);
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can't get labels.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get labels. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return labels;
@@ -210,7 +229,8 @@ public final class GitHubCache {
      *
      * @return myself
      */
-    public User getMySelf() {
+    @CheckForNull
+    public synchronized User getMySelf() {
         if (myself == null) {
             GitHubClient client = repository.createGitHubClient();
             if (client == null) {
@@ -220,7 +240,7 @@ public final class GitHubCache {
             try {
                 myself = userService.getUser();
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "{0} : Can''t get myself.", repository.getRepositoryName()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t get myself. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return myself;
@@ -233,7 +253,7 @@ public final class GitHubCache {
      * @return user icon if it was got, otherwise {@code null}
      */
     @CheckForNull
-    public Icon getUserIcon(User user) {
+    public synchronized Icon getUserIcon(User user) {
         if (user == null) {
             return null;
         }
@@ -265,4 +285,101 @@ public final class GitHubCache {
         return null;
     }
 
+    /**
+     * Get branches on a repository. Get them from a cache.
+     *
+     * @return RepositoryBranches
+     */
+    public List<RepositoryBranch> getBranches() {
+        return getBranches(false);
+    }
+
+    /**
+     * Get branches on a repository.
+     *
+     * @param force {@code true} if reload branches, otherwise {@code false}
+     * @return RepositoryBranches
+     */
+    public synchronized List<RepositoryBranch> getBranches(boolean force) {
+        if (branches == null || force) {
+            if (branches != null) {
+                branches.clear();
+            }
+            GitHubClient client = repository.createGitHubClient();
+            if (client == null) {
+                return Collections.emptyList();
+            }
+            RepositoryService service = new RepositoryService(client);
+            Repository ghRepository = repository.getRepository();
+            try {
+                branches = service.getBranches(ghRepository);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "{0} : Can''t get branches. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
+            }
+        }
+        return branches;
+    }
+
+    /**
+     * Get forks for a repository. If there is a cache, it is returned.
+     *
+     * @return forks
+     */
+    public List<Repository> getForks() {
+        return getForks(false);
+    }
+
+    /**
+     * Get forks for a repository.
+     *
+     * @param force {@code true} if don't use the cache, otherwise {@code false}
+     * @return forks
+     */
+    public synchronized List<Repository> getForks(boolean force) {
+        if (forks == null || force) {
+            if (forks != null) {
+                forks.clear();
+            }
+            GitHubClient client = repository.createGitHubClient();
+            if (client == null) {
+                return Collections.emptyList();
+            }
+            RepositoryService service = new RepositoryService(client);
+            Repository ghRepository = repository.getRepository();
+            try {
+                forks = service.getForks(ghRepository);
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "{0} : Can''t get forks. {1}", new Object[]{repository.getFullName(), ex.getMessage()}); // NOI18N
+            }
+        }
+        return forks;
+    }
+
+    /**
+     * Get the user for the OAuth Token.
+     *
+     * @param oAuthToken OAuth token
+     * @return User if it can be got, otherwise {@code null}
+     */
+    @CheckForNull
+    public static synchronized User getUser(String oAuthToken) {
+        if (StringUtils.isEmpty(oAuthToken)) {
+            return null;
+        }
+
+        User user = USERS.get(oAuthToken);
+        if (user == null) {
+            GitHubClient client = new GitHubClient().setOAuth2Token(oAuthToken);
+            UserService userService = new UserService(client);
+            try {
+                user = userService.getUser();
+                if (user != null) {
+                    USERS.put(oAuthToken, user);
+                }
+            } catch (IOException ex) {
+                LOGGER.log(Level.WARNING, "Can''t get user. {0}", ex.getMessage()); // NOI18N
+            }
+        }
+        return user;
+    }
 }

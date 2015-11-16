@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.repository;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubCache;
+import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConnector;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
@@ -71,23 +72,29 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.egit.github.core.Comment;
+import org.eclipse.egit.github.core.CommitFile;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.MergeStatus;
 import org.eclipse.egit.github.core.Milestone;
+import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryCommit;
+import org.eclipse.egit.github.core.RepositoryCommitCompare;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CollaboratorService;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.LabelService;
 import org.eclipse.egit.github.core.service.MilestoneService;
+import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.bugtracking.api.RepositoryManager;
 import org.netbeans.modules.bugtracking.api.Util;
 import org.netbeans.modules.bugtracking.spi.RepositoryInfo;
 import org.netbeans.modules.bugtracking.spi.RepositoryProvider;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -98,7 +105,13 @@ public class GitHubRepository {
     private RepositoryInfo repositoryInfo;
     private GitHubRepositoryController controller;
     private Repository ghRepository;
+
+    // caches
+    // @GaurdedBy("this")
     private final Map<String, GitHubIssue> issueCache = Collections.synchronizedMap(new HashMap<String, GitHubIssue>());
+    // @GaurdedBy("this")
+    private final Map<String, PullRequest> pullRequestCache = Collections.synchronizedMap(new HashMap<String, PullRequest>());
+
     private Boolean isCollaborator = null;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -107,7 +120,6 @@ public class GitHubRepository {
     private static final String PROPERTY_REPOSITORY_AUTHOR = "github.issues.repository.author"; // NOI18N
     private static final String PROPERTY_REPOSITORY_NAME = "github.issues.repository.name"; // NOI18N
     private static final String PROPERTY_BOOLEAN_PROPERTY_FILE = "github.issues.boolean.property.file"; // NOI18N
-    private static final Image ICON = ImageUtilities.loadImage("com/junichi11/netbeans/modules/github/issues/resources/icon_16.png", false);
     private static final Logger LOGGER = Logger.getLogger(GitHubRepository.class.getName());
 
     public GitHubRepository() {
@@ -153,7 +165,7 @@ public class GitHubRepository {
      * @return icon
      */
     public Image getIcon() {
-        return ICON;
+        return GitHubIcons.GITHUB_IMAGE_16;
     }
 
     /**
@@ -270,11 +282,13 @@ public class GitHubRepository {
     /**
      * Get milestones.
      *
+     * @param state open, closed or all
+     * @param force {@code true} if refresh the cache, otherwise {@code false}
      * @return milestones
      */
-    public List<Milestone> getMilestones() {
+    public List<Milestone> getMilestones(String state, boolean force) {
         GitHubCache cache = GitHubCache.create(this);
-        return cache.getMilestones();
+        return cache.getMilestones(state, force);
     }
 
     /**
@@ -294,7 +308,7 @@ public class GitHubRepository {
                 isCollaborator = collaboratorService.isCollaborator(repository, getUserName());
             } catch (IOException ex) {
                 isCollaborator = false;
-                LOGGER.log(Level.WARNING, "{0} Can''t check whether user is a collaborator.", ex.getMessage()); // NOI18N
+                LOGGER.log(Level.WARNING, "{0} : Can''t check whether user is a collaborator. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
             }
         }
         return isCollaborator;
@@ -348,7 +362,7 @@ public class GitHubRepository {
         try {
             createdIssue = issueService.createIssue(repository, issue);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't create an issue.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t create an issue. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return createdIssue;
     }
@@ -382,7 +396,7 @@ public class GitHubRepository {
         try {
             updatedIssue = issueService.editIssue(repository, issue);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't edit an issue.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t edit an issue. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return updatedIssue;
     }
@@ -393,10 +407,13 @@ public class GitHubRepository {
      * @param issue Issue
      * @return GitHubIssue
      */
-    public synchronized GitHubIssue createIssue(Issue issue) {
+    public synchronized GitHubIssue createIssue(Issue issue, boolean isRefresh) {
         String id = String.valueOf(issue.getNumber());
         GitHubIssue gitHubIssue = issueCache.get(id);
         if (gitHubIssue != null) {
+            if (isRefresh) {
+                gitHubIssue.setIssue(issue);
+            }
             return gitHubIssue;
         }
         gitHubIssue = new GitHubIssue(this, issue);
@@ -441,7 +458,7 @@ public class GitHubRepository {
             IssueService issueService = new IssueService(client);
             return issueService.getIssue(repository, id);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} Can't get an issue of the id number.", ex.getMessage()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get an issue of the id number. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return null;
     }
@@ -452,7 +469,7 @@ public class GitHubRepository {
      * @param filter
      * @return GitHubIssues
      */
-    public List<GitHubIssue> getIssues(Map<String, String> filter) {
+    public List<GitHubIssue> getIssues(Map<String, String> filter, boolean isRefresh) {
         Repository repository = getRepository();
         if (repository == null) {
             return null;
@@ -463,12 +480,12 @@ public class GitHubRepository {
             List<Issue> issues = issueService.getIssues(repository, filter);
             ArrayList<GitHubIssue> gitHubIssues = new ArrayList<>(issues.size());
             for (Issue issue : issues) {
-                GitHubIssue createIssue = createIssue(issue);
+                GitHubIssue createIssue = createIssue(issue, isRefresh);
                 gitHubIssues.add(createIssue);
             }
             return gitHubIssues;
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0}: {1} Can't get issues.", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get issues. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
         return Collections.emptyList();
     }
@@ -510,13 +527,199 @@ public class GitHubRepository {
         try {
             Issue i = issueService.getIssue(getRepository(), id);
             if (i != null) {
-                return createIssue(i);
+                return createIssue(i, false);
             }
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "{0} : Can't get an issue.", getFullName()); // NOI18N
+            LOGGER.log(Level.WARNING, "{0} : Can''t get an issue.. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
         }
 
         return null;
+    }
+
+    /**
+     * Get a PullRequest of specified id number.
+     *
+     * @param id ID
+     * @param force {@code true} if don't use cache, otherwise {@code false}
+     * @return PullRequest if the pull request exists, otherwise {@code null}
+     */
+    @CheckForNull
+    public synchronized PullRequest getPullRequest(int id, boolean force) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+
+        // try getting from the cache
+        PullRequest pullRequest = pullRequestCache.get(String.valueOf(id));
+        if (pullRequest != null && !force) {
+            return pullRequest;
+        }
+
+        // get via API
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            pullRequest = pullRequestService.getPullRequest(repository, id);
+            if (pullRequest != null) {
+                pullRequestCache.put(String.valueOf(id), pullRequest);
+            }
+            return pullRequest;
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t get the pull request of the id number({1}). {2}", new Object[]{getFullName(), id, ex.getMessage()}); // NOI18N
+        }
+        return null;
+    }
+
+    /**
+     * Get PullRequests.
+     *
+     * @param state open, closed and all
+     * @return PullRequests
+     */
+    public List<PullRequest> getPullRequests(String state) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            List<PullRequest> pullRequests = pullRequestService.getPullRequests(repository, state);
+            return pullRequests;
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t get pull requests. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get pull requests files.
+     *
+     * @param id the identifier
+     * @return CommitFiles
+     */
+    public List<CommitFile> getPullRequestsFiles(int id) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return Collections.emptyList();
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.getFiles(repository, id);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t get pull request files. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get commits on the pull request.
+     *
+     * @param id the identifier for the pull request
+     * @return commits
+     */
+    public List<RepositoryCommit> getCommits(int id) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return Collections.emptyList();
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.getCommits(repository, id);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t get commits for the id({1}). {2}", new Object[]{getFullName(), id, ex.getMessage()}); // NOI18N
+        }
+        return Collections.emptyList();
+    }
+
+    @CheckForNull
+    public MergeStatus merge(int id, String commitMessage) {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.merge(repository, id, commitMessage);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t merge. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+        }
+        return null;
+    }
+
+    /**
+     * Create a pull request from an existing issue.
+     *
+     * @param issueId an identifier
+     * @param head head username:branch
+     * @param base base branch name
+     * @return PullRequest if it was created successfully, otherwise
+     * {@code null}
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(int issueId, String head, String base) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.createPullRequest(repository, issueId, head, base);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can''t create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
+    }
+
+    /**
+     * Create a pull request.
+     *
+     * @param pullRequest PullRequest
+     * @return
+     * @throws IOException
+     */
+    @CheckForNull
+    public PullRequest createPullRequest(PullRequest pullRequest) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            PullRequestService pullRequestService = new PullRequestService(client);
+            return pullRequestService.createPullRequest(repository, pullRequest);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0}: Can''t create a pull request. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
+    }
+
+    /**
+     * Compare two commits.
+     *
+     * @param base base branch name e.g. username:branchname
+     * @param head head branch name e.g. username:branchname
+     * @return RepositoryCommitCompare
+     * @throws IOException
+     */
+    public RepositoryCommitCompare compare(String base, String head) throws IOException {
+        Repository repository = getRepository();
+        if (repository == null) {
+            return null;
+        }
+        try {
+            GitHubClient client = createGitHubClient();
+            CommitService commitService = new CommitService(client);
+            return commitService.compare(repository, base, head);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "{0} : Can't compare two commits. {1}", new Object[]{getFullName(), ex.getMessage()}); // NOI18N
+            throw ex;
+        }
     }
 
     /**
@@ -524,7 +727,7 @@ public class GitHubRepository {
      *
      * @param issue GitHubIssue
      */
-    public void refresh(GitHubIssue issue) {
+    public synchronized void refresh(GitHubIssue issue) {
         if (issue == null || issue.isNew()) {
             return;
         }
@@ -534,6 +737,11 @@ public class GitHubRepository {
             return;
         }
         issue.setIssue(refreshed);
+
+        // PR
+        if (GitHubIssuesUtils.isPullRequest(refreshed)) {
+            pullRequestCache.remove(issue.getID());
+        }
     }
 
     /**
@@ -542,7 +750,7 @@ public class GitHubRepository {
      * @param params SearchIssuesParams
      * @return GitHubIssues
      */
-    public List<GitHubIssue> searchIssues(SearchIssuesParams params) {
+    public List<GitHubIssue> searchIssues(SearchIssuesParams params, boolean isRefresh) {
         GitHubClient client = createGitHubClient();
         SearchService searchService = new SearchService(client);
         String repositoryName = getFullName();
@@ -551,7 +759,7 @@ public class GitHubRepository {
             List<Issue> searchIssues = searchService.searchIssues(params);
             ArrayList<GitHubIssue> issues = new ArrayList<>(searchIssues.size());
             for (Issue searchIssue : searchIssues) {
-                issues.add(createIssue(searchIssue));
+                issues.add(createIssue(searchIssue, isRefresh));
             }
             return issues;
         } catch (IOException ex) {
@@ -575,7 +783,7 @@ public class GitHubRepository {
         }
         SearchIssuesParams params = new SearchIssuesParams();
         params.keyword(keyword);
-        issues.addAll(searchIssues(params));
+        issues.addAll(searchIssues(params, false));
         return issues;
     }
 
@@ -646,9 +854,9 @@ public class GitHubRepository {
                 if (StringUtils.isEmpty(queryParams)) {
                     continue;
                 }
-                GitHubQuery backlogQuery = new GitHubQuery(this, queryName, queryParams);
-                backlogQuery.setSaved(true);
-                addQuery(backlogQuery);
+                GitHubQuery gitHubQuery = new GitHubQuery(this, queryName, queryParams);
+                gitHubQuery.setSaved(true);
+                addQuery(gitHubQuery);
             }
         }
         return queries;
@@ -714,10 +922,8 @@ public class GitHubRepository {
             if (!getQueries().contains(query)) {
                 getQueries().add(query);
             }
-        } else {
-            if (getQueries().contains(query)) {
-                getQueries().remove(query);
-            }
+        } else if (getQueries().contains(query)) {
+            getQueries().remove(query);
         }
     }
 
@@ -782,7 +988,7 @@ public class GitHubRepository {
                 RepositoryService service = new RepositoryService(client);
                 ghRepository = service.getRepository(getRepositoryAuthor(), getRepositoryName());
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "Invalid repository:{0}", getFullName()); // NOI18N
+                LOGGER.log(Level.WARNING, "Invalid repository : {0}", getFullName()); // NOI18N
             }
         }
         return ghRepository;
@@ -837,13 +1043,33 @@ public class GitHubRepository {
     }
 
     public static List<Repository> getRepositories(String oauthToken) {
+        return getRepositories(oauthToken, false);
+    }
+
+    public static List<Repository> getRepositories(String oauthToken, boolean withParent) {
         GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
         RepositoryService repositoryService = new RepositoryService(client);
+        List<Repository> repositories = new ArrayList<>();
         try {
-            return repositoryService.getRepositories();
+            List<Repository> repos = repositoryService.getRepositories();
+            if (!withParent) {
+                return repos;
+            }
+
+            // XXX get recurcively?
+            for (Repository repo : repos) {
+                if (repo.isFork()) {
+                    Repository forked = repositoryService.getRepository(repo.getOwner().getLogin(), repo.getName());
+                    Repository parent = forked.getParent();
+                    if (parent != null) {
+                        repositories.add(parent);
+                    }
+                }
+                repositories.add(repo);
+            }
         } catch (IOException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
-        return Collections.emptyList();
+        return repositories;
     }
 }
