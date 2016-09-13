@@ -246,7 +246,7 @@ public class SearchIssuesParams {
     }
 
     public SearchIssuesParams milestone(String milestone) {
-        if (milestone != null) {
+        if (!StringUtils.isEmpty(milestone)) {
             qParameters.add(Pair.of("milestone", milestone)); // NOI18N
         }
         return this;
