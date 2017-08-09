@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.2.3</version>
+    <version>0.3.0</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.eclipse.mylyn.github</groupId>
             <artifactId>org.eclipse.egit.github.core</artifactId>
-            <version>4.1.0-SNAPSHOT</version>
+            <version>4.9.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -178,7 +178,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.api.version>RELEASE81-BETA</netbeans.api.version>
+        <netbeans.api.version>RELEASE82</netbeans.api.version>
     </properties>
     <name>GitHub Issues</name>
     <description>This plugin provides support for GitHub Issue Tracker.

@@ -950,7 +950,7 @@ public class GitHubRepository {
         try {
             return service.createLabel(ghRepository, label);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, ex.getMessage());
+            LOGGER.log(Level.WARNING, "Cannot add a label:{0} {1}", new Object[]{label.getName(), ex.getMessage()}); // NOI18N
         }
         return null;
     }
@@ -971,7 +971,7 @@ public class GitHubRepository {
         try {
             return service.createMilestone(ghRepository, milestone);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, ex.getMessage());
+            LOGGER.log(Level.WARNING, "Cannot add a milestone:{0} {1}", new Object[]{milestone.getTitle(), ex.getMessage()}); // NOI18N
         }
         return null;
     }
