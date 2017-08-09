@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.2.3</version>
+    <version>0.3.0</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
