@@ -112,7 +112,8 @@ public class MilestonePanel extends javax.swing.JPanel {
         panel.removeChangeListener(changeListener);
         if (descriptor.getValue() == DialogDescriptor.OK_OPTION) {
             Milestone milestone = new Milestone()
-                    .setTitle(panel.getTitle());
+                    .setTitle(panel.getTitle())
+                    .setState("open"); // NOI18N
 
             String description = panel.getDescription();
             if (!description.isEmpty()) {
