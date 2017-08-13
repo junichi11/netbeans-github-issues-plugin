@@ -41,6 +41,13 @@
  */
 package com.junichi11.netbeans.modules.github.issues.utils;
 
+import com.vladsch.flexmark.ast.Node;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
+import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.options.MutableDataSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -50,7 +57,23 @@ import java.util.StringTokenizer;
  */
 public final class StringUtils {
 
+    private static final MutableDataSet OPTIONS = new MutableDataSet();
+    private static final Parser PARSER = Parser.builder(OPTIONS).build();
+    private static final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
+
+    static {
+        OPTIONS.set(Parser.EXTENSIONS, Arrays.asList(TablesExtension.create(), StrikethroughExtension.create()));
+    }
+
     private StringUtils() {
+    }
+
+    public static String markdownToHtml(String text) {
+        if (text == null) {
+            return ""; // NOI18N
+        }
+        Node document = PARSER.parse(text);
+        return RENDERER.render(document);
     }
 
     /**

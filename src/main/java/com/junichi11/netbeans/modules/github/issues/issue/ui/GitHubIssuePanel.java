@@ -59,6 +59,7 @@ import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -107,7 +108,6 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
-import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -411,10 +411,9 @@ public class GitHubIssuePanel extends JPanel {
                 List<Comment> comments = gitHubIssue.getComments();
                 // set count
                 commentsCollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_comment_count(comments.size()));
-                PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
                 for (Comment comment : comments) {
                     String body = comment.getBody();
-                    String bodyHtml = processor.markdownToHtml(body);
+                    String bodyHtml = StringUtils.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
                 commentsPanel.addComments(comments, repository);
