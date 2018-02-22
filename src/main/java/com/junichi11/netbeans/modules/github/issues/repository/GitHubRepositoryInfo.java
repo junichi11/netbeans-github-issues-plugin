@@ -47,12 +47,18 @@ package com.junichi11.netbeans.modules.github.issues.repository;
  */
 public final class GitHubRepositoryInfo {
 
+    private String hostname;
     private String displayName;
     private String oauthToken;
     private String userName;
     private String repositoryAuthor;
     private String repositoryName;
     private boolean isPropertyFile;
+
+    public GitHubRepositoryInfo setHostname(String hostname) {
+        this.hostname = hostname;
+        return this;
+    }
 
     public GitHubRepositoryInfo setDisplayName(String displayName) {
         this.displayName = displayName;
@@ -82,6 +88,10 @@ public final class GitHubRepositoryInfo {
     public GitHubRepositoryInfo setRepositoryName(String repositoryName) {
         this.repositoryName = repositoryName;
         return this;
+    }
+
+    String getHostname() {
+        return hostname;
     }
 
     String getDisplayName() {

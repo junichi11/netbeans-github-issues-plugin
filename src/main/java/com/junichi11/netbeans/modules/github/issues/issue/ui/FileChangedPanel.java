@@ -79,6 +79,7 @@ public class FileChangedPanel extends javax.swing.JPanel {
     private static final long serialVersionUID = 5842222768556582282L;
     private static final Logger LOGGER = Logger.getLogger(FileChangedPanel.class.getName());
 
+    private final String hostname;
     private final CommitFile file;
     private final PullRequestMarker marker;
     private Component diffView;
@@ -86,9 +87,10 @@ public class FileChangedPanel extends javax.swing.JPanel {
     /**
      * Creates new form FileChendedPanel
      */
-    public FileChangedPanel(CommitFile file, PullRequestMarker marker) {
+    public FileChangedPanel(CommitFile file, PullRequestMarker marker, String hostname) {
         this.file = file;
         this.marker = marker;
+        this.hostname = hostname;
         initComponents();
         String filename = file.getFilename();
         fileNameLabel.setText(filename);
@@ -200,7 +202,7 @@ public class FileChangedPanel extends javax.swing.JPanel {
                     try {
                         handle.start();
                         URL pullRequestRawUrl = new URL(rawUrl);
-                        URL baseRawUrl = new URL(String.format(GitHubIssues.RAW_URL_FORMAT, owner.getLogin(), name, baseSha, filename));
+                        URL baseRawUrl = new URL(String.format(GitHubIssues.RAW_URL_FORMAT, hostname, owner.getLogin(), name, baseSha, filename));
                         InputStream prInputStream;
                         InputStream baseInputStream;
                         try {

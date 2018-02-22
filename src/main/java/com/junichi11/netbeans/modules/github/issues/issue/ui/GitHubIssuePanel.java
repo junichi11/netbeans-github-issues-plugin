@@ -100,6 +100,7 @@ import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
@@ -438,8 +439,12 @@ public class GitHubIssuePanel extends JPanel {
                     List<CommitFile> pullRequestsFiles = repository.getPullRequestsFiles(issue.getNumber());
                     filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", id, summary)); // NOI18N
                     filesChangedPanel.removeAllFiles();
+                    String hostname = repository.getHostname();
                     for (CommitFile file : pullRequestsFiles) {
-                        filesChangedPanel.addFile(file, base);
+                        if (hostname.equals(GitHubIssues.DEFAULT_HOSTNAME)) {
+                            hostname = IGitHubConstants.HOST_DEFAULT;
+                        }
+                        filesChangedPanel.addFile(file, base, hostname);
                     }
                     filesChangedPanel.setDetails(pullRequest);
                     filesChangedcollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_files_changed_count(pullRequestsFiles.size()));
