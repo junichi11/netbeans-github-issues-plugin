@@ -42,10 +42,10 @@
 package com.junichi11.netbeans.modules.github.issues.issue;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIssueState;
-import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.utils.DateUtils;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -75,7 +75,6 @@ import org.netbeans.modules.bugtracking.spi.IssueScheduleProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider;
 import org.netbeans.modules.bugtracking.spi.IssueStatusProvider.Status;
 import org.openide.util.NbBundle;
-import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -338,9 +337,8 @@ public final class GitHubIssue {
                 comment.setBody(editedBody);
                 Comment editComment = GitHubIssueSupport.editComment(getRepository(), comment);
                 if (editComment != null) {
-                    PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
                     String body = editComment.getBody();
-                    String bodyHtml = processor.markdownToHtml(body);
+                    String bodyHtml = StringUtils.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                     comment.setBody(body);
                     comment.setUpdatedAt(editComment.getUpdatedAt());

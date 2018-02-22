@@ -59,6 +59,7 @@ import com.junichi11.netbeans.modules.github.issues.options.GitHubIssuesOptions;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.ui.AttributesListCellRenderer;
 import com.junichi11.netbeans.modules.github.issues.utils.GitHubIssuesUtils;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import com.junichi11.netbeans.modules.github.issues.utils.UiUtils;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -99,6 +100,7 @@ import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.eclipse.egit.github.core.service.IssueService;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.openide.DialogDescriptor;
@@ -107,7 +109,6 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.ChangeSupport;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
-import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -411,10 +412,9 @@ public class GitHubIssuePanel extends JPanel {
                 List<Comment> comments = gitHubIssue.getComments();
                 // set count
                 commentsCollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_comment_count(comments.size()));
-                PegDownProcessor processor = GitHubIssues.getInstance().getPegDownProcessor();
                 for (Comment comment : comments) {
                     String body = comment.getBody();
-                    String bodyHtml = processor.markdownToHtml(body);
+                    String bodyHtml = StringUtils.markdownToHtml(body);
                     comment.setBodyHtml(String.format("<html>%s</html>", bodyHtml)); // NOI18N
                 }
                 commentsPanel.addComments(comments, repository);
@@ -439,8 +439,12 @@ public class GitHubIssuePanel extends JPanel {
                     List<CommitFile> pullRequestsFiles = repository.getPullRequestsFiles(issue.getNumber());
                     filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", id, summary)); // NOI18N
                     filesChangedPanel.removeAllFiles();
+                    String hostname = repository.getHostname();
                     for (CommitFile file : pullRequestsFiles) {
-                        filesChangedPanel.addFile(file, base);
+                        if (hostname.equals(GitHubIssues.DEFAULT_HOSTNAME)) {
+                            hostname = IGitHubConstants.HOST_DEFAULT;
+                        }
+                        filesChangedPanel.addFile(file, base, hostname);
                     }
                     filesChangedPanel.setDetails(pullRequest);
                     filesChangedcollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_files_changed_count(pullRequestsFiles.size()));

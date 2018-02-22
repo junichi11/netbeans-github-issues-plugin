@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -89,11 +89,6 @@
             <version>${netbeans.api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.pegdown</groupId>
-            <artifactId>pegdown</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.mylyn.github</groupId>
             <artifactId>org.eclipse.egit.github.core</artifactId>
             <version>4.9.0-SNAPSHOT</version>
@@ -174,6 +169,23 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
             <version>${netbeans.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark</artifactId>
+            <version>0.26.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-ext-gfm-strikethrough</artifactId>
+            <version>0.26.4</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-ext-tables</artifactId>
+            <version>0.26.4</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <properties>

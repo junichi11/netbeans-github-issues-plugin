@@ -4,7 +4,7 @@ This plugin provides support for GitHub Issue Tracker.
 
 ## Requirements
 
-- NetBeans 8.1+
+- NetBeans 8.2+
 
 ## Features
 
@@ -70,6 +70,10 @@ You can get a your OAuth token from the following: Settings > Applications > Per
 - Check `repo`
 - Input token description
 - Click generate token
+
+## GitHub Enterprise
+
+`api.github.com` is used as the default hostname. If you are using GitHub Enterprise, please set your hostname (e.g. github.example.com).
 
 ## Resources
 

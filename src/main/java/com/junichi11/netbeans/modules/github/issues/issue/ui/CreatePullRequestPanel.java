@@ -42,6 +42,7 @@
 package com.junichi11.netbeans.modules.github.issues.issue.ui;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
+import com.junichi11.netbeans.modules.github.issues.utils.StringUtils;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -58,7 +59,6 @@ import javax.swing.event.ChangeListener;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryBranch;
 import org.openide.util.ChangeSupport;
-import org.parboiled.common.StringUtils;
 
 /**
  *

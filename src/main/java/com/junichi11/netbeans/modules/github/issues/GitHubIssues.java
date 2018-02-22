@@ -52,11 +52,10 @@ import com.junichi11.netbeans.modules.github.issues.query.GitHubQueryProvider;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepository;
 import com.junichi11.netbeans.modules.github.issues.repository.GitHubRepositoryProvider;
 import java.awt.Color;
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.netbeans.modules.bugtracking.issuetable.IssueNode;
 import org.netbeans.modules.bugtracking.spi.BugtrackingSupport;
 import org.openide.util.RequestProcessor;
-import org.pegdown.Extensions;
-import org.pegdown.PegDownProcessor;
 
 /**
  *
@@ -74,18 +73,19 @@ public final class GitHubIssues {
     private GitHubRepositoryProvider repositoryProvider;
     private IssueNode.ChangesProvider<GitHubIssue> changesProvider;
     private RequestProcessor rp;
-    private PegDownProcessor pegDownProcessor;
     // colors
     public static final Color GREEN_COLOR = Color.decode("#6cc644"); // NOI18N
     public static final Color RED_COLOR = Color.decode("#bd2c00"); // NOI18N
     public static final Color OPEN_STATE_COLOR = Color.decode("#6cc644"); // NOI18N
     public static final Color CLOSED_STATE_COLOR = Color.decode("#bd2c00"); // NOI18N
     public static final Color MERGED_STATE_COLOR = Color.decode("#6e5494"); // NOI18N
+
+    public static final String DEFAULT_HOSTNAME = IGitHubConstants.HOST_API;
     // url formats
     /**
-     * https://github.com/[owner]/[repository]/raw/[sha]/[file name]
+     * https://[hostname]/[owner]/[repository]/raw/[sha]/[file name]
      */
-    public static final String RAW_URL_FORMAT = "https://github.com/%s/%s/raw/%s/%s"; // NOI18N
+    public static final String RAW_URL_FORMAT = "https://%s/%s/%s/raw/%s/%s"; // NOI18N
 
     private static final GitHubIssues INSTANCE = new GitHubIssues();
 
@@ -169,13 +169,6 @@ public final class GitHubIssues {
             };
         }
         return changesProvider;
-    }
-
-    public PegDownProcessor getPegDownProcessor() {
-        if (pegDownProcessor == null) {
-            pegDownProcessor = new PegDownProcessor(Extensions.ALL);
-        }
-        return pegDownProcessor;
     }
 
 }

@@ -97,6 +97,7 @@ public class GitHubRepositoryController implements RepositoryController {
     public void applyChanges() {
         GitHubRepositoryPanel p = getPanel();
         GitHubRepositoryInfo gitHubRepositoryInfo = new GitHubRepositoryInfo()
+                .setHostname(p.getHostname())
                 .setDisplayName(p.getDisplayName())
                 .setUserName(p.getUserName())
                 .setOAuthToken(p.getOAuthToken())

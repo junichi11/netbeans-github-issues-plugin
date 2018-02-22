@@ -116,6 +116,7 @@ public class GitHubRepository {
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private Set<GitHubQuery> queries = null;
+    private static final String PROPERTY_HOSTNAME = "github.issues.hostname"; // NOI18N
     private static final String PROPERTY_OAUTH_TOKEN = "github.issues.oauth.token"; // NOI18N
     private static final String PROPERTY_REPOSITORY_AUTHOR = "github.issues.repository.author"; // NOI18N
     private static final String PROPERTY_REPOSITORY_NAME = "github.issues.repository.name"; // NOI18N
@@ -192,7 +193,7 @@ public class GitHubRepository {
             } else {
                 oauthToken = getOAuthToken();
             }
-            GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
+            GitHubClient client = new GitHubClient(getHostname()).setOAuth2Token(oauthToken);
             return client;
         } catch (IOException ex) {
             // show repository panel
@@ -224,6 +225,15 @@ public class GitHubRepository {
             return ""; // NOI18N
         }
         return repositoryInfo.getUsername();
+    }
+
+    /**
+     * Get hostname.
+     *
+     * @return hostname
+     */
+    public String getHostname() {
+        return getPropertyValue(PROPERTY_HOSTNAME);
     }
 
     /**
@@ -995,13 +1005,14 @@ public class GitHubRepository {
     }
 
     public void setRepositoryInfo(GitHubRepositoryInfo githubRepositoryInfo) {
-        String url = String.format("https://github.com/%s/%s/issues/", githubRepositoryInfo.getRepositoryAuthor(), githubRepositoryInfo.getRepositoryName()); // NOI18N
+        String url = String.format("https://%s/%s/%s/issues/", githubRepositoryInfo.getHostname(), githubRepositoryInfo.getRepositoryAuthor(), githubRepositoryInfo.getRepositoryName()); // NOI18N
         repositoryInfo = createRepositoryInfo(githubRepositoryInfo, url, githubRepositoryInfo.getUserName(), null, null, null);
         setProperties(githubRepositoryInfo);
     }
 
     private void setProperties(GitHubRepositoryInfo githubRepositoryInfo) {
         if (repositoryInfo != null) {
+            repositoryInfo.putValue(PROPERTY_HOSTNAME, githubRepositoryInfo.getHostname());
             repositoryInfo.putValue(PROPERTY_OAUTH_TOKEN, githubRepositoryInfo.getOAuthToken());
             repositoryInfo.putValue(PROPERTY_BOOLEAN_PROPERTY_FILE, String.valueOf(githubRepositoryInfo.isPropertyFile()));
             repositoryInfo.putValue(PROPERTY_REPOSITORY_AUTHOR, githubRepositoryInfo.getRepositoryAuthor());
@@ -1042,12 +1053,17 @@ public class GitHubRepository {
         propertyChangeSupport.firePropertyChange(RepositoryProvider.EVENT_UNSUBMITTED_ISSUES_CHANGED, null, null);
     }
 
-    public static List<Repository> getRepositories(String oauthToken) {
-        return getRepositories(oauthToken, false);
+    public static List<Repository> getRepositories(String oauthToken, String hostname) {
+        return getRepositories(oauthToken, false, hostname);
     }
 
-    public static List<Repository> getRepositories(String oauthToken, boolean withParent) {
-        GitHubClient client = new GitHubClient().setOAuth2Token(oauthToken);
+    public static List<Repository> getRepositories(String oauthToken, boolean withParent, String hostname) {
+        GitHubClient client;
+        if (hostname == null || hostname.isEmpty()) {
+            client = new GitHubClient().setOAuth2Token(oauthToken);
+        } else {
+            client = new GitHubClient(hostname).setOAuth2Token(oauthToken);
+        }
         RepositoryService repositoryService = new RepositoryService(client);
         List<Repository> repositories = new ArrayList<>();
         try {

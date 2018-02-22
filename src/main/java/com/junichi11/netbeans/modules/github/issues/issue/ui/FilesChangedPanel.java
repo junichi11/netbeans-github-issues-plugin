@@ -130,12 +130,12 @@ final class FilesChangedPanel extends JPanel implements PropertyChangeListener {
         diffUrl = pullRequest.getDiffUrl();
     }
 
-    public void addFile(CommitFile file, PullRequestMarker marker) {
+    public void addFile(CommitFile file, PullRequestMarker marker, String hostname) {
         assert EventQueue.isDispatchThread();
         if (file == null) {
             return;
         }
-        FileChangedPanel fileChangedPanel = new FileChangedPanel(file, marker);
+        FileChangedPanel fileChangedPanel = new FileChangedPanel(file, marker, hostname);
         filesPanel.add(fileChangedPanel);
     }
 

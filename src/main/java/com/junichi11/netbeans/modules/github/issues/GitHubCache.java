@@ -359,17 +359,23 @@ public final class GitHubCache {
      * Get the user for the OAuth Token.
      *
      * @param oAuthToken OAuth token
+     * @param hostname hostname (for GitHub Enterprize)
      * @return User if it can be got, otherwise {@code null}
      */
     @CheckForNull
-    public static synchronized User getUser(String oAuthToken) {
+    public static synchronized User getUser(String oAuthToken, String hostname) {
         if (StringUtils.isEmpty(oAuthToken)) {
             return null;
         }
 
         User user = USERS.get(oAuthToken);
         if (user == null) {
-            GitHubClient client = new GitHubClient().setOAuth2Token(oAuthToken);
+            GitHubClient client;
+            if (hostname == null || hostname.isEmpty()) {
+                client = new GitHubClient().setOAuth2Token(oAuthToken);
+            } else {
+                client = new GitHubClient(hostname).setOAuth2Token(oAuthToken);
+            }
             UserService userService = new UserService(client);
             try {
                 user = userService.getUser();
