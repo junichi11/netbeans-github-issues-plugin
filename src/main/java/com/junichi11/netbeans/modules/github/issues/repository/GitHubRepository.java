@@ -43,6 +43,7 @@ package com.junichi11.netbeans.modules.github.issues.repository;
 
 import com.junichi11.netbeans.modules.github.issues.GitHubCache;
 import com.junichi11.netbeans.modules.github.issues.GitHubIcons;
+import com.junichi11.netbeans.modules.github.issues.GitHubIssues;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConfig;
 import com.junichi11.netbeans.modules.github.issues.GitHubIssuesConnector;
 import com.junichi11.netbeans.modules.github.issues.egit.SearchIssuesParams;
@@ -83,6 +84,7 @@ import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryCommitCompare;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.eclipse.egit.github.core.service.CollaboratorService;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.IssueService;
@@ -1005,7 +1007,11 @@ public class GitHubRepository {
     }
 
     public void setRepositoryInfo(GitHubRepositoryInfo githubRepositoryInfo) {
-        String url = String.format("https://%s/%s/%s/issues/", githubRepositoryInfo.getHostname(), githubRepositoryInfo.getRepositoryAuthor(), githubRepositoryInfo.getRepositoryName()); // NOI18N
+        String hostname = githubRepositoryInfo.getHostname();
+        if (hostname.equals(GitHubIssues.DEFAULT_HOSTNAME)) {
+            hostname = IGitHubConstants.HOST_DEFAULT;
+        }
+        String url = String.format("https://%s/%s/%s/issues/", hostname, githubRepositoryInfo.getRepositoryAuthor(), githubRepositoryInfo.getRepositoryName()); // NOI18N
         repositoryInfo = createRepositoryInfo(githubRepositoryInfo, url, githubRepositoryInfo.getUserName(), null, null, null);
         setProperties(githubRepositoryInfo);
     }
