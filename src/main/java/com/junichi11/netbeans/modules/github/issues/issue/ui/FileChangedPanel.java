@@ -227,8 +227,8 @@ public class FileChangedPanel extends javax.swing.JPanel {
                         String mimeType = getMimeType(filename);
 
                         String prSha = file.getSha();
-                        StreamSource prSource = StreamSource.createSource(filename, prSha, mimeType, prReader); // NOI18N
-                        StreamSource baseSource = StreamSource.createSource(filename, baseSha, mimeType, baseReader); // NOI18N
+                        StreamSource prSource = StreamSource.createSource(filename, prSha, mimeType, prReader);
+                        StreamSource baseSource = StreamSource.createSource(filename, baseSha, mimeType, baseReader);
                         final DiffView view = Diff.getDefault().createDiff(baseSource, prSource);
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override

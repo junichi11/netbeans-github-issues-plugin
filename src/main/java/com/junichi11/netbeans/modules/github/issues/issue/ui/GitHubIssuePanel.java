@@ -439,13 +439,15 @@ public class GitHubIssuePanel extends JPanel {
                     List<CommitFile> pullRequestsFiles = repository.getPullRequestsFiles(issue.getNumber());
                     filesChangedPanel.setDisplayName(String.format("[Diff] #%s - %s", id, summary)); // NOI18N
                     filesChangedPanel.removeAllFiles();
-                    String hostname = repository.getHostname();
-                    for (CommitFile file : pullRequestsFiles) {
-                        if (hostname.equals(GitHubIssues.DEFAULT_HOSTNAME)) {
-                            hostname = IGitHubConstants.HOST_DEFAULT;
-                        }
-                        filesChangedPanel.addFile(file, base, hostname);
-                    }
+                    // #51 disable each file diff
+                    // FIXME if we can get exact sha ids, this can be enabled again
+//                    String hostname = repository.getHostname();
+//                    for (CommitFile file : pullRequestsFiles) {
+//                        if (hostname.equals(GitHubIssues.DEFAULT_HOSTNAME)) {
+//                            hostname = IGitHubConstants.HOST_DEFAULT;
+//                        }
+//                        filesChangedPanel.addFile(file, base, hostname);
+//                    }
                     filesChangedPanel.setDetails(pullRequest);
                     filesChangedcollapsibleSectionPanel.setLabel(Bundle.GitHubIssuePanel_files_changed_count(pullRequestsFiles.size()));
 
