@@ -484,7 +484,7 @@ public class GitHubRepository {
     public List<GitHubIssue> getIssues(Map<String, String> filter, boolean isRefresh) {
         Repository repository = getRepository();
         if (repository == null) {
-            return null;
+            return Collections.emptyList();
         }
         try {
             GitHubClient client = createGitHubClient();
