@@ -110,9 +110,9 @@ public class GitHubRepository {
 
     // caches
     // @GaurdedBy("this")
-    private final Map<String, GitHubIssue> issueCache = Collections.synchronizedMap(new HashMap<String, GitHubIssue>());
+    private final Map<String, GitHubIssue> issueCache = Collections.synchronizedMap(new HashMap<>());
     // @GaurdedBy("this")
-    private final Map<String, PullRequest> pullRequestCache = Collections.synchronizedMap(new HashMap<String, PullRequest>());
+    private final Map<String, PullRequest> pullRequestCache = Collections.synchronizedMap(new HashMap<>());
 
     private Boolean isCollaborator = null;
 

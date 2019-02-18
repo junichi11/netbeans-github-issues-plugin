@@ -61,7 +61,7 @@ public class CommentsPanel extends javax.swing.JPanel implements PropertyChangeL
 
     private static final long serialVersionUID = 3131157719093603387L;
 
-    private final List<CommentPanel> commentPanels = Collections.synchronizedList(new ArrayList<CommentPanel>());
+    private final List<CommentPanel> commentPanels = Collections.synchronizedList(new ArrayList<>());
     private CommentPanel quoteCommentPanel;
     private CommentPanel deletedCommentPanel;
     private CommentPanel editedCommentPanel;

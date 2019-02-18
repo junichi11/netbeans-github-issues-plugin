@@ -82,7 +82,7 @@ public final class GitHubCache {
     // @GuardedBy("this")
     private List<User> collaborators;
     // @GuardedBy("this")
-    private final Map<String, List<Milestone>> milestoneMap = Collections.synchronizedMap(new HashMap<String, List<Milestone>>());
+    private final Map<String, List<Milestone>> milestoneMap = Collections.synchronizedMap(new HashMap<>());
     // @GuardedBy("this")
     private List<Label> labels;
     // @GuardedBy("this")
