@@ -80,6 +80,10 @@ You can get a your OAuth token from the following: Settings > Applications > Per
 - [egit-github](https://github.com/eclipse/egit-github)
 - [octicons](https://octicons.github.com/)
 
+## Donation
+
+<a href="https://www.patreon.com/junichi11"><img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" height="50"></a>
+
 ## License
 
 [Common Development and Distribution License (CDDL) v1.0 and GNU General Public License (GPL) v2](http://netbeans.org/cddl-gplv2.html)
