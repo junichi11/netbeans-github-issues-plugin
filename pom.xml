@@ -190,7 +190,7 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <netbeans.api.version>RELEASE82</netbeans.api.version>
+        <netbeans.api.version>RELEASE110</netbeans.api.version>
     </properties>
     <name>GitHub Issues</name>
     <description>This plugin provides support for GitHub Issue Tracker.
