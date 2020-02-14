@@ -65,7 +65,7 @@ oauth=*****************************
 
 ## GitHub OAuth Token
 
-You can get a your OAuth token from the following: Settings > Applications > Personal access tokens > Generate new token
+You can get a your OAuth token from the following: Settings > Developer settings > Personal access tokens > Generate new token
 
 - Check `repo`
 - Input token description
