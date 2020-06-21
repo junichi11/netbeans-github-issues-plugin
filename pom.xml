@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.junichi11.netbeans.modules</groupId>
     <artifactId>netbeans-github-issues</artifactId>
-    <version>0.5.1</version>
+    <version>0.6.0</version>
     <packaging>nbm</packaging>
     <name>GitHub Issues Support</name>
     <url>https://github.com/junichi11/netbeans-github-issues-plugin</url>
